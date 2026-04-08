@@ -7,7 +7,7 @@ const footerLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-const specialistLinks = [
+const keyServiceLinks = [
   { href: "/nextjs-developer-uk", label: "Next.js Developer UK" },
   {
     href: "/web-application-development-uk",
@@ -21,25 +21,31 @@ const specialistLinks = [
     href: "/technical-delivery-consultant",
     label: "Technical Delivery Consultant",
   },
-  { href: "/unity-developer-uk", label: "Unity Developer UK" },
+] as const;
+
+const localServiceLinks = [
   {
-    href: "/startup-full-stack-developer",
-    label: "Full-Stack Developer for Startups",
+    href: "/web-developer-staffordshire",
+    label: "Web Developer Staffordshire",
   },
   {
-    href: "/improve-existing-website",
-    label: "Improve Existing Website",
+    href: "/web-designer-stafford",
+    label: "Web Designer Stafford",
   },
   {
-    href: "/freelance-developer-for-agencies",
-    label: "Freelance Developer for Agencies",
+    href: "/web-designer-stoke-on-trent",
+    label: "Web Designer Stoke-on-Trent",
   },
-];
+  {
+    href: "/web-designer-cannock",
+    label: "Web Designer Cannock",
+  },
+] as const;
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
-      <div className="mx-auto grid w-full max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[1.4fr_1fr] lg:px-8">
+      <div className="mx-auto grid w-full max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[1.2fr_1.8fr] lg:px-8">
         <div className="space-y-4">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Dean Lennard
@@ -53,7 +59,7 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <div className="grid gap-8 sm:grid-cols-2">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-3">
             <p className="text-sm font-semibold text-stone-100">Core Pages</p>
             {footerLinks.map((link) => (
@@ -67,10 +73,22 @@ export function SiteFooter() {
             ))}
           </div>
           <div className="grid gap-3">
+            <p className="text-sm font-semibold text-stone-100">Key Services</p>
+            {keyServiceLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-stone-300 transition hover:text-stone-50"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className="grid gap-3">
             <p className="text-sm font-semibold text-stone-100">
-              Specialist Pages
+              Local Services
             </p>
-            {specialistLinks.map((link) => (
+            {localServiceLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -270,21 +270,26 @@ export default function TechnicalSeoServicesUkPage() {
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
             If your website isn&apos;t performing as it should, I can help
-            identify the issues and implement the fixes.
+            identify the issues, implement the fixes, and discuss the right
+            next steps with you.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            Most projects start with a short call to understand your
+            requirements and outline next steps.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/contact"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
+              Book a Call
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
               Discuss Your Website
             </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-              >
-                Contact Dean Lennard
-              </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
             <Link

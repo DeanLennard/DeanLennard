@@ -40,15 +40,17 @@ export default function ProjectsPage() {
                 <h2 className="text-3xl font-semibold tracking-tight text-stone-50">
                   {project.title}
                 </h2>
-                <div>
-                  <ExternalLink
-                    href={project.projectUrl}
-                    ariaLabel={`${project.projectLinkLabel} for ${project.title}`}
-                    className="inline-flex items-center justify-center rounded-md border border-amber-500/40 bg-amber-600/10 px-4 py-2 text-sm font-semibold text-amber-300 transition hover:bg-amber-600 hover:text-stone-950"
-                  >
-                    {project.projectLinkLabel}
-                  </ExternalLink>
-                </div>
+                {project.projectUrl && project.projectLinkLabel ? (
+                  <div>
+                    <ExternalLink
+                      href={project.projectUrl}
+                      ariaLabel={`${project.projectLinkLabel} for ${project.title}`}
+                      className="inline-flex items-center justify-center rounded-md border border-amber-500/40 bg-amber-600/10 px-4 py-2 text-sm font-semibold text-amber-300 transition hover:bg-amber-600 hover:text-stone-950"
+                    >
+                      {project.projectLinkLabel}
+                    </ExternalLink>
+                  </div>
+                ) : null}
                 <div className="flex flex-col gap-2 text-sm text-stone-300">
                   {project.title === "Outbreak Interactive" && (
                     <Link
@@ -80,6 +82,30 @@ export default function ProjectsPage() {
                       className="underline decoration-amber-500/60 underline-offset-4"
                     >
                       Related: Web application development UK
+                    </Link>
+                  )}
+                  {project.title === "Crested Schoolwear" && (
+                    <Link
+                      href="/web-application-development-uk"
+                      className="underline decoration-amber-500/60 underline-offset-4"
+                    >
+                      Related: Web application development UK
+                    </Link>
+                  )}
+                  {project.title === "Crested Schoolwear" && (
+                    <Link
+                      href="/improve-existing-website"
+                      className="underline decoration-amber-500/60 underline-offset-4"
+                    >
+                      Related: Improve your existing website
+                    </Link>
+                  )}
+                  {project.title === "Department for Work & Pensions" && (
+                    <Link
+                      href="/technical-delivery-consultant"
+                      className="underline decoration-amber-500/60 underline-offset-4"
+                    >
+                      Related: Technical delivery consultant
                     </Link>
                   )}
                   {project.title === "Virgin Media O2" && (
@@ -206,6 +232,11 @@ export default function ProjectsPage() {
           Looking for a freelance full-stack developer to deliver a web application, platform, or technical project end-to-end?
         </h2>
         <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+          Let&apos;s discuss your project and next steps. Most projects start
+          with a short call to understand your requirements and outline next
+          steps.
+        </p>
+        <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
           I&apos;m available for freelance, contract, and consulting work across{" "}
           <Link href="/services" className="text-stone-50 underline decoration-amber-500/60 underline-offset-4">
             full-stack development services
@@ -220,10 +251,16 @@ export default function ProjectsPage() {
           </Link>
           .
         </p>
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           <Link
             href="/contact"
             className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+          >
+            Book a Call
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
           >
             Discuss Your Project
           </Link>

@@ -28,7 +28,7 @@ export default function ContactPage() {
           <SectionHeading
             eyebrow="Contact"
             title="Let&apos;s Discuss Your Project"
-            description="If you&apos;re looking for a freelance full-stack developer in the UK who can build, manage, and deliver your project end-to-end, I&apos;d be happy to help."
+            description="If you&apos;re looking for a freelance full-stack developer in the UK who can build, manage, and deliver your project end-to-end, let&apos;s discuss your project and next steps."
           />
           <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8">
             <p className="text-base leading-8 text-stone-200">
@@ -49,6 +49,10 @@ export default function ContactPage() {
               <p className="mt-4 text-sm leading-7 text-stone-300">
                 Tell me a bit about your project, goals, and timeline, and
                 I&apos;ll come back with a clear, practical next step.
+              </p>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                Most projects start with a short call to understand your
+                requirements and outline next steps.
               </p>
             </div>
           </div>
@@ -140,6 +144,10 @@ export default function ContactPage() {
             <p className="mt-3 text-sm leading-7 text-stone-300">
               The fastest way to get started is to book a 30-minute project
               consultation.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-stone-300">
+              Most projects start with a short call to understand your
+              requirements and outline next steps.
             </p>
             <p className="mt-3 text-sm leading-7 text-stone-300">
               This is a focused discussion on your project, goals, and next

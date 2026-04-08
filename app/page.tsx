@@ -337,18 +337,23 @@ export default function Home() {
           <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-stone-50">
             Have a project in mind or need reliable technical support?
           </h2>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
+            Let&apos;s discuss your project and next steps. Most projects start
+            with a short call to understand your requirements and outline next
+            steps.
+          </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/contact"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
-              Contact Dean Lennard
+              Book a Call
             </Link>
             <Link
-              href="/services"
+              href="/contact"
               className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
             >
-              Explore Services
+              Discuss Your Project
             </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">

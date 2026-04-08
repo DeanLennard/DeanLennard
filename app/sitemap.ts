@@ -49,6 +49,26 @@ const routes = [
     priority: 0.8,
     changeFrequency: "monthly" as const,
   },
+  {
+    path: "/web-developer-staffordshire",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/web-designer-stafford",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/web-designer-stoke-on-trent",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/web-designer-cannock",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

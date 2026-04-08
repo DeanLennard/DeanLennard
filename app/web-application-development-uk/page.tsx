@@ -241,22 +241,26 @@ export default function WebApplicationDevelopmentUkPage() {
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
             If you&apos;re looking for a web application developer in the UK who
-            can design, build, and deliver your platform end-to-end, I&apos;d
-            be happy to help.
+            can design, build, and deliver your platform end-to-end, let&apos;s
+            discuss your project and next steps.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            Most projects start with a short call to understand your
+            requirements and outline next steps.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/contact"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
+              Book a Call
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
               Discuss Your Project
             </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-              >
-                Contact Dean Lennard
-              </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
             <Link

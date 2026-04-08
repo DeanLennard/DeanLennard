@@ -69,6 +69,28 @@ export const featuredProjects = [
     ],
   },
   {
+    title: "Crested Schoolwear",
+    category: "Ecommerce Website Development",
+    summary:
+      "An ecommerce platform for school uniforms and branded clothing, designed to support product browsing, purchasing, and ongoing business operations through a reliable, easy-to-use online store.",
+    outcomes: [
+      "Delivered a fully functional ecommerce platform for schoolwear sales",
+      "Improved customer access to browse and purchase products online",
+      "Created a scalable system supporting ongoing business operations",
+    ],
+  },
+  {
+    title: "Department for Work & Pensions",
+    category: "Platform Transformation & Delivery Leadership",
+    summary:
+      "Senior delivery leadership across the DWP Health Assessments Service platform, improving stability, governance, delivery coordination, and platform scalability in a high-sensitivity public sector environment.",
+    outcomes: [
+      "Improved platform stability and reliability across the HAS estate",
+      "Increased delivery visibility and coordination across multiple programmes",
+      "Strengthened governance, compliance, and risk management processes",
+    ],
+  },
+  {
     title: "Arcbound",
     category: "Game Design & Development",
     summary:
@@ -132,6 +154,140 @@ export const projectCaseStudies = [
       "What made this project successful was the combination of public-facing marketing delivery and internal business tooling in a single, coherent platform.",
   },
   {
+    title: "Crested Schoolwear",
+    category: "Ecommerce Website Development - Schoolwear Platform",
+    imageLabel: "Crested Schoolwear ecommerce platform",
+    imageSrc: "/crested-schoolwear.png",
+    overview:
+      "Crested Schoolwear is an ecommerce platform designed to sell school uniforms and branded clothing directly to customers. The goal was to create a reliable, easy-to-use online store that could support product browsing, purchasing, and ongoing business operations.",
+    challenge:
+      "The business required a structured ecommerce platform for selling multiple product types, a simple and intuitive user experience for parents and customers, reliable performance during peak seasonal demand, and a scalable system that could support ongoing product updates and growth.",
+    solution:
+      "I designed and built a full ecommerce website focused on usability, performance, and maintainability. This included a structured product catalogue and navigation, a streamlined purchasing and checkout experience, responsive design for mobile and desktop users, a performance-focused build to support peak traffic periods, and a scalable setup to allow ongoing updates and product additions.",
+    technologies: [
+      "WordPress / WooCommerce",
+      "PHP",
+      "Frontend UI development",
+      "Hosting and deployment",
+    ],
+    deliveryApproach: [
+      "Planned the platform around real-world customer usage",
+      "Prioritised usability and simplicity for non-technical users",
+      "Delivered a stable and maintainable ecommerce system",
+      "Ensured the platform could scale with business growth",
+    ],
+    outcomes: [
+      "Delivered a fully functional ecommerce platform for schoolwear sales",
+      "Improved accessibility for customers to browse and purchase products online",
+      "Created a scalable system supporting ongoing business operations",
+      "Enabled the business to manage products and updates efficiently",
+    ],
+    takeaway:
+      "What made this project successful was focusing on practical usability and reliability, delivering an ecommerce platform that supports real customer behaviour and ongoing business needs.",
+  },
+  {
+    title: "Virgin Media O2",
+    category: "Technical Delivery & Programme Management - Telecoms Platform",
+    imageLabel: "Virgin Media O2 delivery programme",
+    imageSrc: "/virgin-media-o2.jpg",
+    projectUrl: "https://www.virginmedia.com",
+    projectLinkLabel: "Visit Website",
+    overview:
+      "A large-scale technical delivery programme involving platform migration, web application redesign, and multi-team coordination across a complex telecoms environment.",
+    challenge:
+      "The programme combined complex migration work, multiple product integrations, budget governance, and coordination across more than 15 cross-functional teams. It also required operational stability, compliance, and clearer delivery structure across disciplines.",
+    solution:
+      "I led a GBP 6M+ cost-saving technical delivery programme over 12 months, redesigned and rebuilt a sales web application aligned to End State Architecture, unified cross-functional teams around shared delivery goals, and established governance and change management processes to keep platform engineering and execution controlled and compliant.",
+    technologies: [
+      "Programme Delivery",
+      "Next.js",
+      "Node.js",
+      "QA Automation",
+      "Governance",
+    ],
+    deliveryApproach: [
+      "Led planning, governance, and cross-team coordination across 15+ functions",
+      "Provided leadership across delivery, product, frontend, backend, and QA disciplines",
+      "Managed reporting, coaching, KPIs, 1:1s, and performance reviews across 35 engineering reports",
+    ],
+    outcomes: [
+      "Reduced downtime by 40% and increased platform stability by 35%",
+      "Drove a 25% increase in customer engagement through integrated product delivery",
+      "Improved sales process efficiency by 30% and kept a GBP 18m programme budget within 5% variance",
+    ],
+    takeaway:
+      "What made this project successful was disciplined programme leadership across delivery, governance, engineering management, and business alignment at enterprise scale.",
+  },
+  {
+    title: "Department for Work & Pensions",
+    category: "Senior Delivery Manager - Platform & Transformation",
+    imageLabel: "Department for Work & Pensions platform transformation",
+    imageSrc: "/Department-of-Work-and-Pensions.png",
+    projectUrl: "https://www.gov.uk/government/organisations/department-for-work-pensions",
+    projectLinkLabel: "Visit Organisation",
+    overview:
+      "The Department for Work & Pensions (DWP) Health Assessments Service (HAS) programme focuses on transforming a critical national platform supporting health-related benefit assessments. I am accountable for delivery across the platform service that underpins the entire HAS estate, ensuring stability, scalability, and alignment with regulatory and departmental requirements.",
+    challenge:
+      "The programme involved a complex platform environment with multiple interdependent systems and services, strict public-sector compliance and data protection requirements, the need for improved platform stability and scalability, coordination across multiple teams and programmes, and increasing delivery demands within a high-sensitivity domain. Ensuring reliable delivery while managing risk and maintaining service continuity was critical.",
+    solution:
+      "I led the delivery of platform transformation and service improvements by defining and owning the platform delivery strategy, roadmap, and success metrics, leading a multidisciplinary team across engineering, QA, product, and design, coordinating cross-programme dependencies to improve delivery flow, implementing governance, risk management, and change control processes, facilitating structured planning through quarterly PI planning sessions, and driving continuous improvement through team-level and organisational delivery practices.",
+    technologies: [
+      "Agile Delivery / Scrum",
+      "Platform Services",
+      "Governance & Compliance",
+      "QA & Engineering Coordination",
+      "Programme Delivery",
+    ],
+    deliveryApproach: [
+      "Established structured delivery governance aligned to public sector standards",
+      "Led cross-functional collaboration across platform and dependent services",
+      "Aligned delivery outcomes with regulatory and departmental priorities",
+      "Implemented continuous improvement practices to increase transparency and flow",
+    ],
+    outcomes: [
+      "Improved platform stability and reliability across the HAS estate",
+      "Increased delivery visibility and coordination across multiple programmes",
+      "Strengthened governance, compliance, and risk management processes",
+      "Enabled scalable platform delivery aligned with national service requirements",
+    ],
+    takeaway:
+      "What made this project successful was combining structured delivery leadership with platform-level accountability, ensuring that a complex, high-sensitivity system could evolve while remaining stable, compliant, and aligned with broader organisational goals.",
+  },
+  {
+    title: "Barclays Bank",
+    category: "Enterprise Agile Transformation & Delivery Leadership",
+    imageLabel: "Barclays transformation programme",
+    imageSrc: "/barclays-bank.jpg",
+    projectUrl: "https://www.barclays.co.uk",
+    projectLinkLabel: "Visit Website",
+    overview:
+      "An enterprise transformation and technical delivery initiative focused on improving web and mobile application development, delivery performance, and organisational alignment.",
+    challenge:
+      "The work spanned organisational transformation, executive alignment, product consistency, delivery performance, and management across large multidisciplinary teams. Success depended on changing delivery culture while also improving practical output and governance.",
+    solution:
+      "I designed and executed an enterprise-wide Agile transformation, embedded continuous improvement practices across a large employee base, led a blueprint UX/UI initiative covering more than 40 digital products, and managed multiple development teams delivering applications across web, iOS, and Android.",
+    technologies: [
+      "Agile Delivery",
+      "Angular",
+      "Next.js",
+      "Swift",
+      "Kotlin",
+      "QA Automation",
+    ],
+    deliveryApproach: [
+      "Aligned transformation initiatives with executive strategy and organisational objectives",
+      "Led three development teams while managing cross-discipline reporting and performance",
+      "Established structured coaching, delivery oversight, and continuous improvement practices",
+    ],
+    outcomes: [
+      "Improved team performance by 40% and delivered GBP 12M in financial savings",
+      "Drove 25% productivity gains and reduced defects by 35%",
+      "Achieved a 20% faster release cycle and over 90% adoption across teams",
+    ],
+    takeaway:
+      "What made this project successful was combining transformation leadership with practical delivery execution, ensuring strategic change translated into measurable results.",
+  },
+  {
     title: "Arcbound",
     category: "Unity Game Development Project - Cross-Platform Simulation",
     imageLabel: "Arcbound gameplay",
@@ -184,73 +340,6 @@ export const projectCaseStudies = [
     ],
     takeaway:
       "What made this project successful was extending the product beyond the game itself and creating a dedicated platform for community interaction.",
-  },
-  {
-    title: "Virgin Media O2",
-    category: "Technical Delivery & Programme Management - Telecoms Platform",
-    imageLabel: "Virgin Media O2 delivery programme",
-    imageSrc: "/virgin-media-o2.jpg",
-    projectUrl: "https://www.virginmedia.com",
-    projectLinkLabel: "Visit Website",
-    overview:
-      "A large-scale technical delivery programme involving platform migration, web application redesign, and multi-team coordination across a complex telecoms environment.",
-    challenge:
-      "The programme combined complex migration work, multiple product integrations, budget governance, and coordination across more than 15 cross-functional teams. It also required operational stability, compliance, and clearer delivery structure across disciplines.",
-    solution:
-      "I led a GBP 6M+ cost-saving technical delivery programme over 12 months, redesigned and rebuilt a sales web application aligned to End State Architecture, unified cross-functional teams around shared delivery goals, and established governance and change management processes to keep platform engineering and execution controlled and compliant.",
-    technologies: [
-      "Programme Delivery",
-      "Next.js",
-      "Node.js",
-      "QA Automation",
-      "Governance",
-    ],
-    deliveryApproach: [
-      "Led planning, governance, and cross-team coordination across 15+ functions",
-      "Provided leadership across delivery, product, frontend, backend, and QA disciplines",
-      "Managed reporting, coaching, KPIs, 1:1s, and performance reviews across 35 engineering reports",
-    ],
-    outcomes: [
-      "Reduced downtime by 40% and increased platform stability by 35%",
-      "Drove a 25% increase in customer engagement through integrated product delivery",
-      "Improved sales process efficiency by 30% and kept a GBP 18m programme budget within 5% variance",
-    ],
-    takeaway:
-      "What made this project successful was disciplined programme leadership across delivery, governance, engineering management, and business alignment at enterprise scale.",
-  },
-  {
-    title: "Barclays Bank",
-    category: "Enterprise Agile Transformation & Delivery Leadership",
-    imageLabel: "Barclays transformation programme",
-    imageSrc: "/barclays-bank.jpg",
-    projectUrl: "https://www.barclays.co.uk",
-    projectLinkLabel: "Visit Website",
-    overview:
-      "An enterprise transformation and technical delivery initiative focused on improving web and mobile application development, delivery performance, and organisational alignment.",
-    challenge:
-      "The work spanned organisational transformation, executive alignment, product consistency, delivery performance, and management across large multidisciplinary teams. Success depended on changing delivery culture while also improving practical output and governance.",
-    solution:
-      "I designed and executed an enterprise-wide Agile transformation, embedded continuous improvement practices across a large employee base, led a blueprint UX/UI initiative covering more than 40 digital products, and managed multiple development teams delivering applications across web, iOS, and Android.",
-    technologies: [
-      "Agile Delivery",
-      "Angular",
-      "Next.js",
-      "Swift",
-      "Kotlin",
-      "QA Automation",
-    ],
-    deliveryApproach: [
-      "Aligned transformation initiatives with executive strategy and organisational objectives",
-      "Led three development teams while managing cross-discipline reporting and performance",
-      "Established structured coaching, delivery oversight, and continuous improvement practices",
-    ],
-    outcomes: [
-      "Improved team performance by 40% and delivered GBP 12M in financial savings",
-      "Drove 25% productivity gains and reduced defects by 35%",
-      "Achieved a 20% faster release cycle and over 90% adoption across teams",
-    ],
-    takeaway:
-      "What made this project successful was combining transformation leadership with practical delivery execution, ensuring strategic change translated into measurable results.",
   },
 ] as const;
 
