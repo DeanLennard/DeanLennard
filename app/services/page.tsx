@@ -149,7 +149,9 @@ export default function ServicesPage() {
           >
             <div className="grid gap-8 lg:grid-cols-[0.65fr_1.35fr]">
               <div className="space-y-4">
-                <p className="text-sm text-stone-500">{service.number}</p>
+                <p className="text-sm font-medium text-stone-300">
+                  {service.number}
+                </p>
                 <h2 className="text-3xl font-semibold tracking-tight text-stone-50">
                   {service.title}
                 </h2>

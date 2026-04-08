@@ -64,7 +64,7 @@ export default function Home() {
                 <p className="text-2xl font-semibold text-stone-50">
                   {stat.value}
                 </p>
-                <p className="mt-2 text-sm text-stone-400">{stat.label}</p>
+                <p className="mt-2 text-sm text-stone-300">{stat.label}</p>
               </div>
             ))}
             <div className="rounded-md border border-amber-500/25 bg-[color:var(--color-accent-soft)] p-6 sm:col-span-2">
@@ -127,12 +127,14 @@ export default function Home() {
                 <p className="text-lg font-semibold text-stone-50">
                   {pillar.title}
                 </p>
-                <span className="text-sm text-stone-500">0{index + 1}</span>
+                <span className="text-sm font-medium text-stone-300">
+                  0{index + 1}
+                </span>
               </div>
               <p className="mt-4 text-sm leading-7 text-stone-300">
                 {pillar.description}
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-stone-400">
+              <ul className="mt-6 space-y-3 text-sm text-stone-300">
                 {pillar.bullets.map((bullet) => (
                   <li key={bullet} className="flex gap-3">
                     <span className="mt-1 h-2 w-2 rounded-full bg-amber-500" />
@@ -233,7 +235,7 @@ export default function Home() {
                 <p className="mt-4 text-sm leading-7 text-stone-300">
                   {project.summary}
                 </p>
-                <ul className="mt-6 space-y-3 text-sm text-stone-400">
+                <ul className="mt-6 space-y-3 text-sm text-stone-300">
                   {project.outcomes.map((outcome) => (
                     <li key={outcome}>{outcome}</li>
                   ))}

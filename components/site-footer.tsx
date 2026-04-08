@@ -47,7 +47,7 @@ export function SiteFooter() {
           <h2 className="max-w-2xl text-2xl font-semibold text-stone-50">
             Full-Stack Developer & Technical Delivery Specialist
           </h2>
-          <p className="max-w-2xl text-sm leading-7 text-stone-400">
+          <p className="max-w-2xl text-sm leading-7 text-stone-300">
             Architecture, application development, deployment, and delivery
             leadership in one reliable partner.
           </p>
