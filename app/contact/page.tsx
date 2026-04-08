@@ -54,6 +54,10 @@ export default function ContactPage() {
                 Most projects start with a short call to understand your
                 requirements and outline next steps.
               </p>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                Happy to discuss projects at any stage, even if you&apos;re
+                still figuring things out.
+              </p>
             </div>
           </div>
 
@@ -68,7 +72,7 @@ export default function ContactPage() {
               {[
                 "Open to freelance, contract, and consulting work",
                 "Typically respond within 24 hours",
-                "Happy to discuss projects at any stage, even early ideas",
+                "Happy to discuss projects at any stage, even if you're still figuring things out",
                 "Clear, practical communication with a focus on delivery",
               ].map((item) => (
                 <li key={item} className="flex gap-4">
@@ -148,6 +152,10 @@ export default function ContactPage() {
             <p className="mt-3 text-sm leading-7 text-stone-300">
               Most projects start with a short call to understand your
               requirements and outline next steps.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-stone-300">
+              There&apos;s no obligation, just a practical conversation about
+              what you need.
             </p>
             <p className="mt-3 text-sm leading-7 text-stone-300">
               This is a focused discussion on your project, goals, and next

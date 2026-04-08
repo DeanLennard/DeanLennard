@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <main>
       <section className="hero-grid">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-28">
+        <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-16">
           <div className="space-y-8">
             <div className="inline-flex items-center rounded-md border border-amber-500/30 bg-amber-600/10 px-4 py-2 text-sm font-medium text-amber-300">
               Full-Stack Developer UK & Technical Delivery Specialist
@@ -44,14 +44,25 @@ export default function Home() {
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
-                Discuss Your Project
+                Book a Call
               </Link>
               <Link
-                href="/projects"
+                href="/contact"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View Project Case Studies
+                Discuss Your Project
               </Link>
+            </div>
+            <div className="space-y-3 text-sm leading-7 text-stone-300">
+              <p>
+                Happy to discuss projects at any stage, even if you&apos;re
+                still figuring things out.
+              </p>
+              <p>
+                Most projects start with a short call to understand your
+                requirements and outline next steps.
+              </p>
+              <p>There&apos;s no obligation, just a practical conversation about what you need.</p>
             </div>
           </div>
 
@@ -81,7 +92,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
         <SectionHeading
           eyebrow="Introduction"
           title="Successful outcomes need more than implementation alone."
@@ -111,7 +122,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
         <SectionHeading
           eyebrow="Services Overview"
           title="Full-Stack Development, Technical SEO & Delivery Services"
@@ -214,7 +225,37 @@ export default function Home() {
       </section>
 
       <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
-        <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
+          <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8 lg:p-10">
+            <SectionHeading
+              eyebrow="Website Review"
+              title="Website Performance & Technical Review"
+              description="If you already have a website or platform, I can provide a focused review covering performance, technical SEO, structure, usability, and potential improvements."
+            />
+            <p className="mt-6 max-w-4xl text-base leading-8 text-stone-300">
+              You&apos;ll get a clear, practical summary of what&apos;s working
+              and what isn&apos;t, along with suggested next steps.
+            </p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+              >
+                Request a Review
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              >
+                Book a Call
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
+        <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
           <SectionHeading
             eyebrow="Featured Projects"
             title="Full-Stack Development & Technical Delivery Projects"
@@ -280,7 +321,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-16 px-6 py-20 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <section className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-12">
         <div className="space-y-6">
           <SectionHeading
             eyebrow="Key Differentiator"
@@ -306,7 +347,7 @@ export default function Home() {
       </section>
 
       <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
-        <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
           <SectionHeading
             eyebrow="Tech Stack"
             title="Modern tooling backed by broad platform experience."
@@ -332,7 +373,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
         <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-10">
           <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-stone-50">
             Have a project in mind or need reliable technical support?
@@ -341,6 +382,10 @@ export default function Home() {
             Let&apos;s discuss your project and next steps. Most projects start
             with a short call to understand your requirements and outline next
             steps.
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
+            There&apos;s no obligation, just a practical conversation about what
+            you need.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -368,6 +413,33 @@ export default function Home() {
               className="underline decoration-amber-500/60 underline-offset-4"
             >
               Freelance developer for agencies
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 pb-10 lg:px-8 lg:pb-12">
+        <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Not Sure Where to Start?
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            If you&apos;re unsure what you need or whether your current setup is
+            working, I can help.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            Most projects start with a short call to understand your
+            requirements and outline next steps.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            There&apos;s no obligation, just a practical conversation.
+          </p>
+          <div className="mt-8">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+            >
+              Book a Call
             </Link>
           </div>
         </div>

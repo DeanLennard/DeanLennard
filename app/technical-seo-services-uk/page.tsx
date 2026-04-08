@@ -89,14 +89,25 @@ export default function TechnicalSeoServicesUkPage() {
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
-                Discuss Your Website
+                Book a Call
               </Link>
               <Link
-                href="/projects"
+                href="/contact"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View SEO-Focused Projects
+                Discuss Your Website
               </Link>
+            </div>
+            <div className="space-y-3 text-sm leading-7 text-stone-300">
+              <p>
+                Happy to discuss projects at any stage, even if you&apos;re
+                still figuring things out.
+              </p>
+              <p>
+                Most projects start with a short call to understand your
+                requirements and outline next steps.
+              </p>
+              <p>There&apos;s no obligation, just a practical conversation about what you need.</p>
             </div>
           </div>
 
@@ -246,6 +257,34 @@ export default function TechnicalSeoServicesUkPage() {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+        <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8 lg:p-10">
+          <SectionHeading
+            eyebrow="Website Review"
+            title="Website Performance & Technical Review"
+            description="If you already have a website or platform, I can provide a focused review covering performance and speed, technical SEO issues, structure and usability, and potential improvements."
+          />
+          <p className="mt-6 max-w-4xl text-base leading-8 text-stone-300">
+            You&apos;ll get a clear, practical summary of what&apos;s working
+            and what isn&apos;t, along with suggested next steps.
+          </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+            >
+              Request a Review
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              Book a Call
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
         <SectionHeading
           eyebrow="Results / Impact"
           title="What You Can Expect"
@@ -276,6 +315,10 @@ export default function TechnicalSeoServicesUkPage() {
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
             Most projects start with a short call to understand your
             requirements and outline next steps.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            There&apos;s no obligation, just a practical conversation about what
+            you need.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link

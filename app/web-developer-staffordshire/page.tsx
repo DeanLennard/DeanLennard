@@ -264,6 +264,10 @@ export default function WebDeveloperStaffordshirePage() {
             Most projects start with a short call to understand your
             requirements and outline next steps.
           </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            If you&apos;re unsure what you need yet, I can help you work
+            through the options.
+          </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/contact"
