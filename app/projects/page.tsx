@@ -6,6 +6,16 @@ import { ExternalLink } from "@/components/external-link";
 import { SectionHeading } from "@/components/section-heading";
 import { projectCaseStudies } from "@/data/site";
 
+const projectAnchors: Record<string, string> = {
+  "Outbreak Interactive": "outbreak-interactive",
+  "Crested Schoolwear": "crested-schoolwear",
+  "Virgin Media O2": "virgin-media-o2",
+  "Department for Work & Pensions": "department-for-work-and-pensions",
+  "Barclays Bank": "barclays-bank",
+  Arcbound: "arcbound",
+  "Arcbound Community": "arcbound-community",
+};
+
 export const metadata: Metadata = {
   title: "Full-Stack Developer Portfolio UK | Web Development Case Studies",
   description:
@@ -30,7 +40,8 @@ export default function ProjectsPage() {
         {projectCaseStudies.map((project) => (
           <article
             key={project.title}
-            className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10"
+            id={projectAnchors[project.title]}
+            className="scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10"
           >
             <div className="grid gap-8 xl:grid-cols-[0.85fr_1.15fr]">
               <div className="space-y-6">

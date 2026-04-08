@@ -4,6 +4,15 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
 import { featuredProjects, servicePillars, stats, techGroups } from "@/data/site";
 
+const featuredProjectAnchors: Record<string, string> = {
+  "Outbreak Interactive": "outbreak-interactive",
+  "Crested Schoolwear": "crested-schoolwear",
+  "Department for Work & Pensions": "department-for-work-and-pensions",
+  Arcbound: "arcbound",
+  "Arcbound Community": "arcbound-community",
+  "Virgin Media O2": "virgin-media-o2",
+};
+
 export const metadata: Metadata = {
   title: "Full-Stack Developer UK | Next.js & Technical Delivery Specialist",
   description:
@@ -22,7 +31,7 @@ export default function Home() {
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-16">
           <div className="space-y-8">
             <div className="inline-flex items-center rounded-md border border-amber-500/30 bg-amber-600/10 px-4 py-2 text-sm font-medium text-amber-300">
-              Full-Stack Developer UK & Technical Delivery Specialist
+              Full-stack development, technical SEO, and delivery
             </div>
             <div className="space-y-6">
               <h1 className="max-w-4xl text-5xl font-semibold tracking-tight text-stone-50 sm:text-6xl">
@@ -62,7 +71,7 @@ export default function Home() {
                 Most projects start with a short call to understand your
                 requirements and outline next steps.
               </p>
-              <p>There&apos;s no obligation, just a practical conversation about what you need.</p>
+              <p>No obligation — just a practical conversation about what you need.</p>
             </div>
           </div>
 
@@ -126,7 +135,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="Services Overview"
           title="Full-Stack Development, Technical SEO & Delivery Services"
-          description="Specialist services across web development, SEO, infrastructure, and project delivery, designed for businesses that need both technical capability and reliable execution."
+          description="Full-stack development, technical SEO, infrastructure, and delivery services designed for businesses that need both technical capability and reliable execution."
         />
         <div className="mt-12 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           {servicePillars.map((pillar, index) => (
@@ -212,7 +221,7 @@ export default function Home() {
           <SectionHeading
             eyebrow="Featured Projects"
             title="Full-Stack Development & Technical Delivery Projects"
-            description="A selection of web development and delivery projects where I&apos;ve combined full-stack engineering with end-to-end ownership to produce measurable results."
+            description="A selection of projects combining full-stack development with end-to-end delivery, focused on real-world outcomes rather than implementation alone."
           />
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {featuredProjects.map((project) => (
@@ -224,7 +233,12 @@ export default function Home() {
                   {project.category}
                 </p>
                 <h3 className="mt-4 text-2xl font-semibold text-stone-50">
-                  {project.title}
+                  <Link
+                    href={`/projects#${featuredProjectAnchors[project.title] ?? "projects"}`}
+                    className="transition hover:text-amber-300"
+                  >
+                    {project.title}
+                  </Link>
                 </h3>
                 <p className="mt-4 text-sm leading-7 text-stone-300">
                   {project.summary}
@@ -320,13 +334,12 @@ export default function Home() {
             Have a project in mind or need reliable technical support?
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
-            Let&apos;s discuss your project and next steps. Most projects start
-            with a short call to understand your requirements and outline next
-            steps.
+            Let&apos;s discuss your project and the most practical way forward.
+            Most projects start with a short call to understand your
+            requirements and outline a clear approach.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
-            There&apos;s no obligation, just a practical conversation about what
-            you need.
+            No obligation — just a practical conversation about what you need.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link

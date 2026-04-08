@@ -43,12 +43,14 @@ export default function ContactPage() {
               can support you at any stage.
             </p>
             <div
-              id="project-enquiry"
               className="mt-8 scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6"
             >
-              <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
-                Start a Conversation
-              </p>
+              <h2
+                id="project-enquiry"
+                className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase"
+              >
+                Project Enquiry
+              </h2>
               <p className="mt-4 text-sm leading-7 text-stone-300">
                 Tell me a bit about your project, goals, and timeline, and
                 I&apos;ll come back with a clear, practical next step.
@@ -142,7 +144,6 @@ export default function ContactPage() {
           </div>
 
           <section
-            id="book-call"
             className="scroll-mt-28 rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6"
             aria-labelledby="book-a-call-heading"
           >
@@ -153,7 +154,7 @@ export default function ContactPage() {
               Book a Call
             </h2>
             <p className="mt-3 text-sm leading-7 text-stone-300">
-              The fastest way to get started is to book a 30-minute project
+              The fastest way to get started is to book a short project
               consultation.
             </p>
             <p className="mt-3 text-sm leading-7 text-stone-300">
@@ -180,6 +181,7 @@ export default function ContactPage() {
               Open Booking Page
             </ExternalLink>
             <div
+              id="book-call"
               className="calendly-inline-widget mt-6 min-w-[320px]"
               data-url="https://calendly.com/psyberpixie77/30min"
               role="region"
