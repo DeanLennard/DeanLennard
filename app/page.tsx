@@ -71,7 +71,7 @@ export default function Home() {
                 Most projects start with a short call to understand your
                 requirements and outline next steps.
               </p>
-              <p>No obligation — just a practical conversation about what you need.</p>
+              <p>No obligation, just a practical conversation about what you need.</p>
             </div>
           </div>
 
@@ -196,7 +196,7 @@ export default function Home() {
               what isn&apos;t, and where improvements can be made.
             </p>
             <p className="mt-4 max-w-4xl text-sm leading-7 text-stone-300">
-              This is a quick, focused review — not a generic audit.
+              This is a quick, focused review, not a generic audit.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link
@@ -280,7 +280,7 @@ export default function Home() {
         <div className="space-y-6">
           <SectionHeading
             eyebrow="Key Differentiator"
-            title="Not Just a Developer — A Delivery Partner"
+            title="Not Just a Developer, A Delivery Partner"
             description="Most developers focus on implementation. I focus on outcomes."
           />
         </div>
@@ -339,7 +339,7 @@ export default function Home() {
             requirements and outline a clear approach.
           </p>
           <p className="mt-4 max-w-3xl text-base leading-8 text-stone-300">
-            No obligation — just a practical conversation about what you need.
+            No obligation, just a practical conversation about what you need.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
@@ -386,7 +386,7 @@ export default function Home() {
             requirements and outline next steps.
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
-            No obligation — just a practical conversation about your options.
+            No obligation, just a practical conversation about your options.
           </p>
           <div className="mt-8">
             <Link
