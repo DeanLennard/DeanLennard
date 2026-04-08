@@ -81,7 +81,7 @@ export default function NextJsDeveloperUkPage() {
                 href="/projects"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View My Work
+                View Next.js Case Studies
               </Link>
             </div>
           </div>
@@ -250,12 +250,12 @@ export default function NextJsDeveloperUkPage() {
             >
               Discuss Your Project
             </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-            >
-              Get in Touch
-            </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              >
+                Contact Dean Lennard
+              </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
             <Link

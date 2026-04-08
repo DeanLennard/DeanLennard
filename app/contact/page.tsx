@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 
+import { ExternalLink } from "@/components/external-link";
 import { SectionHeading } from "@/components/section-heading";
 
 export const metadata: Metadata = {
@@ -116,21 +117,26 @@ export default function ContactPage() {
                 If you&apos;d prefer to connect first, you can reach out on
                 LinkedIn.
               </p>
-              <a
+              <ExternalLink
                 href="https://www.linkedin.com/in/deanlennard/"
-                target="_blank"
-                rel="noopener noreferrer"
+                ariaLabel="Open Dean Lennard LinkedIn profile"
                 className="mt-5 inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 LinkedIn Profile
-              </a>
+              </ExternalLink>
             </div>
           </div>
 
-          <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6">
-            <p className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase">
+          <section
+            className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6"
+            aria-labelledby="book-a-call-heading"
+          >
+            <h2
+              id="book-a-call-heading"
+              className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase"
+            >
               Book a Call
-            </p>
+            </h2>
             <p className="mt-3 text-sm leading-7 text-stone-300">
               The fastest way to get started is to book a 30-minute project
               consultation.
@@ -139,12 +145,25 @@ export default function ContactPage() {
               This is a focused discussion on your project, goals, and next
               steps, not a generic intro call.
             </p>
+            <p className="mt-3 text-sm leading-7 text-stone-300">
+              If the embedded booking tool does not load, use the direct booking
+              link below.
+            </p>
+            <ExternalLink
+              href="https://calendly.com/psyberpixie77/30min"
+              ariaLabel="Open Calendly booking page for a 30-minute project consultation"
+              className="mt-5 inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+            >
+              Open Booking Page
+            </ExternalLink>
             <div
               className="calendly-inline-widget mt-6 min-w-[320px]"
               data-url="https://calendly.com/psyberpixie77/30min"
+              role="region"
+              aria-labelledby="book-a-call-heading"
               style={{ height: "700px" }}
             />
-          </div>
+          </section>
         </div>
       </section>
     </main>

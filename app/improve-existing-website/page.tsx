@@ -87,7 +87,7 @@ export default function ImproveExistingWebsitePage() {
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                Get in Touch
+                Contact Dean Lennard
               </Link>
             </div>
           </div>
@@ -227,12 +227,12 @@ export default function ImproveExistingWebsitePage() {
             description="I&apos;ve worked on improving and scaling web platforms by combining development, SEO, and delivery."
           />
           <div className="mt-8">
-            <Link
-              href="/projects"
-              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
-            >
-              View Relevant Projects
-            </Link>
+          <Link
+            href="/projects"
+            className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+          >
+            View Related Projects
+          </Link>
           </div>
         </div>
       </section>
@@ -257,7 +257,7 @@ export default function ImproveExistingWebsitePage() {
               href="/contact"
               className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
             >
-              Get in Touch
+              Contact Dean Lennard
             </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">

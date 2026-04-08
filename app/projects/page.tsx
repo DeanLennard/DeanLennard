@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ExternalLink } from "@/components/external-link";
 import { SectionHeading } from "@/components/section-heading";
 import { projectCaseStudies } from "@/data/site";
 
@@ -40,14 +41,13 @@ export default function ProjectsPage() {
                   {project.title}
                 </h2>
                 <div>
-                  <a
+                  <ExternalLink
                     href={project.projectUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    ariaLabel={`${project.projectLinkLabel} for ${project.title}`}
                     className="inline-flex items-center justify-center rounded-md border border-amber-500/40 bg-amber-600/10 px-4 py-2 text-sm font-semibold text-amber-300 transition hover:bg-amber-600 hover:text-stone-950"
                   >
                     {project.projectLinkLabel}
-                  </a>
+                  </ExternalLink>
                 </div>
                 <div className="flex flex-col gap-2 text-sm text-stone-300">
                   {project.title === "Outbreak Interactive" && (

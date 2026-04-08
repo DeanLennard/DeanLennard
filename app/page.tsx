@@ -50,7 +50,7 @@ export default function Home() {
                 href="/projects"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View My Work
+                View Project Case Studies
               </Link>
             </div>
           </div>
@@ -342,7 +342,7 @@ export default function Home() {
               href="/contact"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
-              Get in Touch
+              Contact Dean Lennard
             </Link>
             <Link
               href="/services"

@@ -93,7 +93,7 @@ export default function StartupFullStackDeveloperPage() {
                 href="/projects"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View My Work
+                View SaaS and Platform Projects
               </Link>
             </div>
           </div>
@@ -274,12 +274,12 @@ export default function StartupFullStackDeveloperPage() {
             >
               Discuss Your Product
             </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-            >
-              Get in Touch
-            </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              >
+                Contact Dean Lennard
+              </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
             <Link
