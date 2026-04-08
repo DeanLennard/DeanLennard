@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
 
+type ServiceNumber = "01" | "02" | "03" | "04" | "05";
+
 export const metadata: Metadata = {
   title: "Web Development Services UK | Full-Stack, SEO & Technical Delivery",
   description:
@@ -15,9 +17,17 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
+  const specialistPageByServiceNumber: Record<ServiceNumber, string> = {
+    "01": "/web-application-development-uk",
+    "02": "/technical-seo-services-uk",
+    "03": "/web-application-development-uk",
+    "04": "/unity-developer-uk",
+    "05": "/technical-delivery-consultant",
+  };
+
   const services = [
     {
-      number: "01",
+      number: "01" as const,
       title: "Full-Stack Web Design & Development Services",
       intro:
         "Modern full-stack development services designed for scalable, maintainable, and high-performing web applications.",
@@ -38,7 +48,7 @@ export default function ServicesPage() {
         "Scalable, high-performance web applications built to support business growth and long-term maintainability.",
     },
     {
-      number: "02",
+      number: "02" as const,
       title: "Technical SEO Services & Performance Optimisation",
       intro:
         "Technical SEO services designed to improve search visibility, site performance, and indexing.",
@@ -58,7 +68,7 @@ export default function ServicesPage() {
         "Improved rankings, faster load times, and stronger search performance.",
     },
     {
-      number: "03",
+      number: "03" as const,
       title: "Web Hosting, Deployment & Cloud Infrastructure Services",
       intro:
         "Deployment and infrastructure services that support secure, scalable, and reliable web applications.",
@@ -78,7 +88,7 @@ export default function ServicesPage() {
         "Stable, scalable infrastructure that supports performance and growth.",
     },
     {
-      number: "04",
+      number: "04" as const,
       title: "Unity Game Design & Development",
       intro:
         "Unity-based development for gameplay systems, prototypes, and interactive experiences.",
@@ -97,7 +107,7 @@ export default function ServicesPage() {
         "Playable, functional prototypes and systems built efficiently.",
     },
     {
-      number: "05",
+      number: "05" as const,
       title: "Technical Delivery, Project & Programme Management",
       intro:
         "Technical delivery services that ensure web development projects are completed successfully from concept to launch.",
@@ -180,15 +190,7 @@ export default function ServicesPage() {
             </div>
             <div className="mt-6">
               <Link
-                href={
-                  {
-                    "01": "/web-application-development-uk",
-                    "02": "/technical-seo-services-uk",
-                    "03": "/web-application-development-uk",
-                    "04": "/unity-developer-uk",
-                    "05": "/technical-delivery-consultant",
-                  }[service.number]
-                }
+                href={specialistPageByServiceNumber[service.number]}
                 className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
               >
                 View related specialist page
