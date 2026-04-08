@@ -1,3 +1,19 @@
+type ProjectCaseStudy = {
+  title: string;
+  category: string;
+  imageLabel: string;
+  imageSrc: string;
+  projectUrl?: string;
+  projectLinkLabel?: string;
+  overview: string;
+  challenge: string;
+  solution: string;
+  technologies: string[];
+  deliveryApproach: string[];
+  outcomes: string[];
+  takeaway: string;
+};
+
 export const servicePillars = [
   {
     title: "Web Design & Development",
@@ -125,7 +141,7 @@ export const featuredProjects = [
   },
 ] as const;
 
-export const projectCaseStudies = [
+export const projectCaseStudies: readonly ProjectCaseStudy[] = [
   {
     title: "Outbreak Interactive",
     category: "Full-Stack Web Development Project - Game Studio Platform",
