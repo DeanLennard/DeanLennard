@@ -42,7 +42,10 @@ export default function ContactPage() {
               performance and visibility, or structured technical delivery, I
               can support you at any stage.
             </p>
-            <div className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+            <div
+              id="project-enquiry"
+              className="mt-8 scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6"
+            >
               <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
                 Start a Conversation
               </p>
@@ -101,7 +104,10 @@ export default function ContactPage() {
         </p>
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="grid content-start gap-4 self-start">
-            <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6">
+            <div
+              id="send-email"
+              className="scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6"
+            >
               <h2 className="text-xl font-semibold text-stone-50">
                 Send an Email
               </h2>
@@ -136,7 +142,8 @@ export default function ContactPage() {
           </div>
 
           <section
-            className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6"
+            id="book-call"
+            className="scroll-mt-28 rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6"
             aria-labelledby="book-a-call-heading"
           >
             <h2

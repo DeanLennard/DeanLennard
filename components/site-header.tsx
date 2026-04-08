@@ -48,10 +48,10 @@ export function SiteHeader() {
         </nav>
 
         <Link
-          href="/contact"
+          href="/contact#book-call"
           className="order-2 inline-flex items-center rounded-md border border-amber-500/50 bg-amber-600 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-500 md:order-3"
         >
-          Start a Project
+          Book a Call
         </Link>
       </div>
     </header>

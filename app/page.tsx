@@ -41,16 +41,16 @@ export default function Home() {
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
-                href="/contact"
+                href="/contact#book-call"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
                 Book a Call
               </Link>
               <Link
-                href="/contact"
+                href="/projects"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                Discuss Your Project
+                View My Work
               </Link>
             </div>
             <div className="space-y-3 text-sm leading-7 text-stone-300">
@@ -172,56 +172,6 @@ export default function Home() {
             </article>
           ))}
         </div>
-        <div className="mt-10 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
-          <Link
-            href="/nextjs-developer-uk"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Next.js developer UK
-          </Link>
-          <Link
-            href="/web-application-development-uk"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Web application development UK
-          </Link>
-          <Link
-            href="/technical-seo-services-uk"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Technical SEO services UK
-          </Link>
-          <Link
-            href="/technical-delivery-consultant"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Technical delivery consultant
-          </Link>
-          <Link
-            href="/unity-developer-uk"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Unity developer UK
-          </Link>
-          <Link
-            href="/startup-full-stack-developer"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Full-stack developer for startups
-          </Link>
-          <Link
-            href="/improve-existing-website"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Improve an existing website
-          </Link>
-          <Link
-            href="/freelance-developer-for-agencies"
-            className="underline decoration-amber-500/60 underline-offset-4"
-          >
-            Freelance developer for agencies
-          </Link>
-        </div>
       </section>
 
       <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
@@ -230,21 +180,24 @@ export default function Home() {
             <SectionHeading
               eyebrow="Website Review"
               title="Website Performance & Technical Review"
-              description="If you already have a website or platform, I can provide a focused review covering performance, technical SEO, structure, usability, and potential improvements."
+              description="If you already have a website or platform, I can review it and highlight the key issues affecting performance, technical SEO, structure, and usability."
             />
             <p className="mt-6 max-w-4xl text-base leading-8 text-stone-300">
-              You&apos;ll get a clear, practical summary of what&apos;s working
-              and what isn&apos;t, along with suggested next steps.
+              You&apos;ll get a clear, practical summary of what&apos;s working,
+              what isn&apos;t, and where improvements can be made.
+            </p>
+            <p className="mt-4 max-w-4xl text-sm leading-7 text-stone-300">
+              This is a quick, focused review — not a generic audit.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link
-                href="/contact"
+                href="/contact#project-enquiry"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
                 Request a Review
               </Link>
               <Link
-                href="/contact"
+                href="/contact#book-call"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 Book a Call
@@ -300,22 +253,10 @@ export default function Home() {
               Next.js projects
             </Link>
             <Link
-              href="/unity-developer-uk"
-              className="underline decoration-amber-500/60 underline-offset-4"
-            >
-              Unity game projects
-            </Link>
-            <Link
               href="/technical-delivery-consultant"
               className="underline decoration-amber-500/60 underline-offset-4"
             >
               Programme delivery experience
-            </Link>
-            <Link
-              href="/freelance-developer-for-agencies"
-              className="underline decoration-amber-500/60 underline-offset-4"
-            >
-              Agency delivery support
             </Link>
           </div>
         </div>
@@ -325,7 +266,7 @@ export default function Home() {
         <div className="space-y-6">
           <SectionHeading
             eyebrow="Key Differentiator"
-            title="Not Just a Developer, A Delivery Partner."
+            title="Not Just a Developer — A Delivery Partner"
             description="Most developers focus on implementation. I focus on outcomes."
           />
         </div>
@@ -389,16 +330,16 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
-              href="/contact"
+              href="/contact#book-call"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
               Book a Call
             </Link>
             <Link
-              href="/contact"
+              href="/services"
               className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
             >
-              Discuss Your Project
+              View Services
             </Link>
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
@@ -432,11 +373,11 @@ export default function Home() {
             requirements and outline next steps.
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
-            There&apos;s no obligation, just a practical conversation.
+            No obligation — just a practical conversation about your options.
           </p>
           <div className="mt-8">
             <Link
-              href="/contact"
+              href="/contact#book-call"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
               Book a Call

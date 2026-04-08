@@ -57,6 +57,7 @@ export function SiteFooter() {
             Architecture, application development, deployment, and delivery
             leadership in one reliable partner.
           </p>
+          <p className="text-xs text-stone-400">© Dean Lennard</p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
