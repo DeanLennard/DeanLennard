@@ -17,6 +17,9 @@ export type AuditScore = {
 export type WebsiteGrowthAuditResult = {
   normalizedUrl: string;
   checkedAt: string;
+  checkedPages: string[];
+  crawlLimit: number;
+  crawlLimitReached: boolean;
   scores: {
     conversion: AuditScore;
     performance: AuditScore;
@@ -39,6 +42,7 @@ type AuditContext = {
   responseHeaders: Headers;
   responseStatus: number;
   sslCheck: SslCheckResult;
+  sitewideChecks: SitewideChecksResult;
   businessName?: string;
   location?: string;
 };
@@ -54,6 +58,30 @@ type FetchHtmlResult = {
   responseHeaders: Headers;
   responseStatus: number;
   finalUrl?: string;
+};
+
+type SampledPage = {
+  url: string;
+  html: string;
+};
+
+type SitewideChecksResult = {
+  robotsExists: boolean;
+  robotsMentionsSitemap: boolean;
+  sitemapExists: boolean;
+  sitemapUrlCount: number;
+  checkedPages: SampledPage[];
+  checkedPageCount: number;
+  crawlLimit: number;
+  crawlLimitReached: boolean;
+  checkedPagesWithTitle: number;
+  checkedPagesWithMetaDescription: number;
+  checkedPagesWithCanonical: number;
+  checkedPagesWithCta: number;
+  checkedPagesWithForm: number;
+  checkedPagesWithViewport: number;
+  imageHeavyPageCount: number;
+  contactPathExists: boolean;
 };
 
 type SslCheckResult =
@@ -78,6 +106,7 @@ const EMAIL_PATTERN =
   /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
 const PHONE_PATTERN =
   /(\+?\d[\d\s().-]{7,}\d)/i;
+const MAX_CRAWLED_PAGES = 25;
 
 function clampScore(score: number) {
   return Math.max(0, Math.min(100, score));
@@ -195,6 +224,38 @@ async function fetchHtml(
   }
 }
 
+async function fetchText(url: string) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+
+    const response = await fetch(url, {
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (compatible; DeanLennardWebsiteAudit/1.0; +https://www.deanlennard.com)",
+      },
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.text();
+  } catch {
+    return null;
+  }
+}
+
+function isLikelyPageUrl(url: URL) {
+  return !/\.(jpg|jpeg|png|gif|webp|svg|pdf|zip|xml|json|txt|css|js|map|ico)$/i.test(
+    url.pathname
+  );
+}
+
 async function checkSslCertificate(normalizedUrl: string): Promise<SslCheckResult> {
   const parsedUrl = new URL(normalizedUrl);
 
@@ -309,6 +370,13 @@ function getMetaContent(html: string, name: string) {
     "i"
   );
   const match = html.match(pattern);
+  return match ? decodeHtml(match[1]).trim() : "";
+}
+
+function getCanonicalUrl(html: string) {
+  const match = html.match(
+    /<link[^>]+rel=["'][^"']*canonical[^"']*["'][^>]+href=["']([^"']+)["'][^>]*>/i
+  );
   return match ? decodeHtml(match[1]).trim() : "";
 }
 
@@ -498,6 +566,163 @@ function getImageSources(html: string, pageUrl: string) {
     .filter((src): src is string => Boolean(src));
 }
 
+function getInternalLinks(pageUrl: string, html: string) {
+  const page = new URL(pageUrl);
+  const matches = [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>/gi)];
+
+  return matches
+    .map((match) => match[1]?.trim())
+    .filter(Boolean)
+    .map((href) => {
+      try {
+        const resolved = new URL(href as string, pageUrl);
+        if (resolved.hostname !== page.hostname) {
+          return null;
+        }
+
+        if (!["http:", "https:"].includes(resolved.protocol)) {
+          return null;
+        }
+
+        resolved.hash = "";
+        return resolved.toString();
+      } catch {
+        return null;
+      }
+    })
+    .filter((href): href is string => Boolean(href));
+}
+
+function getSitemapUrls(sitemapXml: string) {
+  return [...sitemapXml.matchAll(/<loc>([\s\S]*?)<\/loc>/gi)]
+    .map((match) => decodeHtml(match[1]).trim())
+    .filter(Boolean);
+}
+
+async function buildSitewideChecks(normalizedUrl: string, homepageHtml: string): Promise<SitewideChecksResult> {
+  const pageUrl = new URL(normalizedUrl);
+  const origin = pageUrl.origin;
+  const robotsUrl = `${origin}/robots.txt`;
+  const sitemapUrl = `${origin}/sitemap.xml`;
+
+  const robotsText = await fetchText(robotsUrl);
+  const sitemapXml = await fetchText(sitemapUrl);
+
+  const sitemapUrls = sitemapXml ? getSitemapUrls(sitemapXml) : [];
+  const homepageInternalLinks = getInternalLinks(normalizedUrl, homepageHtml);
+
+  const queue = [
+    normalizedUrl,
+    ...sitemapUrls,
+    ...homepageInternalLinks,
+  ].filter((url, index, array) => array.indexOf(url) === index);
+
+  const seen = new Set<string>();
+  const checkedPages: SampledPage[] = [];
+
+  while (queue.length > 0 && checkedPages.length < MAX_CRAWLED_PAGES) {
+    const nextUrl = queue.shift();
+    if (!nextUrl) {
+      continue;
+    }
+
+    let candidate: URL;
+
+    try {
+      candidate = new URL(nextUrl);
+    } catch {
+      continue;
+    }
+
+    if (candidate.origin !== origin || !isLikelyPageUrl(candidate)) {
+      continue;
+    }
+
+    candidate.hash = "";
+    const canonicalCandidate = candidate.toString();
+
+    if (seen.has(canonicalCandidate)) {
+      continue;
+    }
+
+    seen.add(canonicalCandidate);
+
+    const html =
+      canonicalCandidate === normalizedUrl
+        ? homepageHtml
+        : await fetchText(canonicalCandidate);
+
+    if (!html) {
+      continue;
+    }
+
+    checkedPages.push({
+      url: canonicalCandidate,
+      html,
+    });
+
+    const internalLinks = getInternalLinks(canonicalCandidate, html);
+    for (const internalLink of internalLinks) {
+      if (!seen.has(internalLink) && !queue.includes(internalLink)) {
+        queue.push(internalLink);
+      }
+    }
+  }
+
+  const crawlLimitReached =
+    checkedPages.length >= MAX_CRAWLED_PAGES && queue.length > 0;
+
+  const checkedPagesWithTitle = checkedPages.filter((page) =>
+    Boolean(getTitle(page.html))
+  ).length;
+  const checkedPagesWithMetaDescription = checkedPages.filter((page) =>
+    Boolean(getMetaContent(page.html, "description"))
+  ).length;
+  const checkedPagesWithCanonical = checkedPages.filter((page) =>
+    Boolean(getCanonicalUrl(page.html))
+  ).length;
+  const checkedPagesWithCta = checkedPages.filter((page) =>
+    getCtaMatches(page.html).length > 0
+  ).length;
+  const checkedPagesWithForm = checkedPages.filter((page) =>
+    hasContactForm(page.html)
+  ).length;
+  const checkedPagesWithViewport = checkedPages.filter((page) =>
+    hasViewportMeta(page.html)
+  ).length;
+  const imageHeavyPageCount = checkedPages.filter((page) => {
+    const imageCount = getImageCount(page.html);
+    const nonLazyImageCount = getNonLazyImageCount(page.html);
+    return imageCount >= 10 || nonLazyImageCount >= 6;
+  }).length;
+  const contactPathExists = checkedPages.some((page) =>
+    /href=["'][^"']*(contact|book|enquiry|enquire|get-in-touch|get-in-touch)[^"']*["']/i.test(
+      page.html
+    )
+  );
+
+  return {
+    robotsExists: Boolean(robotsText),
+    robotsMentionsSitemap: Boolean(
+      robotsText && /sitemap:\s*https?:\/\//i.test(robotsText)
+    ),
+    sitemapExists: Boolean(sitemapXml),
+    sitemapUrlCount: sitemapUrls.length,
+    checkedPages,
+    checkedPageCount: checkedPages.length,
+    crawlLimit: MAX_CRAWLED_PAGES,
+    crawlLimitReached,
+    checkedPagesWithTitle,
+    checkedPagesWithMetaDescription,
+    checkedPagesWithCanonical,
+    checkedPagesWithCta,
+    checkedPagesWithForm,
+    checkedPagesWithViewport,
+    imageHeavyPageCount,
+    contactPathExists,
+  };
+}
+
 function getAssetSources(
   html: string,
   pageUrl: string,
@@ -623,12 +848,22 @@ function buildConversionAudit(context: AuditContext) {
   }
 
   if (!hasForm) {
-    score -= 10;
-    issues.push({
-      severity: "warning",
-      category: "conversion",
-      message: "No contact form was detected, which can reduce enquiries from visitors who do not want to call.",
-    });
+    if (context.sitewideChecks.checkedPagesWithForm > 0) {
+      score -= 4;
+      issues.push({
+        severity: "warning",
+        category: "conversion",
+        message: "No contact form was detected on the main page, although a form does appear elsewhere on the site.",
+      });
+      goodSignals.push("A contact form is available elsewhere on the site.");
+    } else {
+      score -= 10;
+      issues.push({
+        severity: "warning",
+        category: "conversion",
+        message: "No contact form was detected, which can reduce enquiries from visitors who do not want to call.",
+      });
+    }
   } else {
     goodSignals.push("A contact form is available for visitors who want to enquire.");
   }
@@ -685,6 +920,32 @@ function buildConversionAudit(context: AuditContext) {
     } else {
       goodSignals.push("The page has a clear main headline.");
     }
+  }
+
+  if (!context.sitewideChecks.contactPathExists) {
+    score -= 10;
+    issues.push({
+      severity: "warning",
+      category: "conversion",
+      message: "No obvious contact or enquiry path was detected across the pages checked, which can reduce lead generation.",
+    });
+  } else {
+    goodSignals.push("Visitors appear to have a contact or enquiry path available.");
+  }
+
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.checkedPagesWithCta <
+      context.sitewideChecks.checkedPageCount
+  ) {
+    score -= 8;
+    issues.push({
+      severity: "warning",
+      category: "conversion",
+      message: "Calls-to-action are not consistent across the pages checked, so some visitors may not be guided toward enquiring.",
+    });
+  } else if (context.sitewideChecks.checkedPageCount > 1) {
+    goodSignals.push("Calls-to-action appear consistently across the pages checked.");
   }
 
   return {
@@ -756,6 +1017,18 @@ async function buildPerformanceAudit(context: AuditContext) {
     goodSignals.push("The page does not appear overloaded with images.");
   }
 
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.imageHeavyPageCount > 0
+  ) {
+    score -= 6;
+    issues.push({
+      severity: "warning",
+      category: "performance",
+      message: "Some pages checked appear image-heavy, which may slow down the site for visitors on mobile devices.",
+    });
+  }
+
   if (assetWeightBytes > 900000) {
     score -= 10;
     issues.push({
@@ -780,6 +1053,19 @@ async function buildPerformanceAudit(context: AuditContext) {
     });
   } else {
     goodSignals.push("Basic mobile viewport support is in place.");
+  }
+
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.checkedPagesWithViewport <
+      context.sitewideChecks.checkedPageCount
+  ) {
+    score -= 8;
+    issues.push({
+      severity: "warning",
+      category: "performance",
+      message: "Some pages checked are missing a mobile viewport setting, which can create a weaker mobile experience.",
+    });
   }
 
   return {
@@ -888,6 +1174,78 @@ function buildVisibilityAudit(context: AuditContext) {
     goodSignals.push("The page includes some local business trust signals.");
   }
 
+  if (!context.sitewideChecks.robotsExists) {
+    score -= 8;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "No robots.txt file was detected, which can weaken technical search visibility foundations.",
+    });
+  } else if (!context.sitewideChecks.robotsMentionsSitemap) {
+    score -= 5;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "robots.txt was found, but it does not appear to reference a sitemap.xml file.",
+    });
+  } else {
+    goodSignals.push("robots.txt appears to reference a sitemap.xml file.");
+  }
+
+  if (!context.sitewideChecks.sitemapExists) {
+    score -= 10;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "No sitemap.xml file was detected, which can make it harder for search engines to discover important pages.",
+    });
+  } else if (context.sitewideChecks.sitemapUrlCount > 0) {
+    goodSignals.push(
+      `A sitemap.xml file was found with at least ${context.sitewideChecks.sitemapUrlCount} URLs.`
+    );
+  }
+
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.checkedPagesWithTitle <
+      context.sitewideChecks.checkedPageCount
+  ) {
+    score -= 8;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "Some pages checked are missing a page title, which can weaken search visibility across the site.",
+    });
+  }
+
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.checkedPagesWithMetaDescription <
+      context.sitewideChecks.checkedPageCount
+  ) {
+    score -= 8;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "Some pages checked are missing a meta description, which can weaken visibility and click-through from search.",
+    });
+  }
+
+  if (
+    context.sitewideChecks.checkedPageCount > 1 &&
+    context.sitewideChecks.checkedPagesWithCanonical <
+      context.sitewideChecks.checkedPageCount
+  ) {
+    score -= 6;
+    issues.push({
+      severity: "warning",
+      category: "visibility",
+      message: "Canonical links are not consistent across the pages checked, which can create mixed search signals.",
+    });
+  } else if (context.sitewideChecks.checkedPagesWithCanonical > 0) {
+    goodSignals.push("Canonical links appear on the pages checked.");
+  }
+
   if (context.businessName?.trim()) {
     const businessName = context.businessName.trim().toLowerCase();
     if (!text.toLowerCase().includes(businessName) && !title.toLowerCase().includes(businessName)) {
@@ -956,6 +1314,7 @@ export async function runWebsiteGrowthAudit(input: AuditInput): Promise<WebsiteG
   } = await fetchHtml(normalized.normalizedUrl, normalized.hadExplicitProtocol);
   const effectiveUrl = finalUrl ?? normalized.normalizedUrl;
   const sslCheck = await checkSslCertificate(effectiveUrl);
+  const sitewideChecks = await buildSitewideChecks(effectiveUrl, html);
 
   const context: AuditContext = {
     normalizedUrl: effectiveUrl,
@@ -964,6 +1323,7 @@ export async function runWebsiteGrowthAudit(input: AuditInput): Promise<WebsiteG
     responseHeaders,
     responseStatus,
     sslCheck,
+    sitewideChecks,
     businessName: input.businessName,
     location: input.location,
   };
@@ -992,6 +1352,11 @@ export async function runWebsiteGrowthAudit(input: AuditInput): Promise<WebsiteG
   return {
     normalizedUrl: effectiveUrl,
     checkedAt: new Date().toISOString(),
+    checkedPages: [
+      ...sitewideChecks.checkedPages.map((page) => page.url),
+    ],
+    crawlLimit: sitewideChecks.crawlLimit,
+    crawlLimitReached: sitewideChecks.crawlLimitReached,
     scores: {
       conversion: {
         score: conversion.score,

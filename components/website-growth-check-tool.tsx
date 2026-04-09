@@ -376,6 +376,25 @@ export function WebsiteGrowthCheckTool({
               This is a focused review designed to highlight the biggest issues
               affecting conversion, performance, and visibility.
             </p>
+            <div className="mt-6 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-5">
+              <p className="text-sm font-semibold tracking-[0.2em] text-amber-400 uppercase">
+                Pages Checked
+              </p>
+              <p className="mt-3 text-sm leading-7 text-stone-300">
+                Checked {result.checkedPages.length} internal page
+                {result.checkedPages.length === 1 ? "" : "s"}
+                {result.crawlLimitReached
+                  ? `, capped at ${result.crawlLimit} pages for speed and relevance.`
+                  : "."}
+              </p>
+              <ul className="mt-4 space-y-2 text-sm leading-7 text-stone-300">
+                {result.checkedPages.map((pageUrl) => (
+                  <li key={pageUrl} className="break-all">
+                    {pageUrl}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
