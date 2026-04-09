@@ -26,6 +26,12 @@ const severityIcons = {
   success: "OK",
 } as const;
 
+function isWebsiteGrowthAuditResult(
+  data: WebsiteGrowthAuditResult | { error?: string }
+): data is WebsiteGrowthAuditResult {
+  return "scores" in data && "normalizedUrl" in data && "checkedAt" in data;
+}
+
 function ScoreCard({
   label,
   score,
@@ -224,7 +230,7 @@ export function WebsiteGrowthCheckTool({
         );
       }
 
-      if ("error" in data) {
+      if (!isWebsiteGrowthAuditResult(data)) {
         throw new Error(data.error || "The audit could not be completed.");
       }
 

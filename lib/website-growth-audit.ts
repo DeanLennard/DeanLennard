@@ -48,6 +48,14 @@ type NormalizedUrlResult = {
   hadExplicitProtocol: boolean;
 };
 
+type FetchHtmlResult = {
+  html: string;
+  fetchDurationMs: number;
+  responseHeaders: Headers;
+  responseStatus: number;
+  finalUrl?: string;
+};
+
 type SslCheckResult =
   | {
       status: "not_applicable";
@@ -112,7 +120,7 @@ function normalizeUrl(rawUrl: string): NormalizedUrlResult {
   };
 }
 
-async function fetchHtmlOnce(normalizedUrl: string) {
+async function fetchHtmlOnce(normalizedUrl: string): Promise<FetchHtmlResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   const startedAt = Date.now();
@@ -162,7 +170,7 @@ async function fetchHtmlOnce(normalizedUrl: string) {
 async function fetchHtml(
   normalizedUrl: string,
   hadExplicitProtocol: boolean
-) {
+): Promise<FetchHtmlResult> {
   try {
     return await fetchHtmlOnce(normalizedUrl);
   } catch (error) {
@@ -240,7 +248,9 @@ async function checkSslCertificate(normalizedUrl: string): Promise<SslCheckResul
             validTo: validTo.toISOString(),
             daysUntilExpiry,
             isAuthorized: socket.authorized,
-            authorizationError: socket.authorizationError || undefined,
+            authorizationError: socket.authorizationError
+              ? String(socket.authorizationError)
+              : undefined,
           });
         } catch {
           resolve({
