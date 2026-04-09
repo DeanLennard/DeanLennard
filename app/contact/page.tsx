@@ -16,7 +16,60 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
+type ContactPageSearchParams = Promise<{
+  website?: string | string[];
+  business?: string | string[];
+  location?: string | string[];
+  conversionScore?: string | string[];
+  performanceScore?: string | string[];
+  visibilityScore?: string | string[];
+}>;
+
+function getSingleValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: ContactPageSearchParams;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const website = getSingleValue(resolvedSearchParams.website)?.trim() ?? "";
+  const business = getSingleValue(resolvedSearchParams.business)?.trim() ?? "";
+  const location = getSingleValue(resolvedSearchParams.location)?.trim() ?? "";
+  const conversionScore =
+    getSingleValue(resolvedSearchParams.conversionScore)?.trim() ?? "";
+  const performanceScore =
+    getSingleValue(resolvedSearchParams.performanceScore)?.trim() ?? "";
+  const visibilityScore =
+    getSingleValue(resolvedSearchParams.visibilityScore)?.trim() ?? "";
+  const hasAuditContext = Boolean(
+    website ||
+      business ||
+      location ||
+      conversionScore ||
+      performanceScore ||
+      visibilityScore
+  );
+  const emailBodyLines = [
+    "Hi Dean,",
+    "",
+    "I would like to discuss a project.",
+    website ? `Website checked: ${website}` : "",
+    business ? `Business name: ${business}` : "",
+    location ? `Location: ${location}` : "",
+    conversionScore ? `Conversion score: ${conversionScore}/100` : "",
+    performanceScore ? `Performance score: ${performanceScore}/100` : "",
+    visibilityScore ? `Visibility score: ${visibilityScore}/100` : "",
+    "",
+    "Project summary:",
+    "",
+  ].filter(Boolean);
+  const emailHref = `mailto:dean@deanlennard.com?subject=${encodeURIComponent(
+    hasAuditContext ? "Website Growth Check Follow-up" : "Project Enquiry"
+  )}&body=${encodeURIComponent(emailBodyLines.join("\n"))}`;
+
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
       <Script
@@ -99,6 +152,16 @@ export default function ContactPage() {
                 I&apos;ll review your message and come back with initial thoughts,
                 suggested next steps, and whether a call makes sense.
               </p>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                If you want a quick starting point first, you can run the{" "}
+                <Link
+                  href="/website-growth-check"
+                  className="font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+                >
+                  Website Growth Check
+                </Link>{" "}
+                and bring the results into the conversation.
+              </p>
             </div>
           </div>
 
@@ -167,6 +230,14 @@ export default function ContactPage() {
                 View Web Development & Technical Services
               </Link>
             </div>
+            <div className="mt-4">
+              <Link
+                href="/website-growth-check"
+                className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+              >
+                Try the Website Growth Check
+              </Link>
+            </div>
           </div>
         </aside>
       </section>
@@ -224,8 +295,58 @@ export default function ContactPage() {
                 For now, email is the best option if you want to send project
                 details without booking a call first.
               </p>
+              {hasAuditContext ? (
+                <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-7 text-stone-200">
+                  <p className="font-semibold text-stone-100">
+                    Audit details will be added to the email draft
+                  </p>
+                  {website ? (
+                    <p className="mt-2">
+                      Website: <span className="text-stone-100">{website}</span>
+                    </p>
+                  ) : null}
+                  {business ? (
+                    <p>
+                      Business: <span className="text-stone-100">{business}</span>
+                    </p>
+                  ) : null}
+                  {location ? (
+                    <p>
+                      Location: <span className="text-stone-100">{location}</span>
+                    </p>
+                  ) : null}
+                  {conversionScore || performanceScore || visibilityScore ? (
+                    <div className="mt-2">
+                      {conversionScore ? (
+                        <p>
+                          Conversion score:{" "}
+                          <span className="text-stone-100">
+                            {conversionScore}/100
+                          </span>
+                        </p>
+                      ) : null}
+                      {performanceScore ? (
+                        <p>
+                          Performance score:{" "}
+                          <span className="text-stone-100">
+                            {performanceScore}/100
+                          </span>
+                        </p>
+                      ) : null}
+                      {visibilityScore ? (
+                        <p>
+                          Visibility score:{" "}
+                          <span className="text-stone-100">
+                            {visibilityScore}/100
+                          </span>
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               <a
-                href="mailto:dean@deanlennard.com"
+                href={emailHref}
                 className="mt-5 inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 dean@deanlennard.com
@@ -284,6 +405,61 @@ export default function ContactPage() {
               If the embedded booking tool does not load, use the direct booking
               link below.
             </p>
+            {hasAuditContext ? (
+              <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-7 text-stone-200">
+                <p className="font-semibold text-stone-100">
+                  Audit summary for reference during the call
+                </p>
+                {website ? (
+                  <p className="mt-2">
+                    Website: <span className="text-stone-100">{website}</span>
+                  </p>
+                ) : null}
+                {business ? (
+                  <p>
+                    Business: <span className="text-stone-100">{business}</span>
+                  </p>
+                ) : null}
+                {location ? (
+                  <p>
+                    Location: <span className="text-stone-100">{location}</span>
+                  </p>
+                ) : null}
+                {conversionScore || performanceScore || visibilityScore ? (
+                  <div className="mt-2">
+                    {conversionScore ? (
+                      <p>
+                        Conversion score:{" "}
+                        <span className="text-stone-100">
+                          {conversionScore}/100
+                        </span>
+                      </p>
+                    ) : null}
+                    {performanceScore ? (
+                      <p>
+                        Performance score:{" "}
+                        <span className="text-stone-100">
+                          {performanceScore}/100
+                        </span>
+                      </p>
+                    ) : null}
+                    {visibilityScore ? (
+                      <p>
+                        Visibility score:{" "}
+                        <span className="text-stone-100">
+                          {visibilityScore}/100
+                        </span>
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                <p className="mt-2">
+                  The booking link itself will not carry these details, so it is
+                  usually best to email if you want the audit context included
+                  automatically.
+                </p>
+              </div>
+            ) : null}
             <ExternalLink
               href="https://calendly.com/psyberpixie77/30min"
               ariaLabel="Open Calendly booking page for a 30-minute project consultation"

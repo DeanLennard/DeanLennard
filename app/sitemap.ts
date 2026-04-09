@@ -45,6 +45,11 @@ const routes = [
     changeFrequency: "monthly" as const,
   },
   {
+    path: "/website-growth-check",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
     path: "/freelance-developer-for-agencies",
     priority: 0.8,
     changeFrequency: "monthly" as const,

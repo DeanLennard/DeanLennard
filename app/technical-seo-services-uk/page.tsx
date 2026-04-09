@@ -406,6 +406,14 @@ export default function TechnicalSeoServicesUkPage() {
               Book a Call
             </Link>
           </div>
+          <div className="mt-6">
+            <Link
+              href="/website-growth-check"
+              className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+            >
+              Try the Website Growth Check
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { WebsiteGrowthCheckWidget } from "@/components/website-growth-check-widget";
 import { featuredProjects, servicePillars, stats, techGroups } from "@/data/site";
 
 const featuredProjectAnchors: Record<string, string> = {
@@ -63,6 +64,7 @@ export default function Home() {
                 View My Work
               </Link>
             </div>
+            <WebsiteGrowthCheckWidget />
             <div className="space-y-3 text-sm leading-7 text-stone-300">
               <p>
                 Looking to hire a freelance developer or need help with an
@@ -80,11 +82,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid auto-rows-min items-start gap-4 sm:grid-cols-2">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6"
+                className="self-start rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-4 sm:p-5"
               >
                 <p className="text-2xl font-semibold text-stone-50">
                   {stat.value}
@@ -92,7 +94,7 @@ export default function Home() {
                 <p className="mt-2 text-sm text-stone-300">{stat.label}</p>
               </div>
             ))}
-            <div className="rounded-md border border-amber-500/25 bg-[color:var(--color-accent-soft)] p-6 sm:col-span-2">
+            <div className="self-start rounded-md border border-amber-500/25 bg-[color:var(--color-accent-soft)] p-5 sm:col-span-2 sm:p-6">
               <p className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase">
                 Advisory Angle
               </p>
@@ -219,6 +221,14 @@ export default function Home() {
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 Book a Call
+              </Link>
+            </div>
+            <div className="mt-6">
+              <Link
+                href="/website-growth-check"
+                className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+              >
+                Try the Website Growth Check
               </Link>
             </div>
           </div>

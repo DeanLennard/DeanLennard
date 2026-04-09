@@ -415,6 +415,14 @@ export default function ServicesPage() {
             </article>
           ))}
         </div>
+        <div className="mt-8">
+          <Link
+            href="/website-growth-check"
+            className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+          >
+            Try the Website Growth Check before getting in touch
+          </Link>
+        </div>
       </section>
 
       <section className="mt-16 rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8 lg:p-10">
@@ -486,6 +494,12 @@ export default function ServicesPage() {
             className="underline decoration-amber-500/60 underline-offset-4"
           >
             Improve an existing website
+          </Link>
+          <Link
+            href="/website-growth-check"
+            className="underline decoration-amber-500/60 underline-offset-4"
+          >
+            Website Growth Check
           </Link>
           <Link
             href="/freelance-developer-for-agencies"

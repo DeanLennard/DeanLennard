@@ -5,6 +5,7 @@ const footerLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/website-growth-check", label: "Website Growth Check" },
 ];
 
 const keyServiceLinks = [
@@ -57,7 +58,7 @@ export function SiteFooter() {
             Architecture, application development, deployment, and delivery
             leadership in one reliable partner.
           </p>
-          <p className="text-xs text-stone-400">© Dean Lennard</p>
+          <p className="text-xs text-stone-400">&copy; Dean Lennard 2026</p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
