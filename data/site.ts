@@ -174,6 +174,8 @@ export const projectCaseStudies: readonly ProjectCaseStudy[] = [
     category: "Ecommerce Website Development - Schoolwear Platform",
     imageLabel: "Crested Schoolwear ecommerce platform",
     imageSrc: "/crested-schoolwear.png",
+    projectUrl: "https://www.crestedschoolwear.co.uk",
+    projectLinkLabel: "Visit Website",
     overview:
       "Crested Schoolwear is an ecommerce platform designed to sell school uniforms and branded clothing directly to customers. The goal was to create a reliable, easy-to-use online store that could support product browsing, purchasing, and ongoing business operations.",
     challenge:

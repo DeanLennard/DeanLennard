@@ -27,9 +27,37 @@ export default function ContactPage() {
         <div className="space-y-8">
           <SectionHeading
             eyebrow="Contact"
-            title="Let&apos;s Discuss Your Project"
-            description="If you&apos;re looking for a freelance full-stack developer in the UK who can build, manage, and deliver your project end-to-end, let&apos;s discuss your project and next steps."
+            title="Let&apos;s Discuss Your Project & How to Deliver It Successfully"
+            description="If you&apos;re looking to hire a freelance full-stack developer in the UK who can build, manage, and deliver your project end-to-end, let&apos;s discuss your project and the most practical next step."
           />
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              "Quick response within 24 hours",
+              "No obligation",
+              "Clear next steps after our first conversation",
+            ].map((item) => (
+              <div
+                key={item}
+                className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-4 text-sm leading-7 text-stone-300"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="#book-call"
+              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+            >
+              Book a Call
+            </Link>
+            <Link
+              href="#project-enquiry"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              Send a Project Enquiry
+            </Link>
+          </div>
           <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8">
             <p className="text-base leading-8 text-stone-200">
               I work with startups, SMEs, and agencies on web development
@@ -41,6 +69,10 @@ export default function ContactPage() {
               Whether you need a new web application, help improving
               performance and visibility, or structured technical delivery, I
               can support you at any stage.
+            </p>
+            <p className="mt-6 text-base leading-8 text-stone-200">
+              You&apos;ll be speaking directly with me, with no middle layers or
+              account managers.
             </p>
             <div
               className="mt-8 scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6"
@@ -63,12 +95,51 @@ export default function ContactPage() {
                 Happy to discuss projects at any stage, even if you&apos;re
                 still figuring things out.
               </p>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                I&apos;ll review your message and come back with initial thoughts,
+                suggested next steps, and whether a call makes sense.
+              </p>
             </div>
           </div>
 
         </div>
 
         <aside className="space-y-8">
+          <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6">
+            <p className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase">
+              Availability
+            </p>
+            <p className="mt-4 text-base leading-8 text-stone-300">
+              Currently available for new projects in April 2026.
+            </p>
+          </div>
+
+          <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+            <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+              Trusted By
+            </p>
+            <p className="mt-4 text-base leading-8 text-stone-300">
+              Trusted by startups, agencies, and public sector or enterprise
+              organisations that need both technical execution and structured
+              delivery.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {[
+                "Outbreak Interactive",
+                "Virgin Media O2",
+                "Department for Work & Pensions",
+                "Barclays Bank",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4 text-sm leading-7 text-stone-300"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
             <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
               What to Expect
@@ -100,6 +171,38 @@ export default function ContactPage() {
         </aside>
       </section>
 
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Who This Is For
+          </p>
+          <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
+            {[
+              "Need a full-stack developer who can own delivery",
+              "Have an existing product or website that needs improving",
+              "Want technical leadership, not just coding",
+            ].map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Not the Best Fit If
+          </p>
+          <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
+            {[
+              "You are looking for the cheapest option",
+              "You need a quick one-off fix with no context",
+              "You do not need delivery input or technical ownership",
+            ].map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+      </section>
+
       <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Contact Options
@@ -116,6 +219,10 @@ export default function ContactPage() {
               <p className="mt-3 text-sm leading-7 text-stone-300">
                 Prefer email? Send over a brief outline of your project and
                 I&apos;ll respond within 24 hours.
+              </p>
+              <p className="mt-3 text-sm leading-7 text-stone-300">
+                For now, email is the best option if you want to send project
+                details without booking a call first.
               </p>
               <a
                 href="mailto:dean@deanlennard.com"
@@ -170,6 +277,10 @@ export default function ContactPage() {
               steps, not a generic intro call.
             </p>
             <p className="mt-3 text-sm leading-7 text-stone-300">
+              I&apos;ll also let you know whether a fuller project enquiry or a
+              follow-up estimate makes sense after the call.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-stone-300">
               If the embedded booking tool does not load, use the direct booking
               link below.
             </p>
@@ -189,6 +300,50 @@ export default function ContactPage() {
               style={{ height: "700px" }}
             />
           </section>
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+        <SectionHeading
+          eyebrow="FAQs"
+          title="Common questions before getting in touch."
+          description="A few quick answers to the questions that often come up before a project starts."
+        />
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {[
+            {
+              question: "What does a typical project cost?",
+              answer:
+                "That depends on scope, complexity, and delivery needs. I can usually give a practical view on likely budget ranges once I understand the brief.",
+            },
+            {
+              question: "Do you work with startups?",
+              answer:
+                "Yes. I work with startups, SMEs, agencies, and larger organisations where technical ownership and delivery support are needed.",
+            },
+            {
+              question: "Do you offer ongoing support?",
+              answer:
+                "Yes. Ongoing development support, optimisation work, and delivery consulting are all available where they add value.",
+            },
+            {
+              question: "Do you work remotely?",
+              answer:
+                "Yes. I work remotely with businesses across the UK and can support projects regardless of location.",
+            },
+          ].map((faq) => (
+            <article
+              key={faq.question}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6"
+            >
+              <h2 className="text-lg font-semibold text-stone-50">
+                {faq.question}
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                {faq.answer}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
     </main>

@@ -35,17 +35,18 @@ export default function Home() {
             </div>
             <div className="space-y-6">
               <h1 className="max-w-4xl text-5xl font-semibold tracking-tight text-stone-50 sm:text-6xl">
-                Full-Stack Developer UK & Technical Delivery Specialist
+                Freelance Full-Stack Developer in the UK for Web Applications, Performance & Technical Delivery
               </h1>
               <p className="max-w-3xl text-lg leading-8 text-stone-300">
-                Building scalable web applications and delivering digital
-                projects end-to-end.
+                I help businesses build new web applications, improve existing
+                websites, and deliver technical projects reliably from start to
+                finish.
               </p>
               <p className="max-w-3xl text-base leading-8 text-stone-300">
-                I work with startups, SMEs, and agencies to design, build, and
-                deliver reliable web development solutions, combining full-stack
-                development with Next.js, Node.js, and MongoDB alongside
-                hands-on project leadership.
+                Whether you need a scalable Next.js application, performance
+                improvements, or a reliable freelance developer, I provide both
+                the technical expertise and delivery support to get it done
+                properly.
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -63,6 +64,10 @@ export default function Home() {
               </Link>
             </div>
             <div className="space-y-3 text-sm leading-7 text-stone-300">
+              <p>
+                Looking to hire a freelance developer or need help with an
+                existing project? Let&apos;s talk.
+              </p>
               <p>
                 Happy to discuss projects at any stage, even if you&apos;re
                 still figuring things out.
@@ -105,7 +110,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="Introduction"
           title="Successful outcomes need more than implementation alone."
-          description="I&apos;m Dean Lennard, a freelance full-stack developer based in the UK, specialising in building scalable web applications and delivering technical projects end-to-end."
+          description="I help businesses build, improve, and scale web applications, combining full-stack development with hands-on technical delivery."
         />
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <p className="text-base leading-8 text-stone-300">
@@ -135,7 +140,7 @@ export default function Home() {
         <SectionHeading
           eyebrow="Services Overview"
           title="Full-Stack Development, Technical SEO & Delivery Services"
-          description="Full-stack development, technical SEO, infrastructure, and delivery services designed for businesses that need both technical capability and reliable execution."
+          description="Services designed for businesses that need to build new platforms, improve existing websites, or deliver technical projects reliably."
         />
         <div className="mt-12 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           {servicePillars.map((pillar, index) => (
@@ -194,6 +199,10 @@ export default function Home() {
             <p className="mt-6 max-w-4xl text-base leading-8 text-stone-300">
               You&apos;ll get a clear, practical summary of what&apos;s working,
               what isn&apos;t, and where improvements can be made.
+            </p>
+            <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+              Ideal if your website is underperforming, slow, or not
+              generating results.
             </p>
             <p className="mt-4 max-w-4xl text-sm leading-7 text-stone-300">
               This is a quick, focused review, not a generic audit.

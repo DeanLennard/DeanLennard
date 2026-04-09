@@ -14,28 +14,28 @@ export const metadata: Metadata = {
   },
 };
 
-const deliveryPrinciples = [
-  "Projects are clearly defined",
-  "Teams are aligned",
-  "Delivery is structured and measurable",
-  "Outcomes are achieved on time",
+const deliveryPainPoints = [
+  "Projects delayed or unclear",
+  "Teams not aligned",
+  "Delivery slipping",
+  "Roadmaps not turning into shipped work",
 ];
 
 const commonProblems = [
-  "Unclear requirements and shifting priorities",
-  "Lack of alignment between stakeholders and technical teams",
-  "Missed deadlines and delivery delays",
-  "Poor communication across teams",
-  "Projects that start but do not complete successfully",
+  "Requirements change weekly, but nothing ships",
+  "Stakeholders and engineering teams are pulling in different directions",
+  "Delivery slips, deadlines move, and confidence drops",
+  "Communication breaks down across teams and programmes",
+  "Projects start with momentum but stall before anything useful lands",
 ];
 
 const services = [
-  "Agile / Scrum delivery leadership",
-  "Roadmap and milestone planning",
-  "Stakeholder coordination and communication",
-  "Cross-functional team alignment",
-  "Risk management and issue resolution",
-  "Delivery oversight from concept to launch",
+  "Recover failing or stalled technical delivery",
+  "Turn unclear roadmaps into structured milestones",
+  "Align stakeholders and engineering so delivery moves",
+  "Improve delivery flow across cross-functional teams",
+  "Reduce risk, blockers, and avoidable delivery delays",
+  "Take projects from unclear scope to launch-ready execution",
 ];
 
 const differentiators = [
@@ -46,25 +46,25 @@ const differentiators = [
 ];
 
 const experienceAreas = [
-  "Multi-team engineering coordination",
-  "Platform migrations and system redesigns",
-  "Governance and reporting structures",
-  "Agile transformation and coaching",
+  "Multi-team engineering coordination across 15+ teams",
+  "Platform migrations and system redesigns in complex environments",
+  "Governance, reporting, and compliance delivery structures",
+  "Agile transformation, coaching, and organisational change",
 ];
 
 const audiences = [
-  "Organisations delivering complex technical projects",
+  "CTOs inheriting messy delivery or stalled engineering work",
   "Teams lacking structured delivery leadership",
   "Projects that are delayed, at risk, or unclear",
-  "Businesses scaling platforms or systems",
+  "Businesses scaling platforms, migrations, or system rebuilds",
 ];
 
 const outcomes = [
-  "Clearer project direction and structure",
-  "Improved delivery consistency",
-  "Better communication across teams",
-  "Reduced risk and delays",
-  "Successful project outcomes",
+  "Clear delivery plan within weeks",
+  "Improved delivery consistency across teams",
+  "Better communication between engineering and stakeholders",
+  "Reduced risk, blockers, and avoidable delays",
+  "Shipped platforms and more reliable outcomes",
 ];
 
 export default function TechnicalDeliveryConsultantPage() {
@@ -78,25 +78,26 @@ export default function TechnicalDeliveryConsultantPage() {
             </div>
             <div className="space-y-6">
               <h1 className="max-w-4xl text-5xl font-semibold tracking-tight text-stone-50 sm:text-6xl">
-                Technical Delivery Consultant - End-to-End Project Execution
+                Technical Delivery Consultant for Complex Web & Platform Projects
               </h1>
               <p className="max-w-3xl text-lg leading-8 text-stone-300">
-                I provide technical delivery consulting for organisations that
-                need reliable execution across web development, platforms, and
-                digital products.
+                I fix delivery issues, align teams, and get technical projects
+                shipped, from early-stage builds to large-scale platform
+                migrations.
               </p>
               <p className="max-w-3xl text-base leading-8 text-stone-300">
-                Combining hands-on development experience with programme and
-                project leadership, I help ensure complex technical work is
-                delivered successfully, not just started.
+                Combining hands-on development experience with technical
+                programme delivery, I help organisations recover unclear,
+                delayed, or failing web and platform projects before more time
+                and budget are lost.
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
-                href="/contact"
+                href="/contact#book-call"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
-                Discuss Your Project
+                Book a 30-minute call
               </Link>
               <Link
                 href="/projects"
@@ -112,12 +113,7 @@ export default function TechnicalDeliveryConsultantPage() {
               At a Glance
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-stone-300">
-              {[
-                "Agile and programme delivery",
-                "Developer + delivery consultant",
-                "Platform and digital product execution",
-                "Structured, measurable outcomes",
-              ].map((item) => (
+              {deliveryPainPoints.map((item) => (
                 <li key={item} className="flex gap-3">
                   <span className="mt-2 h-2 w-2 rounded-full bg-amber-500" />
                   <span>{item}</span>
@@ -130,12 +126,17 @@ export default function TechnicalDeliveryConsultantPage() {
 
       <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
         <SectionHeading
-          eyebrow="What Is Technical Delivery?"
-          title="What Is Technical Delivery?"
-          description="Technical delivery sits between engineering, product, and business."
+          eyebrow="Why Delivery Fails"
+          title="Where complex technical delivery usually starts to break down."
+          description="The problems below are usually a mix of unclear ownership, weak communication, and delivery structures that do not match technical reality."
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {deliveryPrinciples.map((item) => (
+          {[
+            "Roadmaps look fine on paper, but delivery is not moving",
+            "Engineering work starts before priorities are stable",
+            "Platform migrations introduce risk without enough structure",
+            "Stakeholders expect progress, but visibility is weak",
+          ].map((item) => (
             <div
               key={item}
               className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 text-sm leading-7 text-stone-300"
@@ -145,8 +146,8 @@ export default function TechnicalDeliveryConsultantPage() {
           ))}
         </div>
         <p className="mt-8 max-w-3xl text-base leading-8 text-stone-300">
-          Without strong delivery, even well-funded projects fail to produce
-          results.
+          Without stronger delivery leadership, even well-funded projects can
+          drift, stall, or fail to produce usable outcomes.
         </p>
       </section>
 
@@ -190,14 +191,20 @@ export default function TechnicalDeliveryConsultantPage() {
 
       <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
         <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
-          <SectionHeading
-            eyebrow="Development + Delivery"
-            title="Development + Delivery in One Role"
-            description="Most delivery consultants do not write code. Most developers do not manage delivery. I do both."
-          />
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {differentiators.map((item) => (
-              <div
+        <SectionHeading
+          eyebrow="Development + Delivery"
+          title="Development + Delivery in One Role"
+          description="Most delivery consultants do not write code. Most developers do not manage delivery. I do both."
+        />
+        <p className="mt-6 max-w-3xl text-base leading-8 text-stone-300">
+          This is the point of difference. Delivery plans reflect engineering
+          constraints, technical decisions are grounded in implementation, and
+          communication improves because the technical and delivery context sit
+          together.
+        </p>
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {differentiators.map((item) => (
+            <div
                 key={item}
                 className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6 text-sm leading-7 text-stone-300"
               >
@@ -228,6 +235,20 @@ export default function TechnicalDeliveryConsultantPage() {
           This includes experience within enterprise environments such as
           telecoms and financial services.
         </p>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {[
+            "Virgin Media O2: GBP 6M+ cost-saving migration over 12 months",
+            "35 engineering reports across delivery, product, frontend, backend, and QA",
+            "Enterprise delivery across regulated and high-dependency platforms",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6 text-sm leading-7 text-stone-300"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
         <div className="mt-8">
           <Link
             href="/projects"
@@ -262,7 +283,7 @@ export default function TechnicalDeliveryConsultantPage() {
         <SectionHeading
           eyebrow="Outcomes"
           title="What You Can Expect"
-          description="The aim is to bring structure, clarity, and consistent execution to complex technical work."
+          description="The aim is to reduce delivery delays, recover unclear projects, and move technical work towards shipped outcomes faster."
         />
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {outcomes.map((item) => (
@@ -282,23 +303,27 @@ export default function TechnicalDeliveryConsultantPage() {
             Need Reliable Technical Delivery?
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
-            If you need a technical delivery consultant who understands both
-            development and execution, let&apos;s discuss your project and next
-            steps.
+            If your project is slipping, unclear, or harder to control than it
+            should be, let&apos;s bring structure to it quickly.
           </p>
           <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
-            Most projects start with a short call to understand your
-            requirements and outline next steps.
+            Book a 30-minute call to get clarity on the delivery issues,
+            likely next steps, and where support would make the biggest
+            difference.
+          </p>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
+            There&apos;s no obligation, just a practical conversation about what
+            is blocking delivery and how to move forward.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
-              href="/contact"
+              href="/contact#book-call"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
-              Book a Call
+              Book a 30-minute call
             </Link>
             <Link
-              href="/contact"
+              href="/contact#project-enquiry"
               className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
             >
               Discuss Your Project
@@ -306,22 +331,22 @@ export default function TechnicalDeliveryConsultantPage() {
           </div>
           <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
             <Link
-              href="/services"
+              href="/services#delivery-consulting"
               className="underline decoration-amber-500/60 underline-offset-4"
             >
               Delivery and project management services
             </Link>
             <Link
-              href="/projects"
+              href="/projects#virgin-media-o2"
               className="underline decoration-amber-500/60 underline-offset-4"
             >
-              Programme delivery case studies
+              Platform migrations and delivery leadership
             </Link>
             <Link
-              href="/contact"
+              href="/projects#department-for-work-and-pensions"
               className="underline decoration-amber-500/60 underline-offset-4"
             >
-              Contact page
+              Public sector platform delivery
             </Link>
           </div>
         </div>

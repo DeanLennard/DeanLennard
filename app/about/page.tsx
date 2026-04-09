@@ -22,7 +22,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="About"
             title="Freelance Full-Stack Developer UK with Technical Delivery Expertise"
-            description="Development expertise with delivery leadership built in."
+            description="Helping businesses build, improve, and deliver web applications with less risk and more clarity."
           />
           <div className="space-y-5 text-base leading-8 text-stone-300">
             <p>
@@ -30,21 +30,21 @@ export default function AboutPage() {
               strong background in technical delivery and project leadership.
             </p>
             <p>
-              My work sits at the intersection of full-stack development and
-              project execution, ensuring that web applications and digital
-              platforms are not only built well, but delivered successfully.
+              I help businesses build new web applications, improve existing
+              platforms, and deliver technical projects with more structure,
+              clarity, and reliability.
             </p>
             <p>
-              I&apos;ve worked across a range of web development projects, from
-              scalable web applications and business systems to performance
-              optimisation and technical SEO.
+              My work covers scalable web applications, business systems,
+              technical SEO, performance optimisation, and end-to-end delivery
+              support.
             </p>
           </div>
         </div>
 
         <aside className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
-            Technical Background & Delivery Experience
+            What I Bring to a Project
           </p>
           <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
             {[
@@ -57,9 +57,8 @@ export default function AboutPage() {
             ))}
           </ul>
           <p className="mt-6 text-sm leading-7 text-stone-300">
-            This allows me to bridge the gap between technical teams and
-            business objectives, ensuring that development work aligns with
-            real-world outcomes.
+            This helps reduce gaps between planning, development, and delivery,
+            so projects move forward more smoothly and with fewer surprises.
           </p>
         </aside>
       </section>
@@ -68,7 +67,7 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Full-Stack Development & Technical Skillset"
           title="Broad technical capability across modern web development, infrastructure, and performance optimisation."
-          description="A full-stack skillset supported by practical experience across both product delivery and operational setup."
+          description="A practical full-stack skillset covering application development, performance, infrastructure, and technical problem-solving."
         />
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {[
@@ -104,7 +103,7 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Technical Delivery & Project Experience"
           title="Structured delivery experience alongside hands-on development."
-          description="Alongside full-stack development, I bring a delivery mindset that helps ensure projects are completed on time and aligned with business goals."
+          description="Alongside hands-on development, I bring delivery structure that helps keep projects moving, stakeholders aligned, and technical work tied to clear business goals."
         />
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {[
@@ -146,13 +145,13 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="What Makes Me Different"
             title="Responsibility beyond implementation."
-            description="Most developers focus purely on coding."
+            description="Many developers focus only on implementation."
           />
           <p className="mt-8 text-base leading-8 text-stone-300">
-            I take responsibility for the full solution, including
-            architecture, full-stack development, infrastructure, and
-            technical project delivery. That means fewer gaps, fewer delays,
-            and a smoother path from idea to execution.
+            I take responsibility for the full solution, from architecture and
+            development through to infrastructure and delivery. That means
+            fewer handoff issues, fewer delays, and a smoother path from idea
+            to launch.
           </p>
         </article>
       </section>
@@ -160,8 +159,8 @@ export default function AboutPage() {
       <section className="mt-20 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
         <SectionHeading
           eyebrow="Specialist Areas"
-          title="Explore the specific areas I work across."
-          description="If you want to go deeper into a specific capability, these pages break out the services and delivery approach in more detail."
+          title="Explore My Specialist Service Areas"
+          description="If you&apos;re looking for help with a specific type of project, these pages break down the services, technical approach, and delivery support in more detail."
         />
         <div className="mt-8 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
           <Link

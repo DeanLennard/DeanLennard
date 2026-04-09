@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 
 import { SectionHeading } from "@/components/section-heading";
 
@@ -46,9 +47,57 @@ const audiences = [
   "Teams needing both development and delivery expertise",
 ];
 
+const faqs = [
+  {
+    question: "What does a Next.js developer do?",
+    answer:
+      "A Next.js developer builds web applications using the Next.js framework, covering frontend performance, routing, SEO foundations, backend integrations, and deployment.",
+  },
+  {
+    question: "Why use Next.js over React alone?",
+    answer:
+      "Next.js builds on React with routing, server rendering, static generation, metadata support, and performance features that make it a stronger fit for production web applications.",
+  },
+  {
+    question: "How much does a Next.js project cost in the UK?",
+    answer:
+      "That depends on scope, complexity, and delivery requirements. Simpler builds are more focused, while full-stack platforms and SaaS products are scoped around a clearer roadmap and outcome.",
+  },
+  {
+    question: "Why hire a freelance Next.js developer instead of an agency?",
+    answer:
+      "A freelance Next.js developer can provide direct technical ownership, faster communication, and less delivery overhead, while still supporting architecture, implementation, and launch.",
+  },
+];
+
 export default function NextJsDeveloperUkPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Next.js Developer UK",
+    serviceType: "Next.js development services",
+    areaServed: "United Kingdom",
+    provider: {
+      "@type": "Person",
+      name: "Dean Lennard",
+      jobTitle: "Freelance Full-Stack Developer",
+      address: {
+        "@type": "PostalAddress",
+        addressRegion: "Staffordshire",
+        addressCountry: "UK",
+      },
+    },
+  };
+
   return (
     <main>
+      <Script
+        id="nextjs-developer-uk-schema"
+        type="application/ld+json"
+        strategy="afterInteractive"
+      >
+        {JSON.stringify(jsonLd)}
+      </Script>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div className="space-y-8">
@@ -60,28 +109,28 @@ export default function NextJsDeveloperUkPage() {
                 Next.js Developer UK - Scalable Full-Stack Web Applications
               </h1>
               <p className="max-w-3xl text-lg leading-8 text-stone-300">
-                I&apos;m a freelance Next.js developer based in the UK,
-                specialising in building high-performance web applications with
+                I&apos;m a freelance Next.js developer in the UK, helping
+                startups and SMEs build scalable web applications with
                 full-stack architecture and end-to-end delivery.
               </p>
               <p className="max-w-3xl text-base leading-8 text-stone-300">
-                From initial concept through to deployment, I design and build
-                scalable platforms using Next.js, Node.js, and modern web
-                technologies.
+                Based in Staffordshire and working remotely across the UK, I
+                design and build scalable platforms using Next.js, Node.js, and
+                modern web technologies.
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
-                href="/contact"
+                href="/contact#book-call"
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
-                Discuss Your Project
+                Book a Call
               </Link>
               <Link
                 href="/projects"
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
-                View Next.js Case Studies
+                View Next.js development case studies
               </Link>
             </div>
           </div>
@@ -103,6 +152,54 @@ export default function NextJsDeveloperUkPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+        <SectionHeading
+          eyebrow="UK Delivery"
+          title="Working with UK startups, SMEs, and agencies that need dependable technical delivery."
+          description="Based in Staffordshire and working across the UK, I support businesses that need strong implementation, clearer ownership, and reliable project delivery."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            "Based in Staffordshire, UK",
+            "Remote support across the UK",
+            "Freelance Next.js developer for startups and SMEs",
+            "Direct communication with no agency layers",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 text-sm leading-7 text-stone-300"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
+        <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+          <SectionHeading
+            eyebrow="Credibility"
+            title="Trusted delivery backed by practical outcomes."
+            description="The strongest Next.js pages need proof, not just positioning."
+          />
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              "Trusted by startups, SMEs, agencies, and enterprise teams across the UK",
+              "Outbreak Interactive platform built in Next.js with full-stack telemetry and reporting",
+              "Arcbound Community delivered as a Next.js and MongoDB web application",
+              "Technical delivery experience across Virgin Media O2, DWP, and Barclays programmes",
+            ].map((item) => (
+              <div
+                key={item}
+                className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 text-sm leading-7 text-stone-300"
+              >
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -180,6 +277,44 @@ export default function NextJsDeveloperUkPage() {
       <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
         <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
           <SectionHeading
+            eyebrow="Why Hire a Freelancer?"
+            title="Why hire a freelance Next.js developer instead of an agency?"
+            description="A lot of buyers at this stage are comparing agency support against direct freelance delivery."
+          />
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+              <h2 className="text-xl font-semibold text-stone-50">
+                Direct freelance support
+              </h2>
+              <ul className="mt-5 space-y-3 text-sm leading-7 text-stone-300">
+                {[
+                  "Direct communication with the developer doing the work",
+                  "Less delivery overhead and fewer handoffs",
+                  "Technical decisions tied closely to implementation",
+                  "A practical fit for startups, SMEs, and focused product teams",
+                ].map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </section>
+            <section className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-6">
+              <h2 className="text-xl font-semibold text-stone-50">
+                When this works best
+              </h2>
+              <p className="mt-5 text-sm leading-7 text-stone-300">
+                This is often the right fit when you want to hire a Next.js
+                developer in the UK for a SaaS build, a web application, a
+                performance-led rebuild, or delivery support without the
+                overhead of a larger agency structure.
+              </p>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-[color:var(--color-border)] bg-[color:var(--color-surface-overlay)]">
+        <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+          <SectionHeading
             eyebrow="Technology Stack"
             title="Technologies I Use"
             description="A practical stack for building scalable Next.js web applications with backend capability and reliable deployment."
@@ -219,17 +354,59 @@ export default function NextJsDeveloperUkPage() {
         <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
           <SectionHeading
             eyebrow="Project Proof"
-            title="Relevant Next.js Projects"
-            description="I&apos;ve delivered a range of full-stack web applications using Next.js, combining frontend performance with backend systems and delivery ownership."
+            title="Relevant Next.js Project Proof"
+            description="A practical example of Next.js development work, combining frontend performance, backend systems, and delivery ownership."
           />
-          <div className="mt-8">
+          <div className="mt-8 rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8">
+            <p className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase">
+              Outbreak Interactive
+            </p>
+            <h2 className="mt-4 text-2xl font-semibold text-stone-50">
+              Next.js platform combining marketing, content, telemetry, and reporting
+            </h2>
+            <ul className="mt-6 space-y-3 text-sm leading-7 text-stone-300">
+              <li>Built as a full-stack system using Next.js, Node.js, and MongoDB</li>
+              <li>Combined public-facing marketing with internal operational tooling</li>
+              <li>Delivered one platform covering SEO, blog publishing, telemetry, and reporting</li>
+            </ul>
+          </div>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/projects"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
-              View Full Project Case Studies
+              View Next.js development case studies
+            </Link>
+            <Link
+              href="/projects#outbreak-interactive"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              View the Outbreak Interactive case study
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+        <SectionHeading
+          eyebrow="FAQs"
+          title="Common questions about hiring a Next.js developer in the UK."
+          description="Useful for comparison-stage buyers who are weighing framework, cost, and delivery options."
+        />
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {faqs.map((faq) => (
+            <article
+              key={faq.question}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6"
+            >
+              <h2 className="text-lg font-semibold text-stone-50">
+                {faq.question}
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
+                {faq.answer}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -249,13 +426,13 @@ export default function NextJsDeveloperUkPage() {
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link
-              href="/contact"
+              href="/contact#book-call"
               className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
               Book a Call
             </Link>
             <Link
-              href="/contact"
+              href="/contact#project-enquiry"
               className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
             >
               Discuss Your Project
@@ -268,12 +445,12 @@ export default function NextJsDeveloperUkPage() {
             >
               Full-stack development services
             </Link>
-            <Link
-              href="/projects"
-              className="underline decoration-amber-500/60 underline-offset-4"
-            >
-              Next.js projects
-            </Link>
+          <Link
+            href="/projects"
+            className="underline decoration-amber-500/60 underline-offset-4"
+          >
+            Next.js development case studies
+          </Link>
             <Link
               href="/contact"
               className="underline decoration-amber-500/60 underline-offset-4"
