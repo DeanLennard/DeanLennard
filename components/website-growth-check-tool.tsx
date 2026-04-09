@@ -369,7 +369,7 @@ export function WebsiteGrowthCheckTool({
             <p className="text-sm font-semibold tracking-[0.24em] text-amber-300 uppercase">
               Audit Summary
             </p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-stone-50">
+            <h2 className="mt-4 break-words text-3xl font-semibold tracking-tight text-stone-50">
               Here is what may be holding back enquiries from {result.normalizedUrl}
             </h2>
             <p className="mt-4 max-w-4xl text-base leading-8 text-stone-300">
