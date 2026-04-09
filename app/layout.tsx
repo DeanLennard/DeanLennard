@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
+import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { GA_MEASUREMENT_ID, isAnalyticsEnabled } from "@/lib/analytics";
 
 import "./globals.css";
 
@@ -40,18 +42,25 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-ZDVRLE5YF0"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-ZDVRLE5YF0');
-          `}
-        </Script>
+        {isAnalyticsEnabled ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', {
+                  send_page_view: false
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
       </head>
       <body className="min-h-full bg-background text-foreground">
         <a
@@ -62,6 +71,7 @@ export default function RootLayout({
         </a>
         <div className="relative flex min-h-full flex-col overflow-x-hidden">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,_rgba(31,41,55,1)_0%,_rgba(17,24,39,1)_100%)]" />
+          <Analytics />
           <SiteHeader />
           <div id="page-content" tabIndex={-1} className="flex-1">
             {children}
