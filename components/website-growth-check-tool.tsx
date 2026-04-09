@@ -420,26 +420,32 @@ export function WebsiteGrowthCheckTool({
               <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
                 Priority Issues
               </p>
-              <div className="mt-6 space-y-4">
-                {result.issues.map((issue) => (
-                  <div
-                    key={`${issue.category}-${issue.message}`}
-                    className={`rounded-md border p-4 text-sm leading-7 ${severityStyles[issue.severity]}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="inline-flex min-w-8 justify-center rounded-md border border-current px-2 py-1 text-xs font-semibold">
-                        {severityIcons[issue.severity]}
-                      </span>
-                      <div>
-                        <p className="font-semibold capitalize">
-                          {issue.category}
-                        </p>
-                        <p className="mt-1">{issue.message}</p>
+              {result.issues.length > 0 ? (
+                <div className="mt-6 space-y-4">
+                  {result.issues.map((issue) => (
+                    <div
+                      key={`${issue.category}-${issue.message}`}
+                      className={`rounded-md border p-4 text-sm leading-7 ${severityStyles[issue.severity]}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="inline-flex min-w-8 justify-center rounded-md border border-current px-2 py-1 text-xs font-semibold">
+                          {severityIcons[issue.severity]}
+                        </span>
+                        <div>
+                          <p className="font-semibold capitalize">
+                            {issue.category}
+                          </p>
+                          <p className="mt-1">{issue.message}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
+                  No priority issues were detected across the pages checked.
+                </div>
+              )}
             </section>
 
             <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">

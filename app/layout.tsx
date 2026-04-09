@@ -70,7 +70,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <div className="relative flex min-h-full flex-col overflow-x-hidden">
+        <div className="relative flex min-h-full flex-col">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,_rgba(31,41,55,1)_0%,_rgba(17,24,39,1)_100%)]" />
           <Suspense fallback={null}>
             <Analytics />
