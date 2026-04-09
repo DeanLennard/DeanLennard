@@ -1240,7 +1240,10 @@ function buildVisibilityAudit(context: AuditContext) {
     issues.push({
       severity: "warning",
       category: "visibility",
-      message: "Canonical links are not consistent across the pages checked, which can create mixed search signals.",
+      message:
+        context.sitewideChecks.checkedPagesWithCanonical === 0
+          ? "No canonical links were detected across the pages checked, which can weaken technical SEO signals."
+          : "Canonical links are not consistent across the pages checked, which can create mixed search signals.",
     });
   } else if (context.sitewideChecks.checkedPagesWithCanonical > 0) {
     goodSignals.push("Canonical links appear on the pages checked.");

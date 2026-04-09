@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Web Designer Cannock | Professional Website Development",
   description:
     "Freelance web designer in Cannock building fast, reliable, SEO-friendly websites for local businesses. Custom builds, redesigns, and ongoing support.",
+  path: "/web-designer-cannock",
   openGraph: {
     title: "Web Designer Cannock | Professional Website Development",
     description:
       "Freelance web designer in Cannock building fast, reliable, SEO-friendly websites for local businesses. Custom builds, redesigns, and ongoing support.",
   },
-};
+});
 
 const services = [
   "Custom website design and development",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
 import { WebsiteGrowthCheckWidget } from "@/components/website-growth-check-widget";
 import { featuredProjects, servicePillars, stats, techGroups } from "@/data/site";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
 const featuredProjectAnchors: Record<string, string> = {
   "Outbreak Interactive": "outbreak-interactive",
@@ -14,16 +15,17 @@ const featuredProjectAnchors: Record<string, string> = {
   "Virgin Media O2": "virgin-media-o2",
 };
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Full-Stack Developer UK | Next.js & Technical Delivery Specialist",
   description:
     "Freelance full-stack developer in the UK specialising in Next.js, web applications, technical SEO, and end-to-end project delivery. Build and deliver with confidence.",
+  path: "/",
   openGraph: {
     title: "Full-Stack Developer UK | End-to-End Technical Delivery",
     description:
       "I design, build, and deliver scalable web applications, combining full-stack development with technical project leadership.",
   },
-};
+});
 
 export default function Home() {
   return (

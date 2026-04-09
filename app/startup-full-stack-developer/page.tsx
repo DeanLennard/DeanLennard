@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Full-Stack Developer for Startups | SaaS & MVP Development UK",
   description:
     "Freelance full-stack developer for startups and SaaS products. Build MVPs, platforms, and scalable applications with end-to-end technical delivery.",
+  path: "/startup-full-stack-developer",
   openGraph: {
     title: "Full-Stack Developer for Startups | SaaS & MVP Development UK",
     description:
       "Freelance full-stack developer for startups and SaaS products. Build MVPs, platforms, and scalable applications with end-to-end technical delivery.",
   },
-};
+});
 
 const serviceItems = [
   "MVP development for startups",

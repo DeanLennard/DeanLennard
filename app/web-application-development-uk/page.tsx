@@ -3,17 +3,19 @@ import Link from "next/link";
 import Script from "next/script";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Web Application Development UK | Custom Full-Stack Solutions",
   description:
     "Custom web application development services in the UK. Scalable full-stack solutions using Next.js, Node.js, and modern technologies with end-to-end delivery.",
+  path: "/web-application-development-uk",
   openGraph: {
     title: "Web Application Development UK | Custom Full-Stack Solutions",
     description:
       "Custom web application development services in the UK. Scalable full-stack solutions using Next.js, Node.js, and modern technologies with end-to-end delivery.",
   },
-};
+});
 
 const applicationTypes = [
   "SaaS platforms",

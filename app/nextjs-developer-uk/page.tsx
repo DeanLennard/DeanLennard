@@ -3,17 +3,19 @@ import Link from "next/link";
 import Script from "next/script";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Next.js Developer UK | Freelance Full-Stack Web Applications",
   description:
     "Freelance Next.js developer in the UK building scalable, high-performance web applications with full-stack expertise and end-to-end delivery.",
+  path: "/nextjs-developer-uk",
   openGraph: {
     title: "Next.js Developer UK | Freelance Full-Stack Web Applications",
     description:
       "Freelance Next.js developer in the UK building scalable, high-performance web applications with full-stack expertise and end-to-end delivery.",
   },
-};
+});
 
 const services = [
   "Custom web application development",

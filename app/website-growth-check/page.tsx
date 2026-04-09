@@ -3,17 +3,19 @@ import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
 import { WebsiteGrowthCheckTool } from "@/components/website-growth-check-tool";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Website Growth Check | Free Website Audit Tool",
   description:
     "Free website audit tool and website performance check to show why your website is not generating enquiries. Review conversion, performance, and visibility issues in seconds.",
+  path: "/website-growth-check",
   openGraph: {
     title: "Website Growth Check | Free Website Audit Tool",
     description:
       "A free website audit tool that shows why your website is not generating enquiries and highlights performance and visibility issues.",
   },
-};
+});
 
 type WebsiteGrowthCheckSearchParams = Promise<{
   url?: string | string[];

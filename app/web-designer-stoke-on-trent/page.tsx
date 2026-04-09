@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Web Designer Stoke-on-Trent | Professional Website Development",
   description:
     "Freelance web designer in Stoke-on-Trent building fast, reliable, SEO-friendly websites for local businesses and growing companies.",
+  path: "/web-designer-stoke-on-trent",
   openGraph: {
     title: "Web Designer Stoke-on-Trent | Professional Website Development",
     description:
       "Freelance web designer in Stoke-on-Trent building fast, reliable, SEO-friendly websites for local businesses and growing companies.",
   },
-};
+});
 
 const services = [
   "Custom website design and development",

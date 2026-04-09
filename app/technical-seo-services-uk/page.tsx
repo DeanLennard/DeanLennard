@@ -3,17 +3,19 @@ import Link from "next/link";
 import Script from "next/script";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Technical SEO Services UK | Audits, Speed Optimisation & Core Web Vitals",
   description:
     "Technical SEO services in the UK including audits, performance optimisation, indexing fixes, and Core Web Vitals improvements to improve rankings and speed.",
+  path: "/technical-seo-services-uk",
   openGraph: {
     title: "Technical SEO Services UK | Audits, Speed Optimisation & Core Web Vitals",
     description:
       "Technical SEO services in the UK including audits, performance optimisation, indexing fixes, and Core Web Vitals improvements to improve rankings and speed.",
   },
-};
+});
 
 const seoAreas = [
   "Site speed and performance",

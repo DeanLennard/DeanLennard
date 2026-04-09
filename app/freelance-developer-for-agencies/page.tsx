@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Freelance Developer for Agencies | Reliable Delivery Partner UK",
   description:
     "Freelance full-stack developer for agencies in the UK. Reliable development support, white-label delivery, and end-to-end project execution.",
+  path: "/freelance-developer-for-agencies",
   openGraph: {
     title: "Freelance Developer for Agencies | Reliable Delivery Partner UK",
     description:
       "Freelance full-stack developer for agencies in the UK. Reliable development support, white-label delivery, and end-to-end project execution.",
   },
-};
+});
 
 const painPoints = [
   "Inconsistent or unreliable freelance developers",

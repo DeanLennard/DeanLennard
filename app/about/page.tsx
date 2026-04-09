@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "About | Freelance Full-Stack Developer UK & Delivery Specialist",
   description:
     "Learn more about a UK-based freelance full-stack developer with expertise in Next.js, technical SEO, and end-to-end project delivery.",
+  path: "/about",
   openGraph: {
     title: "About Dean Lennard | Full-Stack Developer UK",
     description:
       "Full-stack developer combining technical expertise with project delivery and leadership experience.",
   },
-};
+});
 
 export default function AboutPage() {
   return (

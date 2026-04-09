@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Technical Delivery Consultant UK | Agile, Web & Platform Delivery",
   description:
     "Technical delivery consultant specialising in Agile delivery, web platforms, and end-to-end project execution across engineering teams and digital products.",
+  path: "/technical-delivery-consultant",
   openGraph: {
     title: "Technical Delivery Consultant UK | Agile, Web & Platform Delivery",
     description:
       "Technical delivery consultant specialising in Agile delivery, web platforms, and end-to-end project execution across engineering teams and digital products.",
   },
-};
+});
 
 const deliveryPainPoints = [
   "Projects delayed or unclear",

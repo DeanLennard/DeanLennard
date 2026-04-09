@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ExternalLink } from "@/components/external-link";
 import { SectionHeading } from "@/components/section-heading";
 import { projectCaseStudies } from "@/data/site";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
 const projectAnchors: Record<string, string> = {
   "Outbreak Interactive": "outbreak-interactive",
@@ -64,16 +65,17 @@ const projectTypes = [
   "Technical delivery programmes",
 ] as const;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Full-Stack Developer Portfolio UK | Web Development Case Studies",
   description:
     "Explore full-stack development projects, Next.js applications, and technical delivery case studies across web platforms, games, and enterprise systems.",
+  path: "/projects",
   openGraph: {
     title: "Portfolio | Full-Stack Projects & Case Studies",
     description:
       "A selection of web development and delivery projects focused on real-world outcomes and performance.",
   },
-};
+});
 
 export default function ProjectsPage() {
   return (

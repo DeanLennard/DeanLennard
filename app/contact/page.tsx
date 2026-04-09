@@ -4,17 +4,19 @@ import Script from "next/script";
 
 import { ExternalLink } from "@/components/external-link";
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Contact | Freelance Full-Stack Developer UK",
   description:
     "Get in touch with a UK-based freelance full-stack developer specialising in web applications, technical SEO, and end-to-end project delivery.",
+  path: "/contact",
   openGraph: {
     title: "Contact | Full-Stack Developer UK",
     description:
       "Discuss your project and get support with development, SEO, and technical delivery.",
   },
-};
+});
 
 type ContactPageSearchParams = Promise<{
   website?: string | string[];
@@ -469,7 +471,7 @@ export default async function ContactPage({
             </ExternalLink>
             <div
               id="book-call"
-              className="calendly-inline-widget mt-6 min-w-[320px]"
+              className="calendly-inline-widget calendly-embed mt-6 w-full max-w-full overflow-hidden"
               data-url="https://calendly.com/psyberpixie77/30min"
               role="region"
               aria-labelledby="book-a-call-heading"

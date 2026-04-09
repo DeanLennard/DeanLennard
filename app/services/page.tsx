@@ -2,19 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
 type ServiceNumber = "01" | "02" | "03" | "04" | "05";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Web Development Services UK | Full-Stack, SEO & Technical Delivery",
   description:
     "Freelance web development services in the UK including full-stack development, Next.js, technical SEO, hosting, and project delivery consulting.",
+  path: "/services",
   openGraph: {
     title: "Web Development & Technical Services UK",
     description:
       "Full-stack development, SEO, infrastructure, and delivery services designed to support projects from concept to completion.",
   },
-};
+});
 
 export default function ServicesPage() {
   const specialistPageByServiceNumber: Record<ServiceNumber, string> = {

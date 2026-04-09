@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Unity Developer UK | Game Development & Interactive Systems",
   description:
     "Freelance Unity developer in the UK building gameplay systems, prototypes, and cross-platform games with a strong focus on delivery and technical structure.",
+  path: "/unity-developer-uk",
   openGraph: {
     title: "Unity Developer UK | Game Development & Interactive Systems",
     description:
       "Freelance Unity developer in the UK building gameplay systems, prototypes, and cross-platform games with a strong focus on delivery and technical structure.",
   },
-};
+});
 
 const services = [
   "Gameplay systems and mechanics",

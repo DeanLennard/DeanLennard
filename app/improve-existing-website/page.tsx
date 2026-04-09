@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Improve Existing Website | Fix Performance, SEO & Delivery Issues",
   description:
     "Improve your existing website with performance optimisation, technical SEO fixes, and full-stack development support. Fix slow, underperforming platforms.",
+  path: "/improve-existing-website",
   openGraph: {
     title: "Improve Existing Website | Fix Performance, SEO & Delivery Issues",
     description:
       "Improve your existing website with performance optimisation, technical SEO fixes, and full-stack development support. Fix slow, underperforming platforms.",
   },
-};
+});
 
 const problems = [
   "Slow load times and poor Core Web Vitals",

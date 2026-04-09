@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionHeading } from "@/components/section-heading";
+import { buildPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Web Developer Staffordshire | Websites for Local Businesses",
   description:
     "Freelance web developer in Staffordshire building reliable, high-performance websites for local businesses, startups, and growing companies.",
+  path: "/web-developer-staffordshire",
   openGraph: {
     title: "Web Developer Staffordshire | Websites for Local Businesses",
     description:
       "Freelance web developer in Staffordshire building reliable, high-performance websites for local businesses, startups, and growing companies.",
   },
-};
+});
 
 const locations = [
   "Stafford",

@@ -109,3 +109,13 @@ a {
     linear-gradient(180deg, rgba(17, 24, 39, 0.06), transparent 55%);
   pointer-events: none;
 }
+
+.calendly-embed {
+  min-width: 0 !important;
+}
+
+.calendly-embed iframe {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
