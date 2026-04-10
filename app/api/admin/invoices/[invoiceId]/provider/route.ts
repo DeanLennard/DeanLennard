@@ -10,6 +10,7 @@ import {
 import {
   createGoCardlessBillingRequestForInvoice,
   createStripeInvoiceForLocalInvoice,
+  removeStripeInvoice,
 } from "@/lib/payment-provider-clients";
 
 function toAbsoluteRedirect(request: Request, path: string) {
@@ -37,10 +38,7 @@ export async function POST(
   try {
     if (provider === "stripe") {
       if (invoice.stripeInvoiceId) {
-        return NextResponse.redirect(
-          toAbsoluteRedirect(request, `/admin/invoices/${invoice.invoiceId}`),
-          303
-        );
+        await removeStripeInvoice(invoice.stripeInvoiceId);
       }
 
       const result = await createStripeInvoiceForLocalInvoice({

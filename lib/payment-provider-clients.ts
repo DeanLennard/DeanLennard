@@ -106,33 +106,6 @@ export async function createStripeInvoiceForLocalInvoice(input: {
     throw new Error("Stripe secret key is missing.");
   }
 
-  for (const item of input.lineItems) {
-    const itemResponse = await fetch("https://api.stripe.com/v1/invoiceitems", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${settings.stripeSecretKey}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: asFormUrlEncoded({
-        customer: stripeCustomerId,
-        currency: input.currency.toLowerCase(),
-        amount: String(Math.round(item.unitPrice * item.quantity * 100)),
-        description: item.description
-          ? `${item.title}: ${item.description}`
-          : item.title,
-        "metadata[invoiceId]": input.invoiceId,
-        "metadata[invoiceNumber]": input.invoiceNumber,
-      }),
-    });
-
-    if (!itemResponse.ok) {
-      const payload = (await itemResponse.json().catch(() => null)) as {
-        error?: { message?: string };
-      } | null;
-      throw new Error(payload?.error?.message || "Unable to create Stripe invoice item.");
-    }
-  }
-
   const dueDateTimestamp = Math.floor(
     new Date(`${input.dueDate}T00:00:00Z`).getTime() / 1000
   );
@@ -163,6 +136,34 @@ export async function createStripeInvoiceForLocalInvoice(input: {
     throw new Error(invoicePayload.error?.message || "Unable to create Stripe invoice.");
   }
 
+  for (const item of input.lineItems) {
+    const itemResponse = await fetch("https://api.stripe.com/v1/invoiceitems", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${settings.stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: asFormUrlEncoded({
+        customer: stripeCustomerId,
+        invoice: invoicePayload.id,
+        currency: input.currency.toLowerCase(),
+        amount: String(Math.round(item.unitPrice * item.quantity * 100)),
+        description: item.description
+          ? `${item.title}: ${item.description}`
+          : item.title,
+        "metadata[invoiceId]": input.invoiceId,
+        "metadata[invoiceNumber]": input.invoiceNumber,
+      }),
+    });
+
+    if (!itemResponse.ok) {
+      const payload = (await itemResponse.json().catch(() => null)) as {
+        error?: { message?: string };
+      } | null;
+      throw new Error(payload?.error?.message || "Unable to create Stripe invoice item.");
+    }
+  }
+
   const finalizeResponse = await fetch(
     `https://api.stripe.com/v1/invoices/${invoicePayload.id}/finalize`,
     {
@@ -189,6 +190,100 @@ export async function createStripeInvoiceForLocalInvoice(input: {
     stripeInvoiceId: finalPayload.id,
     hostedInvoiceUrl: finalPayload.hosted_invoice_url || invoicePayload.hosted_invoice_url,
   };
+}
+
+export async function voidStripeInvoice(stripeInvoiceId: string) {
+  const settings = await getAppSettings();
+
+  if (!settings.stripeSecretKey) {
+    throw new Error("Stripe secret key is missing.");
+  }
+
+  const response = await fetch(
+    `https://api.stripe.com/v1/invoices/${stripeInvoiceId}/void`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${settings.stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(),
+    }
+  );
+
+  const payload = (await response.json().catch(() => null)) as {
+    error?: { message?: string };
+  } | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.error?.message || "Unable to void Stripe invoice.");
+  }
+}
+
+export async function removeStripeInvoice(stripeInvoiceId: string) {
+  const settings = await getAppSettings();
+
+  if (!settings.stripeSecretKey) {
+    throw new Error("Stripe secret key is missing.");
+  }
+
+  const fetchResponse = await fetch(`https://api.stripe.com/v1/invoices/${stripeInvoiceId}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${settings.stripeSecretKey}`,
+    },
+  });
+
+  const invoicePayload = (await fetchResponse.json().catch(() => null)) as {
+    status?: string;
+    total?: number;
+    amount_paid?: number;
+    error?: { message?: string };
+  } | null;
+
+  if (!fetchResponse.ok) {
+    throw new Error(invoicePayload?.error?.message || "Unable to load Stripe invoice.");
+  }
+
+  if (invoicePayload?.status === "draft") {
+    const deleteResponse = await fetch(`https://api.stripe.com/v1/invoices/${stripeInvoiceId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${settings.stripeSecretKey}`,
+      },
+    });
+
+    const deletePayload = (await deleteResponse.json().catch(() => null)) as {
+      error?: { message?: string };
+    } | null;
+
+    if (!deleteResponse.ok) {
+      throw new Error(deletePayload?.error?.message || "Unable to delete draft Stripe invoice.");
+    }
+
+    return;
+  }
+
+  if (invoicePayload?.status === "open") {
+    await voidStripeInvoice(stripeInvoiceId);
+    return;
+  }
+
+  if (invoicePayload?.status === "void") {
+    return;
+  }
+
+  if (
+    invoicePayload?.status === "paid" &&
+    (invoicePayload.total ?? 0) === 0 &&
+    (invoicePayload.amount_paid ?? 0) === 0
+  ) {
+    return;
+  }
+
+  throw new Error(
+    `Existing Stripe invoice is in ${invoicePayload?.status || "an unsupported"} state and cannot be replaced automatically.`
+  );
 }
 
 export async function createGoCardlessBillingRequestForInvoice(input: {

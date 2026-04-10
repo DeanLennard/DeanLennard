@@ -6,9 +6,15 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createActivityLog } from "@/lib/activity-log";
 import { getClientById } from "@/lib/clients-store";
+import { formatDisplayDate } from "@/lib/date-format";
+import { ensureInvoicePdfPath } from "@/lib/document-generation";
 import { createEmailLog } from "@/lib/email-logs-store";
+import { buildInvoiceEmailTemplate } from "@/lib/email-templates";
 import { getInvoiceById, updateInvoiceStatus } from "@/lib/invoices-store";
+import { formatMoney } from "@/lib/money-format";
 import { toBase64 } from "@/lib/payment-provider-clients";
+import { buildPublicInvoiceUrl } from "@/lib/public-invoice-links";
+import { toPublicUrl } from "@/lib/public-site";
 import { sendResendEmail } from "@/lib/resend-email";
 
 function toAbsoluteRedirect(request: Request, path: string) {
@@ -40,23 +46,31 @@ export async function POST(
   }
 
   try {
-    const attachments =
-      invoice.pdfPath
-        ? [
-            {
-              fileName: `${invoice.invoiceNumber}.pdf`,
-              contentBase64: toBase64(
-                await readFile(path.join(process.cwd(), "public", invoice.pdfPath.replace(/^\//, "")))
-              ),
-              contentType: "application/pdf",
-            },
-          ]
-        : undefined;
+    const ensured = await ensureInvoicePdfPath(invoice.invoiceId);
+    const hostedInvoiceUrl = buildPublicInvoiceUrl(invoice.invoiceId);
+    const pdfUrl = toPublicUrl(ensured.pdfPath);
+    const attachments = [
+      {
+        fileName: `${ensured.invoice.invoiceNumber}.pdf`,
+        contentBase64: toBase64(
+          await readFile(path.join(process.cwd(), "public", ensured.pdfPath.replace(/^\//, "")))
+        ),
+        contentType: "application/pdf",
+      },
+    ];
 
     const result = await sendResendEmail({
       to: customer.email,
       subject: `Invoice ${invoice.invoiceNumber} from Outbreak LTD`,
-      html: `<p>Hello ${customer.contactName || customer.businessName},</p><p>Please find invoice <strong>${invoice.invoiceNumber}</strong> attached.</p><p>Total due: ${invoice.currency} ${invoice.total.toFixed(2)}</p><p>Due date: ${invoice.dueDate}</p><p>Kind regards,<br />Dean Lennard</p>`,
+      html: buildInvoiceEmailTemplate({
+        recipientName: customer.contactName || customer.businessName,
+        invoiceNumber: invoice.invoiceNumber,
+        total: formatMoney(invoice.total, invoice.currency),
+        dueDate: formatDisplayDate(invoice.dueDate),
+        viewInvoiceHref: hostedInvoiceUrl,
+        paymentHref: invoice.stripeHostedInvoiceUrl || invoice.gocardlessPaymentUrl,
+        pdfHref: pdfUrl,
+      }),
       attachments,
     });
 

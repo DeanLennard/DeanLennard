@@ -13,6 +13,7 @@ import {
   getInvoiceLinkedContext,
 } from "@/lib/invoices-store";
 import { formatMoney } from "@/lib/money-format";
+import { buildPublicInvoiceUrl } from "@/lib/public-invoice-links";
 
 export const metadata: Metadata = {
   title: "Invoice Detail",
@@ -53,6 +54,7 @@ export default async function InvoiceDetailPage({
     listActivityLogsByEntity("invoice", invoice.invoiceId),
     listEmailLogsByEntity("invoice", invoice.invoiceId),
   ]);
+  const hostedInvoicePageUrl = buildPublicInvoiceUrl(invoice.invoiceId);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
@@ -219,6 +221,9 @@ export default async function InvoiceDetailPage({
                 Open generated PDF
               </Link>
             ) : null}
+            <Link href={hostedInvoicePageUrl} target="_blank" className="block font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4">
+              Open hosted invoice page
+            </Link>
             {invoice.stripeHostedInvoiceUrl ? (
               <Link href={invoice.stripeHostedInvoiceUrl} target="_blank" className="block font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4">
                 Open Stripe hosted invoice

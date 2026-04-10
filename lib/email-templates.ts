@@ -3,8 +3,7 @@ type EmailShellInput = {
   title: string;
   intro: string;
   details: Array<{ label: string; value: string }>;
-  primaryLabel?: string;
-  primaryHref?: string;
+  actions?: Array<{ label: string; href: string; tone?: "primary" | "secondary" }>;
   closing?: string;
 };
 
@@ -38,9 +37,18 @@ function renderShell(input: EmailShellInput) {
               ${renderDetails(input.details)}
             </table>
             ${
-              input.primaryLabel && input.primaryHref
+              input.actions?.length
                 ? `<div style="margin:28px 0 18px;">
-                    <a href="${input.primaryHref}" style="display:inline-block;padding:14px 18px;border-radius:12px;background:#f59e0b;color:#0c0a09;text-decoration:none;font-weight:700;">${input.primaryLabel}</a>
+                    ${input.actions
+                      .map((action, index) => {
+                        const isPrimary = action.tone !== "secondary";
+                        return `<a href="${action.href}" style="display:inline-block;margin:${index > 0 ? "10px 12px 0 0" : "0 12px 0 0"};padding:14px 18px;border-radius:12px;${
+                          isPrimary
+                            ? "background:#f59e0b;color:#0c0a09;"
+                            : "background:#292524;color:#f5f5f4;border:1px solid #44403c;"
+                        }text-decoration:none;font-weight:700;">${action.label}</a>`;
+                      })
+                      .join("")}
                   </div>`
                 : ""
             }
@@ -68,8 +76,9 @@ export function buildQuoteEmailTemplate(input: {
       { label: "Total", value: input.total },
       ...(input.expiryDate ? [{ label: "Expiry date", value: input.expiryDate }] : []),
     ],
-    primaryLabel: input.pdfHref ? "Open PDF" : undefined,
-    primaryHref: input.pdfHref,
+    actions: input.pdfHref
+      ? [{ label: "Open PDF", href: input.pdfHref, tone: "primary" }]
+      : undefined,
   });
 }
 
@@ -78,19 +87,29 @@ export function buildInvoiceEmailTemplate(input: {
   invoiceNumber: string;
   total: string;
   dueDate: string;
+  viewInvoiceHref?: string;
   pdfHref?: string;
   paymentHref?: string;
 }) {
   return renderShell({
     eyebrow: "Invoice",
     title: `Invoice ${input.invoiceNumber}`,
-    intro: `Hello ${input.recipientName}, your invoice is attached and ready for review. The key details are below so payment and record-keeping stay straightforward.`,
+    intro: `Hello ${input.recipientName}, your invoice is attached and also available on a secure hosted page on deanlennard.com. You can review the details there and use the available payment options that have been prepared for this invoice.`,
     details: [
       { label: "Invoice number", value: input.invoiceNumber },
       { label: "Total due", value: input.total },
       { label: "Due date", value: input.dueDate },
     ],
-    primaryLabel: input.paymentHref ? "Open payment link" : input.pdfHref ? "Open PDF" : undefined,
-    primaryHref: input.paymentHref || input.pdfHref,
+    actions: [
+      ...(input.viewInvoiceHref
+        ? [{ label: "View invoice", href: input.viewInvoiceHref, tone: "primary" as const }]
+        : []),
+      ...(input.paymentHref
+        ? [{ label: "Pay now", href: input.paymentHref, tone: "secondary" as const }]
+        : []),
+      ...(!input.paymentHref && input.pdfHref
+        ? [{ label: "Open PDF", href: input.pdfHref, tone: "secondary" as const }]
+        : []),
+    ],
   });
 }

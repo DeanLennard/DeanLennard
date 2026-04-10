@@ -6,8 +6,13 @@ import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createActivityLog } from "@/lib/activity-log";
 import { getClientById } from "@/lib/clients-store";
+import { formatDisplayDate } from "@/lib/date-format";
+import { ensureQuotePdfPath } from "@/lib/document-generation";
 import { createEmailLog } from "@/lib/email-logs-store";
+import { buildQuoteEmailTemplate } from "@/lib/email-templates";
+import { formatMoney } from "@/lib/money-format";
 import { toBase64 } from "@/lib/payment-provider-clients";
+import { toPublicUrl } from "@/lib/public-site";
 import { getQuoteById, updateQuoteStatus } from "@/lib/quotes-store";
 import { sendResendEmail } from "@/lib/resend-email";
 
@@ -40,23 +45,27 @@ export async function POST(
   }
 
   try {
-    const attachments =
-      quote.pdfPath
-        ? [
-            {
-              fileName: `${quote.quoteNumber}.pdf`,
-              contentBase64: toBase64(
-                await readFile(path.join(process.cwd(), "public", quote.pdfPath.replace(/^\//, "")))
-              ),
-              contentType: "application/pdf",
-            },
-          ]
-        : undefined;
+    const ensured = await ensureQuotePdfPath(quote.quoteId);
+    const attachments = [
+      {
+        fileName: `${ensured.quote.quoteNumber}.pdf`,
+        contentBase64: toBase64(
+          await readFile(path.join(process.cwd(), "public", ensured.pdfPath.replace(/^\//, "")))
+        ),
+        contentType: "application/pdf",
+      },
+    ];
 
     const result = await sendResendEmail({
       to: customer.email,
       subject: `Quote ${quote.quoteNumber} from Outbreak LTD`,
-      html: `<p>Hello ${customer.contactName || customer.businessName},</p><p>Please find quote <strong>${quote.quoteNumber}</strong> attached.</p><p>Total: ${quote.currency} ${quote.total.toFixed(2)}</p><p>Kind regards,<br />Dean Lennard</p>`,
+      html: buildQuoteEmailTemplate({
+        recipientName: customer.contactName || customer.businessName,
+        quoteNumber: quote.quoteNumber,
+        total: formatMoney(quote.total, quote.currency),
+        expiryDate: quote.expiryDate ? formatDisplayDate(quote.expiryDate) : undefined,
+        pdfHref: toPublicUrl(ensured.pdfPath),
+      }),
       attachments,
     });
 
