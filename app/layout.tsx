@@ -6,7 +6,13 @@ import Script from "next/script";
 import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { GA_MEASUREMENT_ID, isAnalyticsEnabled } from "@/lib/analytics";
+import {
+  GA_MEASUREMENT_ID,
+  POSTHOG_HOST,
+  POSTHOG_PROJECT_TOKEN,
+  isAnalyticsEnabled,
+  isPostHogEnabled,
+} from "@/lib/analytics";
 
 import "./globals.css";
 
@@ -58,6 +64,32 @@ export default function RootLayout({
                 gtag('config', '${GA_MEASUREMENT_ID}', {
                   send_page_view: false
                 });
+              `}
+            </Script>
+          </>
+        ) : null}
+        {isPostHogEnabled ? (
+          <>
+            <Script
+              src={`${POSTHOG_HOST}/static/array.js`}
+              strategy="afterInteractive"
+            />
+            <Script id="posthog-analytics" strategy="afterInteractive">
+              {`
+                window.posthog = window.posthog || [];
+                if (typeof window.posthog.init === 'function') {
+                  window.posthog.init('${POSTHOG_PROJECT_TOKEN}', {
+                    api_host: '${POSTHOG_HOST}',
+                    capture_pageview: false,
+                    capture_pageleave: false
+                  });
+                  if (Array.isArray(window.__posthogEventQueue)) {
+                    window.__posthogEventQueue.forEach(function(event) {
+                      window.posthog.capture(event.name, event.properties);
+                    });
+                    window.__posthogEventQueue = [];
+                  }
+                }
               `}
             </Script>
           </>
