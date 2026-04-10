@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 
 type PackageTemplatesPageSearchParams = Promise<{
   saved?: string | string[];
+  updated?: string | string[];
+  duplicated?: string | string[];
   error?: string | string[];
 }>;
 
@@ -33,10 +35,15 @@ export default async function PackageTemplatesPage({
   const templates = await listPackageTemplates();
   const resolvedSearchParams = await searchParams;
   const saved = getSingleValue(resolvedSearchParams.saved) === "1";
+  const updated = getSingleValue(resolvedSearchParams.updated) === "1";
+  const duplicated = getSingleValue(resolvedSearchParams.duplicated) === "1";
   const error = getSingleValue(resolvedSearchParams.error) ?? "";
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/package-templates" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Package templates
@@ -48,11 +55,19 @@ export default async function PackageTemplatesPage({
           Build reusable packages that prefill quotes, seed project tasks, and
           create recurring maintenance work without starting from scratch each time.
         </p>
-        <AdminNav currentPath="/admin/package-templates" />
-
         {saved ? (
           <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
             Package template saved.
+          </div>
+        ) : null}
+        {updated ? (
+          <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
+            Package template updated.
+          </div>
+        ) : null}
+        {duplicated ? (
+          <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
+            Package template duplicated.
           </div>
         ) : null}
         {error === "missing-name" ? (
@@ -174,6 +189,14 @@ export default async function PackageTemplatesPage({
                     <Link href={`/admin/projects/new?packageTemplateId=${template.templateId}`} className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
                       Use for Project
                     </Link>
+                    <Link href={`/admin/package-templates/${template.templateId}`} className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
+                      Edit
+                    </Link>
+                    <form action={`/api/admin/package-templates/${template.templateId}/duplicate`} method="post">
+                      <button type="submit" className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
+                        Duplicate
+                      </button>
+                    </form>
                   </div>
                 </div>
               ))

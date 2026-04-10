@@ -39,3 +39,29 @@ export async function listCustomerNotes(clientId: string) {
   const collection = await getCustomerNotesCollection();
   return collection.find({ clientId }).sort({ createdAt: -1 }).toArray();
 }
+
+export async function listCustomerNotesPage(
+  clientId: string,
+  input?: { offset?: number; limit?: number }
+) {
+  const collection = await getCustomerNotesCollection();
+  const offset = Math.max(0, input?.offset ?? 0);
+  const limit = Math.max(1, Math.min(50, input?.limit ?? 10));
+
+  const [items, total] = await Promise.all([
+    collection
+      .find({ clientId })
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .toArray(),
+    collection.countDocuments({ clientId }),
+  ]);
+
+  return {
+    items,
+    total,
+    hasMore: offset + items.length < total,
+    nextOffset: offset + items.length,
+  };
+}

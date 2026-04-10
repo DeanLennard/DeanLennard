@@ -12,6 +12,7 @@ import {
   createGoCardlessBillingRequestForInvoice,
   createStripeInvoiceForLocalInvoice,
 } from "@/lib/payment-provider-clients";
+import { sendInvoiceEmailTemplate } from "@/lib/invoice-email";
 import { getAppSettings } from "@/lib/settings-store";
 
 export type RecurringBillingProvider = "stripe" | "gocardless" | "manual";
@@ -199,6 +200,12 @@ export async function listRecurringInvoiceSchedules(filters?: {
   return records.map(normalizeSchedule);
 }
 
+export async function getRecurringInvoiceScheduleById(scheduleId: string) {
+  const collection = await getRecurringInvoiceSchedulesCollection();
+  const record = await collection.findOne({ scheduleId });
+  return record ? normalizeSchedule(record) : null;
+}
+
 export async function listDueRecurringInvoiceSchedules(referenceDate = new Date().toISOString().slice(0, 10)) {
   const collection = await getRecurringInvoiceSchedulesCollection();
   const records = await collection
@@ -226,84 +233,122 @@ export async function updateRecurringInvoiceScheduleStatus(
       },
     }
   );
+
+  await createActivityLog({
+    entityType: "recurring_schedule",
+    entityId: scheduleId,
+    actionType: "recurring_schedule_status_updated",
+    description: `Recurring schedule status changed to ${status}.`,
+    metadata: {
+      status,
+    },
+  });
 }
 
-export async function runDueRecurringInvoices(referenceDate = new Date().toISOString().slice(0, 10)) {
-  const collection = await getRecurringInvoiceSchedulesCollection();
-  const dueSchedules = await listDueRecurringInvoiceSchedules(referenceDate);
-  let createdCount = 0;
-
-  for (const schedule of dueSchedules) {
-    const invoice = await createInvoice({
-      customerId: schedule.customerId,
-      projectId: schedule.projectId,
-      recurringScheduleId: schedule.scheduleId,
-      dueDate: new Date(
-        new Date(`${schedule.nextInvoiceDate}T00:00:00Z`).getTime() +
-          schedule.paymentTermsDays * 24 * 60 * 60 * 1000
-      )
-        .toISOString()
-        .slice(0, 10),
-      currency: schedule.currency,
-      taxRate: schedule.taxRate,
-      paymentMethod:
-        (schedule.billingProvider === "manual"
-          ? "manual"
-          : schedule.billingProvider) as InvoicePaymentMethod,
-      notes: schedule.notes,
-      lineItems: schedule.lineItemsTemplate,
-    });
-
-    try {
-      if (schedule.autoCollect && schedule.billingProvider === "stripe") {
-        const stripeResult = await createStripeInvoiceForLocalInvoice({
-          clientId: schedule.customerId,
-          invoiceId: invoice.invoiceId,
-          invoiceNumber: invoice.invoiceNumber,
-          description: schedule.notes || schedule.title,
-          dueDate: invoice.dueDate,
-          currency: invoice.currency,
-          lineItems: invoice.lineItems,
-        });
-
-        await linkInvoiceProviderReferences(invoice.invoiceId, {
-          stripeInvoiceId: stripeResult.stripeInvoiceId,
-          stripeHostedInvoiceUrl: stripeResult.hostedInvoiceUrl,
-        });
-        await updateInvoiceStatus(invoice.invoiceId, "sent");
-      }
-
-      if (schedule.autoCollect && schedule.billingProvider === "gocardless") {
-        const gocardlessResult = await createGoCardlessBillingRequestForInvoice({
-          clientId: schedule.customerId,
-          invoiceId: invoice.invoiceId,
-          invoiceNumber: invoice.invoiceNumber,
-          description: schedule.notes || schedule.title,
-          total: invoice.total,
-          currency: invoice.currency,
-        });
-
-        await linkInvoiceProviderReferences(invoice.invoiceId, {
-          gocardlessBillingRequestId: gocardlessResult.billingRequestId,
-          gocardlessPaymentUrl: gocardlessResult.paymentUrl,
-        });
-        await updateInvoiceStatus(invoice.invoiceId, "sent");
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Automatic provider creation failed.";
-      await createActivityLog({
-        entityType: "invoice",
-        entityId: invoice.invoiceId,
-        actionType: "provider_sync_failed",
-        description: `Automatic provider billing failed for ${invoice.invoiceNumber}.`,
-        metadata: {
-          scheduleId: schedule.scheduleId,
-          error: message,
-        },
+async function createProviderBillingForRecurringInvoice(
+  schedule: RecurringInvoiceScheduleRecord,
+  invoice: Awaited<ReturnType<typeof createInvoice>>
+) {
+  try {
+    if (schedule.autoCollect && schedule.billingProvider === "stripe") {
+      const stripeResult = await createStripeInvoiceForLocalInvoice({
+        clientId: schedule.customerId,
+        invoiceId: invoice.invoiceId,
+        invoiceNumber: invoice.invoiceNumber,
+        description: schedule.notes || schedule.title,
+        dueDate: invoice.dueDate,
+        currency: invoice.currency,
+        lineItems: invoice.lineItems,
       });
+
+      await linkInvoiceProviderReferences(invoice.invoiceId, {
+        stripeInvoiceId: stripeResult.stripeInvoiceId,
+        stripeHostedInvoiceUrl: stripeResult.hostedInvoiceUrl,
+      });
+      await updateInvoiceStatus(invoice.invoiceId, "sent");
     }
 
+    if (schedule.autoCollect && schedule.billingProvider === "gocardless") {
+      const gocardlessResult = await createGoCardlessBillingRequestForInvoice({
+        clientId: schedule.customerId,
+        invoiceId: invoice.invoiceId,
+        invoiceNumber: invoice.invoiceNumber,
+        description: schedule.notes || schedule.title,
+        total: invoice.total,
+        currency: invoice.currency,
+      });
+
+      await linkInvoiceProviderReferences(invoice.invoiceId, {
+        gocardlessBillingRequestId: gocardlessResult.billingRequestId,
+        gocardlessPaymentUrl: gocardlessResult.paymentUrl,
+      });
+      await updateInvoiceStatus(invoice.invoiceId, "sent");
+    }
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Automatic provider creation failed.";
+    await createActivityLog({
+      entityType: "invoice",
+      entityId: invoice.invoiceId,
+      actionType: "provider_sync_failed",
+      description: `Automatic provider billing failed for ${invoice.invoiceNumber}.`,
+      metadata: {
+        scheduleId: schedule.scheduleId,
+        error: message,
+      },
+    });
+    throw error;
+  }
+}
+
+export async function generateInvoiceForRecurringSchedule(
+  scheduleId: string,
+  options?: {
+    sendEmail?: boolean;
+    referenceDate?: string;
+    advanceSchedule?: boolean;
+  }
+) {
+  const collection = await getRecurringInvoiceSchedulesCollection();
+  const schedule = await getRecurringInvoiceScheduleById(scheduleId);
+
+  if (!schedule) {
+    throw new Error("Recurring schedule not found.");
+  }
+
+  const issueDate = options?.referenceDate ?? schedule.nextInvoiceDate;
+  const invoice = await createInvoice({
+    customerId: schedule.customerId,
+    projectId: schedule.projectId,
+    recurringScheduleId: schedule.scheduleId,
+    dueDate: new Date(
+      new Date(`${issueDate}T00:00:00Z`).getTime() +
+        schedule.paymentTermsDays * 24 * 60 * 60 * 1000
+    )
+      .toISOString()
+      .slice(0, 10),
+    currency: schedule.currency,
+    taxRate: schedule.taxRate,
+    paymentMethod:
+      (schedule.billingProvider === "manual"
+        ? "manual"
+        : schedule.billingProvider) as InvoicePaymentMethod,
+    notes: schedule.notes,
+    lineItems: schedule.lineItemsTemplate,
+  });
+
+  let providerSyncError: string | null = null;
+
+  if (schedule.autoCollect) {
+    try {
+      await createProviderBillingForRecurringInvoice(schedule, invoice);
+    } catch (error) {
+      providerSyncError =
+        error instanceof Error ? error.message : "Automatic provider creation failed.";
+    }
+  }
+
+  if (options?.advanceSchedule !== false) {
     const nextInvoiceDate = addRecurringInterval(
       schedule.nextInvoiceDate,
       schedule.frequency,
@@ -320,19 +365,56 @@ export async function runDueRecurringInvoices(referenceDate = new Date().toISOSt
         },
       }
     );
+  }
 
-    await createActivityLog({
-      entityType: "recurring_schedule",
-      entityId: schedule.scheduleId,
-      actionType: "recurring_invoice_generated",
-      description: `Recurring invoice generated for ${schedule.title}.`,
-      metadata: {
-        invoiceId: invoice.invoiceId,
-        customerId: schedule.customerId,
-        projectId: schedule.projectId ?? null,
-      },
+  await createActivityLog({
+    entityType: "recurring_schedule",
+    entityId: schedule.scheduleId,
+    actionType: "recurring_invoice_generated",
+    description: `Recurring invoice generated for ${schedule.title}.`,
+    metadata: {
+      invoiceId: invoice.invoiceId,
+      customerId: schedule.customerId,
+      projectId: schedule.projectId ?? null,
+    },
+  });
+
+  if (options?.sendEmail ?? schedule.autoSend) {
+    try {
+      await sendInvoiceEmailTemplate(invoice.invoiceId, "recurring_invoice_created");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Recurring invoice email failed.";
+      await createActivityLog({
+        entityType: "invoice",
+        entityId: invoice.invoiceId,
+        actionType: "invoice_email_failed",
+        description: `Recurring invoice email failed for ${invoice.invoiceNumber}.`,
+        metadata: {
+          scheduleId: schedule.scheduleId,
+          error: message,
+        },
+      });
+    }
+  }
+
+  return {
+    invoice,
+    providerSyncError,
+  };
+}
+
+export async function runDueRecurringInvoices(
+  referenceDate = new Date().toISOString().slice(0, 10)
+) {
+  const dueSchedules = await listDueRecurringInvoiceSchedules(referenceDate);
+  let createdCount = 0;
+
+  for (const schedule of dueSchedules) {
+    await generateInvoiceForRecurringSchedule(schedule.scheduleId, {
+      referenceDate,
+      advanceSchedule: true,
     });
-
     createdCount += 1;
   }
 

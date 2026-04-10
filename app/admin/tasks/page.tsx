@@ -54,6 +54,10 @@ export default async function TasksPage({
 
   return (
     <main className="mx-auto w-full max-w-[1500px] px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/tasks" />
+      </section>
+
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -78,22 +82,23 @@ export default async function TasksPage({
             </button>
           </form>
         </div>
+      </section>
 
-        <AdminNav currentPath="/admin/tasks" />
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
 
         {error === "missing-title" ? (
-          <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             Task title is required.
           </div>
         ) : null}
 
         {error === "invalid-status" ? (
-          <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             That task status was not recognised.
           </div>
         ) : null}
 
-        <form action="/api/admin/tasks" method="post" className="mt-8 space-y-6">
+        <form action="/api/admin/tasks" method="post" className={`${error ? "mt-6" : ""} space-y-6`}>
           <input type="hidden" name="returnTo" value="/admin/tasks" />
           <div className="grid gap-4 lg:grid-cols-[1.2fr_1.1fr_0.7fr_0.8fr_0.8fr_0.8fr]">
             <input

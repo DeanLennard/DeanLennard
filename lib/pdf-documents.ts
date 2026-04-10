@@ -1,3 +1,5 @@
+import { formatDisplayDate } from "@/lib/date-format";
+
 import { TextEncoder } from "node:util";
 
 type PdfTextOptions = {
@@ -197,21 +199,53 @@ export function generateQuotePdf(input: {
   subtotal: number;
   total: number;
 }) {
-  const { commands, y: headerEndY } = buildCommonHeader({
-    title: "Quote",
-    businessName: input.businessName,
-    businessAddress: input.businessAddress,
-    documentNumber: input.quoteNumber,
-    issueDate: input.issueDate,
-    dueDate: input.expiryDate,
-    recipientName: input.customerName,
-    recipientAddress: input.customerAddress,
-  });
+  const commands: string[] = [];
+  const brandAmber: [number, number, number] = [0.96, 0.62, 0.04];
+  const deepStone: [number, number, number] = [0.11, 0.10, 0.09];
+  const midStone: [number, number, number] = [0.42, 0.38, 0.35];
+  const lightStone: [number, number, number] = [0.90, 0.89, 0.88];
+  const white: [number, number, number] = [1, 1, 1];
 
-  let y = headerEndY;
-  addText(commands, 40, y, input.title, { size: 16 });
-  y -= 24;
+  drawFilledRect(commands, 0, 0, 595, 842, white);
+  drawFilledRect(commands, 0, 760, 595, 82, brandAmber);
+  addText(commands, 40, 800, input.businessName, { size: 24, color: deepStone });
+  addRightAlignedText(commands, 555, 800, "QUOTE", { size: 26, color: deepStone });
 
+  let leftY = 736;
+  for (const line of flattenMultilineText(input.businessAddress)) {
+    addText(commands, 40, leftY, line, { size: 10, color: deepStone });
+    leftY -= 13;
+  }
+
+  drawFilledRect(commands, 350, 675, 205, 65, [0.96, 0.95, 0.94]);
+  drawStrokedRect(commands, 350, 675, 205, 65, [0.82, 0.80, 0.77]);
+  addText(commands, 366, 720, "Quote number", { size: 9, color: midStone });
+  addRightAlignedText(commands, 540, 720, input.quoteNumber, { size: 12, color: deepStone });
+  addText(commands, 366, 701, "Issue date", { size: 9, color: midStone });
+  addRightAlignedText(commands, 540, 701, input.issueDate, { size: 11, color: deepStone });
+  addText(commands, 366, 682, "Expiry date", { size: 9, color: midStone });
+  addRightAlignedText(
+    commands,
+    540,
+    682,
+    input.expiryDate || "Open",
+    { size: 11, color: deepStone }
+  );
+
+  addText(commands, 40, 670, "Prepared for", { size: 10, color: midStone });
+  addText(commands, 40, 650, input.customerName, { size: 14, color: deepStone });
+  let customerY = 634;
+  for (const line of flattenMultilineText(input.customerAddress ?? "")) {
+    addText(commands, 40, customerY, line, { size: 10, color: deepStone });
+    customerY -= 13;
+  }
+
+  drawFilledRect(commands, 40, 565, 515, 60, [0.97, 0.97, 0.96]);
+  drawStrokedRect(commands, 40, 565, 515, 60, [0.87, 0.85, 0.83]);
+  addText(commands, 58, 602, "Proposal", { size: 9, color: midStone });
+  addText(commands, 58, 580, input.title, { size: 18, color: deepStone });
+
+  let sectionY = 535;
   const sections = [
     ["Summary", input.summary],
     ["Scope of work", input.scopeOfWork],
@@ -225,45 +259,77 @@ export function generateQuotePdf(input: {
       continue;
     }
 
-    addText(commands, 40, y, label, { size: 11 });
-    y -= 16;
+    drawFilledRect(commands, 40, sectionY - 20, 515, 20, [0.96, 0.95, 0.94]);
+    addText(commands, 52, sectionY - 6, label, { size: 10, color: deepStone });
+    sectionY -= 34;
 
     for (const line of flattenMultilineText(value)) {
-      addText(commands, 50, y, line, { size: 10 });
-      y -= 14;
+      addText(commands, 52, sectionY, line, { size: 10, color: deepStone });
+      sectionY -= 13;
     }
 
-    y -= 8;
+    sectionY -= 10;
   }
 
-  addText(commands, 40, y, "Line items", { size: 11 });
-  y -= 18;
+  const tableTop = Math.max(sectionY - 6, 260);
+  drawFilledRect(commands, 40, tableTop, 515, 24, deepStone);
+  addText(commands, 52, tableTop + 7, "Description", { size: 10, color: lightStone });
+  addCenteredText(commands, 382, tableTop + 7, "Qty", { size: 10, color: lightStone });
+  addCenteredText(commands, 447, tableTop + 7, "Unit", { size: 10, color: lightStone });
+  addCenteredText(commands, 522, tableTop + 7, "Total", { size: 10, color: lightStone });
 
+  let y = tableTop - 18;
   for (const item of input.lineItems) {
-    addText(commands, 40, y, `${item.title} x${item.quantity}`, { size: 10 });
-    addText(commands, 430, y, `${input.currency} ${item.total.toFixed(2)}`, { size: 10 });
-    y -= 14;
+    const descriptionLines = [item.title, ...flattenMultilineText(item.description ?? "")];
+    const rowHeight = Math.max(24, 16 + descriptionLines.length * 12);
+    drawLine(commands, 40, y - rowHeight + 6, 555, y - rowHeight + 6, [0.88, 0.87, 0.85]);
 
-    if (item.description) {
-      for (const line of flattenMultilineText(item.description)) {
-        addText(commands, 50, y, line, { size: 9 });
-        y -= 12;
-      }
+    addText(commands, 52, y, item.title, { size: 11, color: deepStone });
+    let lineY = y - 13;
+    for (const line of flattenMultilineText(item.description ?? "")) {
+      addText(commands, 52, lineY, line, { size: 9, color: midStone });
+      lineY -= 11;
     }
+
+    addCenteredText(commands, 382, y, String(item.quantity), { size: 10, color: deepStone });
+    addCenteredText(commands, 447, y, `${input.currency} ${item.unitPrice.toFixed(2)}`, {
+      size: 10,
+      color: deepStone,
+    });
+    addRightAlignedText(commands, 545, y, `${input.currency} ${item.total.toFixed(2)}`, {
+      size: 10,
+      color: deepStone,
+    });
+
+    y -= rowHeight;
   }
 
-  y -= 8;
-  addText(commands, 360, y, `Subtotal: ${input.currency} ${input.subtotal.toFixed(2)}`, { size: 11 });
-  y -= 16;
-  addText(commands, 360, y, `Total: ${input.currency} ${input.total.toFixed(2)}`, { size: 12 });
+  const totalsBoxTop = y - 8;
+  drawFilledRect(commands, 325, totalsBoxTop - 50, 230, 50, [0.98, 0.97, 0.95]);
+  drawStrokedRect(commands, 325, totalsBoxTop - 50, 230, 50, [0.87, 0.85, 0.83]);
+  addText(commands, 340, totalsBoxTop - 18, "Subtotal", { size: 10, color: midStone });
+  addRightAlignedText(commands, 540, totalsBoxTop - 18, `${input.currency} ${input.subtotal.toFixed(2)}`, {
+    size: 10,
+    color: deepStone,
+  });
+  addText(commands, 340, totalsBoxTop - 38, "Quote total", { size: 11, color: deepStone });
+  addRightAlignedText(commands, 540, totalsBoxTop - 38, `${input.currency} ${input.total.toFixed(2)}`, {
+    size: 14,
+    color: deepStone,
+  });
+
+  addText(commands, 40, 36, `Generated by ${input.businessName}`, { size: 9, color: midStone });
+  addRightAlignedText(commands, 555, 36, "Prepared for review and approval", { size: 9, color: midStone });
 
   return buildSimplePdf(commands);
 }
 
 export function generateInvoicePdf(input: {
   invoiceNumber: string;
+  status?: string;
   issueDate: string;
   dueDate: string;
+  paidDate?: string;
   businessName: string;
   businessAddress: string;
   companyNumber?: string;
@@ -277,6 +343,8 @@ export function generateInvoicePdf(input: {
   taxAmount: number;
   subtotal: number;
   total: number;
+  amountPaid?: number;
+  balanceDue?: number;
   lineItems: Array<{
     title: string;
     description?: string;
@@ -291,6 +359,57 @@ export function generateInvoicePdf(input: {
   const midStone: [number, number, number] = [0.42, 0.38, 0.35];
   const lightStone: [number, number, number] = [0.90, 0.89, 0.88];
   const white: [number, number, number] = [1, 1, 1];
+  const successGreen: [number, number, number] = [0.07, 0.55, 0.33];
+  const alertRed: [number, number, number] = [0.76, 0.20, 0.18];
+  const warningAmber: [number, number, number] = [0.75, 0.47, 0.04];
+  const infoBlue: [number, number, number] = [0.12, 0.43, 0.78];
+  const mutedStone: [number, number, number] = [0.52, 0.48, 0.45];
+  const invoiceStatus = input.status ?? "draft";
+  const amountPaid = input.amountPaid ?? 0;
+  const balanceDue = input.balanceDue ?? input.total;
+
+  const statusPresentation = (() => {
+    switch (invoiceStatus) {
+      case "paid":
+        return {
+          label: "PAID",
+          fill: successGreen,
+          text: input.paidDate
+            ? `Paid on ${formatDisplayDate(input.paidDate)}`
+            : "Payment received",
+        };
+      case "overdue":
+        return {
+          label: "OVERDUE",
+          fill: alertRed,
+          text: `Outstanding ${input.currency} ${balanceDue.toFixed(2)}`,
+        };
+      case "partially_paid":
+        return {
+          label: "PART PAID",
+          fill: warningAmber,
+          text: `Paid ${input.currency} ${amountPaid.toFixed(2)} | Due ${input.currency} ${balanceDue.toFixed(2)}`,
+        };
+      case "refunded":
+        return {
+          label: "REFUNDED",
+          fill: infoBlue,
+          text: "Payment reversed or refunded",
+        };
+      case "cancelled":
+        return {
+          label: "CANCELLED",
+          fill: mutedStone,
+          text: "Invoice no longer payable",
+        };
+      default:
+        return {
+          label: invoiceStatus.replaceAll("_", " ").toUpperCase(),
+          fill: deepStone,
+          text: `Balance due ${input.currency} ${balanceDue.toFixed(2)}`,
+        };
+    }
+  })();
 
   drawFilledRect(commands, 0, 0, 595, 842, white);
   drawFilledRect(commands, 0, 760, 595, 82, brandAmber);
@@ -333,12 +452,25 @@ export function generateInvoicePdf(input: {
     customerY -= 13;
   }
 
-  const summaryTop = 590;
+  drawFilledRect(commands, 40, 602, 515, 40, statusPresentation.fill);
+  addText(commands, 58, 618, statusPresentation.label, { size: 14, color: white });
+  addRightAlignedText(commands, 535, 618, statusPresentation.text, {
+    size: 10,
+    color: white,
+  });
+
+  const summaryTop = 548;
   drawFilledRect(commands, 40, summaryTop - 58, 515, 58, [0.97, 0.97, 0.96]);
   drawStrokedRect(commands, 40, summaryTop - 58, 515, 58, [0.87, 0.85, 0.83]);
   addText(commands, 58, summaryTop - 18, "Subtotal", { size: 9, color: midStone });
   addText(commands, 214, summaryTop - 18, "Tax", { size: 9, color: midStone });
-  addText(commands, 350, summaryTop - 18, "Total due", { size: 9, color: midStone });
+  addText(
+    commands,
+    350,
+    summaryTop - 18,
+    invoiceStatus === "paid" ? "Invoice total" : "Total due",
+    { size: 9, color: midStone }
+  );
   addRightAlignedText(commands, 180, summaryTop - 38, `${input.currency} ${input.subtotal.toFixed(2)}`, {
     size: 15,
     color: deepStone,
@@ -352,7 +484,7 @@ export function generateInvoicePdf(input: {
     color: deepStone,
   });
 
-  const tableTop = 500;
+  const tableTop = 458;
   drawFilledRect(commands, 40, tableTop, 515, 24, deepStone);
   addText(commands, 52, tableTop + 7, "Description", { size: 10, color: lightStone });
   addCenteredText(commands, 382, tableTop + 7, "Qty", { size: 10, color: lightStone });
@@ -386,8 +518,8 @@ export function generateInvoicePdf(input: {
   }
 
   const totalsBoxTop = y - 8;
-  drawFilledRect(commands, 325, totalsBoxTop - 68, 230, 68, [0.98, 0.97, 0.95]);
-  drawStrokedRect(commands, 325, totalsBoxTop - 68, 230, 68, [0.87, 0.85, 0.83]);
+  drawFilledRect(commands, 325, totalsBoxTop - 86, 230, 86, [0.98, 0.97, 0.95]);
+  drawStrokedRect(commands, 325, totalsBoxTop - 86, 230, 86, [0.87, 0.85, 0.83]);
   addText(commands, 340, totalsBoxTop - 18, "Subtotal", { size: 10, color: midStone });
   addRightAlignedText(commands, 540, totalsBoxTop - 18, `${input.currency} ${input.subtotal.toFixed(2)}`, {
     size: 10,
@@ -398,13 +530,18 @@ export function generateInvoicePdf(input: {
     size: 10,
     color: deepStone,
   });
-  addText(commands, 340, totalsBoxTop - 56, "Amount due", { size: 11, color: deepStone });
-  addRightAlignedText(commands, 540, totalsBoxTop - 56, `${input.currency} ${input.total.toFixed(2)}`, {
+  addText(commands, 340, totalsBoxTop - 54, "Amount paid", { size: 10, color: midStone });
+  addRightAlignedText(commands, 540, totalsBoxTop - 54, `${input.currency} ${amountPaid.toFixed(2)}`, {
+    size: 10,
+    color: deepStone,
+  });
+  addText(commands, 340, totalsBoxTop - 74, "Balance due", { size: 11, color: deepStone });
+  addRightAlignedText(commands, 540, totalsBoxTop - 74, `${input.currency} ${balanceDue.toFixed(2)}`, {
     size: 14,
     color: deepStone,
   });
 
-  let sectionY = totalsBoxTop - 95;
+  let sectionY = totalsBoxTop - 113;
   const sections = [
     ["Notes", input.notes],
     ["Payment details", input.bankInstructions],

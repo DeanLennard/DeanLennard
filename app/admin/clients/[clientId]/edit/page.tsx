@@ -41,7 +41,10 @@ export default async function EditClientPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/clients" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Edit client
@@ -49,8 +52,6 @@ export default async function EditClientPage({
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-stone-50">
           {client.businessName}
         </h1>
-        <AdminNav currentPath="/admin/clients" />
-
         {error === "invalid-input" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             Please check the client details and try again.

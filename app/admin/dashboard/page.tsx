@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 
 import { AdminNav } from "@/components/admin-nav";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
+import {
+  buildRangeHref,
+  getRangeLabel,
+  isDateWithinRange,
+  resolveAdminDateRange,
+} from "@/lib/admin-date-range";
 import { listRecentActivity } from "@/lib/activity-log";
 import { listLeads } from "@/lib/audit-store";
 import { listClients } from "@/lib/clients-store";
@@ -21,18 +27,32 @@ export const metadata: Metadata = {
   },
 };
 
-function isSameMonth(dateString: string) {
-  const date = new Date(dateString);
-  const now = new Date();
-
-  return (
-    date.getUTCFullYear() === now.getUTCFullYear() &&
-    date.getUTCMonth() === now.getUTCMonth()
-  );
-}
-
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    range?: string | string[];
+    start?: string | string[];
+    end?: string | string[];
+  }>;
+}) {
   await requireAdminAuthentication();
+
+  const resolvedSearchParams = await searchParams;
+  const rangeValue = Array.isArray(resolvedSearchParams.range)
+    ? resolvedSearchParams.range[0]
+    : resolvedSearchParams.range;
+  const startValue = Array.isArray(resolvedSearchParams.start)
+    ? resolvedSearchParams.start[0]
+    : resolvedSearchParams.start;
+  const endValue = Array.isArray(resolvedSearchParams.end)
+    ? resolvedSearchParams.end[0]
+    : resolvedSearchParams.end;
+  const range = resolveAdminDateRange({
+    range: rangeValue,
+    start: startValue,
+    end: endValue,
+  });
 
   const [leads, clients, projects, tasks, invoices, recurringSchedules, repeatingTemplates, recentActivity] = await Promise.all([
     listLeads({ filter: "all" }),
@@ -46,9 +66,9 @@ export default async function AdminDashboardPage() {
   ]);
 
   const totalLeads = leads.length;
-  const newLeadsThisMonth = leads.filter((lead) => isSameMonth(lead.createdAt)).length;
+  const newLeadsThisMonth = leads.filter((lead) => isDateWithinRange(lead.createdAt, range)).length;
   const convertedLeadsThisMonth = leads.filter(
-    (lead) => lead.leadStatus === "converted" && isSameMonth(lead.updatedAt)
+    (lead) => lead.leadStatus === "converted" && isDateWithinRange(lead.updatedAt, range)
   ).length;
   const activeClients = clients.filter((client) => client.status === "active").length;
   const consentedLeads = leads.filter((lead) => lead.followUpConsent).length;
@@ -81,7 +101,7 @@ export default async function AdminDashboardPage() {
       return sum;
     }
 
-    return isSameMonth(invoice.paidDate ?? invoice.updatedAt) ? sum + invoice.total : sum;
+    return isDateWithinRange(invoice.paidDate ?? invoice.updatedAt, range) ? sum + invoice.total : sum;
   }, 0);
   const recurringRevenue = recurringSchedules
     .filter((schedule) => schedule.status === "active")
@@ -92,6 +112,31 @@ export default async function AdminDashboardPage() {
   const leastProfitableProject = [...projects]
     .sort((a, b) => a.grossProfit - b.grossProfit)
     .at(0);
+  const failedProviderEvents = recentActivity.filter(
+    (entry) =>
+      entry.entityType === "invoice" &&
+      entry.actionType === "provider_sync_failed"
+  ).length;
+  const tasksDueToday = tasks.filter(
+    (task) =>
+      task.dueDate === new Date().toISOString().slice(0, 10) &&
+      task.status !== "done"
+  ).length;
+  const conversionRate = totalLeads > 0 ? (convertedLeadsThisMonth / totalLeads) * 100 : 0;
+  const upcomingRenewals = recurringSchedules.filter((schedule) => {
+    const nextInvoiceDate = new Date(`${schedule.nextInvoiceDate}T00:00:00Z`).getTime();
+    return nextInvoiceDate >= Date.now() && nextInvoiceDate - Date.now() <= 30 * 24 * 60 * 60 * 1000;
+  }).length;
+  const rangeLeads = leads.filter((lead) => isDateWithinRange(lead.createdAt, range)).length;
+  const rangePaidInvoices = invoices.filter(
+    (invoice) =>
+      invoice.status === "paid" &&
+      isDateWithinRange(invoice.paidDate ?? invoice.updatedAt, range)
+  );
+  const averageInvoiceValue =
+    rangePaidInvoices.length > 0
+      ? rangePaidInvoices.reduce((sum, invoice) => sum + invoice.total, 0) / rangePaidInvoices.length
+      : 0;
 
   const summaryCards = [
     {
@@ -100,14 +145,14 @@ export default async function AdminDashboardPage() {
       description: "All website audit leads stored so far.",
     },
     {
-      label: "New this month",
+      label: "New leads",
       value: newLeadsThisMonth,
-      description: "Fresh lead volume in the current month.",
+      description: `Fresh lead volume in ${getRangeLabel(range)}.`,
     },
     {
-      label: "Converted this month",
+      label: "Converted leads",
       value: convertedLeadsThisMonth,
-      description: "Leads that became clients this month.",
+      description: `Leads that became clients in ${getRangeLabel(range)}.`,
     },
     {
       label: "Active clients",
@@ -128,9 +173,9 @@ export default async function AdminDashboardPage() {
 
   const placeholderCards = [
     {
-      label: "Monthly revenue",
+      label: "Revenue",
       value: formatMoney(monthlyRevenue),
-      description: "Paid invoice revenue recorded this month.",
+      description: `Paid invoice revenue recorded in ${getRangeLabel(range)}.`,
     },
     {
       label: "Recurring revenue",
@@ -166,6 +211,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/dashboard" />
+      </section>
+
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -191,8 +240,65 @@ export default async function AdminDashboardPage() {
             </button>
           </form>
         </div>
+      </section>
 
-        <AdminNav currentPath="/admin/dashboard" />
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-2">
+            {(["7d", "30d", "month", "all"] as const).map((option) => (
+              <a
+                key={option}
+                href={buildRangeHref("/admin/dashboard", { preset: option })}
+                className={`inline-flex rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition ${
+                  range.preset === option
+                    ? "border-amber-500/50 bg-amber-500/10 text-amber-200"
+                    : "border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] text-stone-300 hover:bg-white/8"
+                }`}
+              >
+                {option === "7d"
+                  ? "Last 7 days"
+                  : option === "30d"
+                    ? "Last 30 days"
+                    : option === "month"
+                      ? "Current month"
+                      : "All time"}
+              </a>
+            ))}
+          </div>
+          <form action="/admin/dashboard" method="get" className="grid gap-4 md:grid-cols-[0.8fr_0.8fr_auto_auto]">
+            <input type="hidden" name="range" value="custom" />
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Custom start date</span>
+              <input
+                type="date"
+                name="start"
+                defaultValue={range.startDate || ""}
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Custom end date</span>
+              <input
+                type="date"
+                name="end"
+                defaultValue={range.endDate || ""}
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100"
+              />
+            </label>
+            <a
+              href="/admin/dashboard"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-4 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8 md:mt-8"
+            >
+              Clear
+            </a>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-4 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500 md:mt-8"
+            >
+              Apply Custom Range
+            </button>
+          </form>
+        </div>
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-3">
@@ -249,6 +355,9 @@ export default async function AdminDashboardPage() {
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Financial snapshot
           </p>
+          <p className="mt-2 text-sm leading-7 text-stone-400">
+            Revenue, cashflow, and operations for {getRangeLabel(range)}.
+          </p>
           <div className="mt-6 space-y-4">
             {placeholderCards.map((card) => (
               <div
@@ -267,6 +376,74 @@ export default async function AdminDashboardPage() {
               </div>
             ))}
           </div>
+        </article>
+      </section>
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-4">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Alerts
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{overdueInvoices}</p>
+          <p className="mt-2 text-sm text-stone-400">Overdue invoices</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Due today
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{tasksDueToday}</p>
+          <p className="mt-2 text-sm text-stone-400">Tasks due today</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Provider issues
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{failedProviderEvents}</p>
+          <p className="mt-2 text-sm text-stone-400">Recent failed billing syncs</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Maintenance due
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{upcomingRepeatingTasks.length}</p>
+          <p className="mt-2 text-sm text-stone-400">Upcoming repeating task templates</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Renewals due
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{upcomingRenewals}</p>
+          <p className="mt-2 text-sm text-stone-400">Yearly care-plan renewals in the next 30 days</p>
+        </article>
+      </section>
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-3">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Lead trend
+          </p>
+          <p className="mt-4 text-4xl font-semibold text-stone-50">{rangeLeads}</p>
+          <p className="mt-3 text-sm leading-7 text-stone-300">
+            Leads created during {getRangeLabel(range)}.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Conversion rate
+          </p>
+          <p className="mt-4 text-4xl font-semibold text-stone-50">{conversionRate.toFixed(1)}%</p>
+          <p className="mt-3 text-sm leading-7 text-stone-300">
+            Converted leads relative to all stored leads.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Average invoice value
+          </p>
+          <p className="mt-4 text-4xl font-semibold text-stone-50">{formatMoney(averageInvoiceValue)}</p>
+          <p className="mt-3 text-sm leading-7 text-stone-300">
+            Average paid invoice value in the selected range.
+          </p>
         </article>
       </section>
 

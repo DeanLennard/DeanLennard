@@ -8,6 +8,7 @@ import {
   type ProjectPackageType,
   type ProjectStatus,
 } from "@/lib/projects-store";
+import { getTaskTemplateById } from "@/lib/task-templates-store";
 import { createRepeatingTaskTemplate } from "@/lib/repeating-task-templates-store";
 import { createTask } from "@/lib/tasks-store";
 
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
   const billingType = String(formData.get("billingType") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
   const packageTemplateId = String(formData.get("packageTemplateId") ?? "").trim();
+  const taskTemplateId = String(formData.get("taskTemplateId") ?? "").trim();
   const estimatedRevenue = Number(formData.get("estimatedRevenue") ?? "0");
   const estimatedCost = Number(formData.get("estimatedCost") ?? "0");
 
@@ -89,6 +91,24 @@ export async function POST(request: Request) {
           active: true,
           autoCreateEnabled: true,
           taskStatusOnCreate: "todo",
+        });
+      }
+    }
+  }
+
+  if (taskTemplateId) {
+    const taskTemplate = await getTaskTemplateById(taskTemplateId);
+
+    if (taskTemplate) {
+      for (const task of taskTemplate.tasks) {
+        await createTask({
+          projectId: project.projectId,
+          customerId,
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          estimatedMinutes: task.estimatedMinutes,
+          labels: task.labels,
         });
       }
     }

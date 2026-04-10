@@ -49,6 +49,10 @@ export default async function InvoicesPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/invoices" />
+      </section>
+
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -80,11 +84,10 @@ export default async function InvoicesPage({
             </form>
           </div>
         </div>
+      </section>
 
-        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-4">
-            <AdminNav currentPath="/admin/invoices" />
-          </div>
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-4">
           <form action="/admin/invoices" method="get" className="grid w-full gap-3 lg:max-w-3xl lg:grid-cols-[1fr_auto_auto]">
             <input
               type="text"
@@ -156,6 +159,12 @@ export default async function InvoicesPage({
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+                  <Link
+                    href={`/admin/invoices/${invoice.invoiceId}/edit`}
+                    className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                  >
+                    Edit
+                  </Link>
                   <Link
                     href={`/admin/invoices/${invoice.invoiceId}`}
                     className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"

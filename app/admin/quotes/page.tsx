@@ -46,6 +46,10 @@ export default async function QuotesPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/quotes" />
+      </section>
+
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -78,11 +82,10 @@ export default async function QuotesPage({
             </form>
           </div>
         </div>
+      </section>
 
-        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-4">
-            <AdminNav currentPath="/admin/quotes" />
-          </div>
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-4">
           <form
             action="/admin/quotes"
             method="get"

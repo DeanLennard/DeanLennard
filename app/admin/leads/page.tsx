@@ -6,6 +6,16 @@ import { requireAdminAuthentication } from "@/lib/admin-auth";
 import { formatDisplayDateTime } from "@/lib/date-format";
 import { listLeads, type LeadStatus } from "@/lib/audit-store";
 
+const lostReasonLabels: Record<string, string> = {
+  no_budget: "No budget",
+  no_response: "No response",
+  not_a_fit: "Not a fit",
+  chose_competitor: "Chose competitor",
+  duplicate: "Duplicate",
+  spam: "Spam",
+  other: "Other",
+};
+
 export const metadata: Metadata = {
   title: "Lead Admin",
   robots: {
@@ -28,14 +38,28 @@ function getSingleValue(value: string | string[] | undefined) {
 function getFilter(value: string | undefined): LeadFilter {
   if (
     value === "new" ||
+    value === "reviewed" ||
     value === "contacted" ||
+    value === "qualified" ||
     value === "converted" ||
-    value === "lost"
+    value === "lost" ||
+    value === "archived"
   ) {
     return value;
   }
 
   return "all";
+}
+
+function formatLeadStatusLabel(status: LeadFilter) {
+  if (status === "all") {
+    return "All leads";
+  }
+
+  return status
+    .split("_")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
 }
 
 function buildFilterHref(status: LeadFilter, query: string) {
@@ -70,6 +94,10 @@ export default async function AdminLeadsPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/leads" />
+      </section>
+
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -94,18 +122,26 @@ export default async function AdminLeadsPage({
             </button>
           </form>
         </div>
+      </section>
 
-        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-4">
-            <AdminNav currentPath="/admin/leads" />
-            <div className="flex flex-wrap gap-3">
-              {(["all", "new", "contacted", "converted", "lost"] as LeadFilter[]).map(
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-3">
+              {(
+                [
+                  "all",
+                  "new",
+                  "reviewed",
+                  "contacted",
+                  "qualified",
+                  "converted",
+                  "lost",
+                  "archived",
+                ] as LeadFilter[]
+              ).map(
                 (option) => {
                   const active = option === status;
-                  const label =
-                    option === "all"
-                      ? "All leads"
-                      : option.charAt(0).toUpperCase() + option.slice(1);
+                  const label = formatLeadStatusLabel(option);
 
                   return (
                     <Link
@@ -122,7 +158,6 @@ export default async function AdminLeadsPage({
                   );
                 }
               )}
-            </div>
           </div>
 
           <form
@@ -191,6 +226,30 @@ export default async function AdminLeadsPage({
                       Location: {lead.location}
                     </p>
                   ) : null}
+                  {lead.traffic?.utmCampaign ? (
+                    <p className="text-sm leading-7 text-stone-300">
+                      Campaign: {lead.traffic.utmCampaign}
+                    </p>
+                  ) : null}
+                  {lead.traffic?.sourcePage ? (
+                    <p className="text-sm leading-7 text-stone-400">
+                      Source page: {lead.traffic.sourcePage}
+                    </p>
+                  ) : null}
+                  {lead.qualificationFit ? (
+                    <p className="text-sm leading-7 text-stone-300">
+                      Qualification: {lead.qualificationFit}
+                      {lead.qualificationBudget ? ` | Budget ${lead.qualificationBudget}` : ""}
+                      {lead.qualificationTimeline
+                        ? ` | Timeline ${lead.qualificationTimeline}`
+                        : ""}
+                    </p>
+                  ) : null}
+                  {lead.leadStatus === "lost" && lead.lostReason ? (
+                    <p className="text-sm leading-7 text-stone-300">
+                      Lost reason: {lostReasonLabels[lead.lostReason] ?? lead.lostReason}
+                    </p>
+                  ) : null}
                   <p className="text-sm leading-7 text-stone-400">
                     Checked on {formatDisplayDateTime(lead.checkedAt)}
                   </p>
@@ -227,6 +286,15 @@ export default async function AdminLeadsPage({
               <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-wrap gap-3">
                   <form action={`/api/admin/leads/${lead.auditId}/status`} method="post">
+                    <input type="hidden" name="status" value="reviewed" />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                    >
+                      Mark Reviewed
+                    </button>
+                  </form>
+                  <form action={`/api/admin/leads/${lead.auditId}/status`} method="post">
                     <input type="hidden" name="status" value="contacted" />
                     <button
                       type="submit"
@@ -236,12 +304,31 @@ export default async function AdminLeadsPage({
                     </button>
                   </form>
                   <form action={`/api/admin/leads/${lead.auditId}/status`} method="post">
+                    <input type="hidden" name="status" value="qualified" />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                    >
+                      Mark Qualified
+                    </button>
+                  </form>
+                  <form action={`/api/admin/leads/${lead.auditId}/status`} method="post">
                     <input type="hidden" name="status" value="lost" />
+                    <input type="hidden" name="lostReason" value={lead.lostReason ?? "other"} />
                     <button
                       type="submit"
                       className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
                     >
                       Mark Lost
+                    </button>
+                  </form>
+                  <form action={`/api/admin/leads/${lead.auditId}/status`} method="post">
+                    <input type="hidden" name="status" value="archived" />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                    >
+                      Archive
                     </button>
                   </form>
                   {lead.leadStatus !== "converted" ? (

@@ -65,20 +65,26 @@ export function buildQuoteEmailTemplate(input: {
   quoteNumber: string;
   total: string;
   expiryDate?: string;
+  viewQuoteHref?: string;
   pdfHref?: string;
 }) {
   return renderShell({
     eyebrow: "Proposal",
     title: `Quote ${input.quoteNumber}`,
-    intro: `Hello ${input.recipientName}, your quote is ready. I have attached the PDF to this email so you can review the scope and pricing easily.`,
+    intro: `Hello ${input.recipientName}, your quote is ready. I have attached the PDF to this email and also prepared a secure hosted quote page on deanlennard.com where you can review the details and approve the proposal online.`,
     details: [
       { label: "Quote number", value: input.quoteNumber },
       { label: "Total", value: input.total },
       ...(input.expiryDate ? [{ label: "Expiry date", value: input.expiryDate }] : []),
     ],
-    actions: input.pdfHref
-      ? [{ label: "Open PDF", href: input.pdfHref, tone: "primary" }]
-      : undefined,
+    actions: [
+      ...(input.viewQuoteHref
+        ? [{ label: "Review quote", href: input.viewQuoteHref, tone: "primary" as const }]
+        : []),
+      ...(input.pdfHref
+        ? [{ label: "Open PDF", href: input.pdfHref, tone: "secondary" as const }]
+        : []),
+    ],
   });
 }
 
@@ -110,6 +116,165 @@ export function buildInvoiceEmailTemplate(input: {
       ...(!input.paymentHref && input.pdfHref
         ? [{ label: "Open PDF", href: input.pdfHref, tone: "secondary" as const }]
         : []),
+    ],
+  });
+}
+
+export function buildOverdueInvoiceEmailTemplate(input: {
+  recipientName: string;
+  invoiceNumber: string;
+  total: string;
+  dueDate: string;
+  viewInvoiceHref?: string;
+  paymentHref?: string;
+}) {
+  return renderShell({
+    eyebrow: "Payment reminder",
+    title: `Invoice ${input.invoiceNumber} is overdue`,
+    intro: `Hello ${input.recipientName}, this is a reminder that the invoice below is now overdue. You can review it on the secure hosted page and use the available payment option there if you still need to settle it.`,
+    details: [
+      { label: "Invoice number", value: input.invoiceNumber },
+      { label: "Outstanding", value: input.total },
+      { label: "Due date", value: input.dueDate },
+    ],
+    actions: [
+      ...(input.viewInvoiceHref
+        ? [{ label: "View invoice", href: input.viewInvoiceHref, tone: "primary" as const }]
+        : []),
+      ...(input.paymentHref
+        ? [{ label: "Pay now", href: input.paymentHref, tone: "secondary" as const }]
+        : []),
+    ],
+  });
+}
+
+export function buildPaymentConfirmationEmailTemplate(input: {
+  recipientName: string;
+  invoiceNumber: string;
+  totalPaid: string;
+  paidDate?: string;
+  viewInvoiceHref?: string;
+  pdfHref?: string;
+}) {
+  return renderShell({
+    eyebrow: "Payment received",
+    title: `Payment confirmed for ${input.invoiceNumber}`,
+    intro: `Hello ${input.recipientName}, thank you. Payment has been recorded against your invoice and I have included the hosted invoice page and PDF below for your records.`,
+    details: [
+      { label: "Invoice number", value: input.invoiceNumber },
+      { label: "Amount received", value: input.totalPaid },
+      ...(input.paidDate ? [{ label: "Paid date", value: input.paidDate }] : []),
+    ],
+    actions: [
+      ...(input.viewInvoiceHref
+        ? [{ label: "View invoice", href: input.viewInvoiceHref, tone: "primary" as const }]
+        : []),
+      ...(input.pdfHref
+        ? [{ label: "Open PDF", href: input.pdfHref, tone: "secondary" as const }]
+        : []),
+    ],
+  });
+}
+
+export function buildRecurringInvoiceCreatedEmailTemplate(input: {
+  recipientName: string;
+  invoiceNumber: string;
+  total: string;
+  dueDate: string;
+  viewInvoiceHref?: string;
+  paymentHref?: string;
+  pdfHref?: string;
+}) {
+  return renderShell({
+    eyebrow: "Recurring invoice",
+    title: `New recurring invoice ${input.invoiceNumber}`,
+    intro: `Hello ${input.recipientName}, a new recurring invoice has been created for your care plan or ongoing service. You can review it on the secure hosted page and pay using the available option there.`,
+    details: [
+      { label: "Invoice number", value: input.invoiceNumber },
+      { label: "Total due", value: input.total },
+      { label: "Due date", value: input.dueDate },
+    ],
+    actions: [
+      ...(input.viewInvoiceHref
+        ? [{ label: "View invoice", href: input.viewInvoiceHref, tone: "primary" as const }]
+        : []),
+      ...(input.paymentHref
+        ? [{ label: "Pay now", href: input.paymentHref, tone: "secondary" as const }]
+        : []),
+      ...(!input.paymentHref && input.pdfHref
+        ? [{ label: "Open PDF", href: input.pdfHref, tone: "secondary" as const }]
+        : []),
+    ],
+  });
+}
+
+export function buildPortalMagicLinkEmailTemplate(input: {
+  recipientName: string;
+  businessName: string;
+  magicLinkHref: string;
+  expiryMinutes: number;
+}) {
+  return renderShell({
+    eyebrow: "Client portal",
+    title: `Your secure sign-in link for ${input.businessName}`,
+    intro: `Hello ${input.recipientName}, use the secure link below to sign in to your client portal. This passwordless link expires in ${input.expiryMinutes} minutes.`,
+    details: [
+      { label: "Access type", value: "Magic link" },
+      { label: "Expires in", value: `${input.expiryMinutes} minutes` },
+    ],
+    actions: [
+      {
+        label: "Sign in to portal",
+        href: input.magicLinkHref,
+        tone: "primary",
+      },
+    ],
+    closing:
+      "If you did not request this sign-in link, you can safely ignore this email.<br />Dean Lennard<br />Outbreak LTD",
+  });
+}
+
+export function buildMonthlyProjectSummaryEmailTemplate(input: {
+  recipientName: string;
+  projectName: string;
+  projectStatus: string;
+  openTasks: string;
+  completedTasks: string;
+  loggedHours: string;
+  revenue: string;
+  outstandingBalance: string;
+}) {
+  return renderShell({
+    eyebrow: "Project summary",
+    title: `Monthly update for ${input.projectName}`,
+    intro: `Hello ${input.recipientName}, here is a short monthly summary for your project so you have a clear view of delivery progress and current commercial status.`,
+    details: [
+      { label: "Project status", value: input.projectStatus },
+      { label: "Open tasks", value: input.openTasks },
+      { label: "Completed tasks", value: input.completedTasks },
+      { label: "Logged hours", value: input.loggedHours },
+      { label: "Paid revenue", value: input.revenue },
+      { label: "Outstanding balance", value: input.outstandingBalance },
+    ],
+  });
+}
+
+export function buildCarePlanRenewalEmailTemplate(input: {
+  recipientName: string;
+  scheduleTitle: string;
+  renewalDate: string;
+  amount: string;
+  tierLabel: string;
+}) {
+  return renderShell({
+    eyebrow: "Care plan renewal",
+    title: `${input.scheduleTitle} renews soon`,
+    intro: `Hello ${input.recipientName}, this is a heads-up that your ${input.tierLabel} care plan is coming up for renewal soon. The next billing date is below so there are no surprises.`,
+    details: [
+      { label: "Plan", value: input.scheduleTitle },
+      { label: "Tier", value: input.tierLabel },
+      { label: "Renewal date", value: input.renewalDate },
+      { label: "Renewal amount", value: input.amount },
     ],
   });
 }

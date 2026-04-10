@@ -12,6 +12,7 @@ import { createEmailLog } from "@/lib/email-logs-store";
 import { buildQuoteEmailTemplate } from "@/lib/email-templates";
 import { formatMoney } from "@/lib/money-format";
 import { toBase64 } from "@/lib/payment-provider-clients";
+import { buildPublicQuoteUrl } from "@/lib/public-quote-links";
 import { toPublicUrl } from "@/lib/public-site";
 import { getQuoteById, updateQuoteStatus } from "@/lib/quotes-store";
 import { sendResendEmail } from "@/lib/resend-email";
@@ -64,6 +65,7 @@ export async function POST(
         quoteNumber: quote.quoteNumber,
         total: formatMoney(quote.total, quote.currency),
         expiryDate: quote.expiryDate ? formatDisplayDate(quote.expiryDate) : undefined,
+        viewQuoteHref: buildPublicQuoteUrl(quote.quoteId),
         pdfHref: toPublicUrl(ensured.pdfPath),
       }),
       attachments,

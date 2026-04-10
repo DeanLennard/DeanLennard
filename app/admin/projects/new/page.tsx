@@ -7,6 +7,7 @@ import { requireAdminAuthentication } from "@/lib/admin-auth";
 import { getPackageTemplateById } from "@/lib/package-templates-store";
 import { listClients } from "@/lib/clients-store";
 import { getProjectContext } from "@/lib/projects-store";
+import { getTaskTemplateById, listTaskTemplates } from "@/lib/task-templates-store";
 
 export const metadata: Metadata = {
   title: "New Project",
@@ -21,6 +22,7 @@ type NewProjectPageSearchParams = Promise<{
   quoteId?: string | string[];
   leadId?: string | string[];
   packageTemplateId?: string | string[];
+  taskTemplateId?: string | string[];
   error?: string | string[];
 }>;
 
@@ -41,9 +43,11 @@ export default async function NewProjectPage({
   const leadId = getSingleValue(resolvedSearchParams.leadId)?.trim() ?? "";
   const packageTemplateId =
     getSingleValue(resolvedSearchParams.packageTemplateId)?.trim() ?? "";
+  const taskTemplateId = getSingleValue(resolvedSearchParams.taskTemplateId)?.trim() ?? "";
   const error = getSingleValue(resolvedSearchParams.error) ?? "";
 
-  const [{ customer, quote, lead }, allClients, packageTemplate] = await Promise.all([
+  const [{ customer, quote, lead }, allClients, packageTemplate, taskTemplate, taskTemplates] =
+    await Promise.all([
     getProjectContext({
       customerId: customerId || undefined,
       quoteId: quoteId || undefined,
@@ -51,6 +55,8 @@ export default async function NewProjectPage({
     }),
     listClients(),
     packageTemplateId ? getPackageTemplateById(packageTemplateId) : Promise.resolve(null),
+    taskTemplateId ? getTaskTemplateById(taskTemplateId) : Promise.resolve(null),
+    listTaskTemplates(),
   ]);
 
   const defaultName =
@@ -60,7 +66,10 @@ export default async function NewProjectPage({
     (lead?.businessName ? `${lead.businessName} project` : "");
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/projects" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           New project
@@ -72,8 +81,6 @@ export default async function NewProjectPage({
           Turn accepted work into a project record you can manage through
           delivery.
         </p>
-        <AdminNav currentPath="/admin/projects" />
-
         {error === "missing-fields" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             Client and project name are required.
@@ -82,6 +89,11 @@ export default async function NewProjectPage({
         {packageTemplate ? (
           <div className="mt-6 rounded-md border border-sky-500/30 bg-sky-500/10 p-4 text-sm leading-7 text-sky-100">
             Using package template: {packageTemplate.name}
+          </div>
+        ) : null}
+        {taskTemplate ? (
+          <div className="mt-6 rounded-md border border-sky-500/30 bg-sky-500/10 p-4 text-sm leading-7 text-sky-100">
+            Using task template: {taskTemplate.name}
           </div>
         ) : null}
 
@@ -144,6 +156,27 @@ export default async function NewProjectPage({
               </select>
             </div>
 
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-stone-100" htmlFor="taskTemplateId">
+                Task template
+              </label>
+              <select
+                id="taskTemplateId"
+                name="taskTemplateId"
+                defaultValue={taskTemplateId}
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              >
+                <option value="">No task template</option>
+                {taskTemplates.map((template) => (
+                  <option key={template.templateId} value={template.templateId}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-stone-100" htmlFor="billingType">
                 Billing type

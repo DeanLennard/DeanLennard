@@ -5,11 +5,13 @@ import { DateInput } from "@/components/date-input";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
 import { listClients } from "@/lib/clients-store";
 import { formatDisplayDate } from "@/lib/date-format";
+import { listInvoicesByRecurringScheduleId } from "@/lib/invoices-store";
 import { formatMoney } from "@/lib/money-format";
 import { listProjects } from "@/lib/projects-store";
 import { listRecurringInvoiceSchedules } from "@/lib/recurring-billing-store";
 import { listRepeatingTaskTemplates } from "@/lib/repeating-task-templates-store";
 import { getAppSettings } from "@/lib/settings-store";
+import { toPublicUrl } from "@/lib/public-site";
 
 export const metadata: Metadata = {
   title: "Recurring Billing Admin",
@@ -52,12 +54,25 @@ export default async function RecurringBillingPage({
     listRecurringInvoiceSchedules(),
     listRepeatingTaskTemplates(),
   ]);
+  const scheduleInvoices = await Promise.all(
+    schedules.map(async (schedule) => ({
+      scheduleId: schedule.scheduleId,
+      invoices: await listInvoicesByRecurringScheduleId(schedule.scheduleId),
+    }))
+  );
 
   const clientMap = new Map(clients.map((client) => [client.clientId, client]));
   const projectMap = new Map(projects.map((project) => [project.projectId, project]));
+  const scheduleInvoiceMap = new Map(
+    scheduleInvoices.map((entry) => [entry.scheduleId, entry.invoices])
+  );
+  const automationEndpoint = `${toPublicUrl("/api/internal/automations/run")}`;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/recurring-billing" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -83,8 +98,6 @@ export default async function RecurringBillingPage({
           </form>
         </div>
 
-        <AdminNav currentPath="/admin/recurring-billing" />
-
         {saved ? (
           <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
             Saved: {saved.replaceAll("-", " ")}.
@@ -100,6 +113,29 @@ export default async function RecurringBillingPage({
             Due automations run. Invoices created: {Number.isFinite(invoicesCreated) ? invoicesCreated : 0}. Tasks created: {Number.isFinite(tasksCreated) ? tasksCreated : 0}.
           </div>
         ) : null}
+      </section>
+
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+              Automation runner
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-stone-300">
+              For production scheduling, point your cron service at the internal
+              automations endpoint using the automation secret from settings. This
+              keeps recurring invoices, repeating tasks, monthly project summaries,
+              and care-plan renewal notices running without relying on the manual button.
+            </p>
+          </div>
+          <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4 text-sm leading-7 text-stone-300">
+            <p className="font-semibold text-stone-100">Endpoint</p>
+            <p className="mt-1 break-all">{automationEndpoint}</p>
+            <p className="mt-3 text-xs text-stone-400">
+              Send `x-automation-secret` or `Authorization: Bearer ...`
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
@@ -336,6 +372,11 @@ export default async function RecurringBillingPage({
               schedules.map((schedule) => {
                 const client = clientMap.get(schedule.customerId);
                 const project = schedule.projectId ? projectMap.get(schedule.projectId) : null;
+                const scheduleHistory = scheduleInvoiceMap.get(schedule.scheduleId) ?? [];
+                const latestInvoice = scheduleHistory[0];
+                const retryableInvoice = scheduleHistory.find((invoice) =>
+                  ["draft", "sent", "unpaid", "partially_paid", "overdue"].includes(invoice.status)
+                );
 
                 return (
                   <div key={schedule.scheduleId} className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4">
@@ -350,6 +391,37 @@ export default async function RecurringBillingPage({
                     <p className="mt-1 text-sm leading-7 text-stone-400">
                       {formatMoney(schedule.amount, schedule.currency)} | {schedule.billingProvider} | {schedule.status}
                     </p>
+                    {latestInvoice ? (
+                      <div className="mt-3 rounded-md border border-[color:var(--color-border)] bg-stone-950/40 p-3 text-sm leading-6 text-stone-300">
+                        <p className="font-semibold text-stone-100">
+                          Latest invoice: {latestInvoice.invoiceNumber}
+                        </p>
+                        <p className="mt-1">
+                          {latestInvoice.status.replaceAll("_", " ")} | Due {formatDisplayDate(latestInvoice.dueDate)} | {formatMoney(latestInvoice.total, latestInvoice.currency)}
+                        </p>
+                      </div>
+                    ) : null}
+                    {scheduleHistory.length > 1 ? (
+                      <p className="mt-2 text-xs text-stone-400">
+                        {scheduleHistory.length} invoices linked to this schedule
+                      </p>
+                    ) : null}
+                    {scheduleHistory.length > 0 ? (
+                      <div className="mt-3 rounded-md border border-[color:var(--color-border)] bg-stone-950/30 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-400">
+                          Payment history
+                        </p>
+                        <div className="mt-3 space-y-2 text-xs leading-6 text-stone-300">
+                          {scheduleHistory.slice(0, 3).map((invoice) => (
+                            <div key={invoice.invoiceId} className="flex flex-wrap items-center justify-between gap-3">
+                              <span className="font-semibold text-stone-100">{invoice.invoiceNumber}</span>
+                              <span>{invoice.status.replaceAll("_", " ")}</span>
+                              <span>{formatMoney(invoice.total, invoice.currency)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {(["active", "paused", "cancelled"] as const).map((status) => (
                         <form key={status} action={`/api/admin/recurring-billing/${schedule.scheduleId}/status`} method="post">
@@ -359,6 +431,18 @@ export default async function RecurringBillingPage({
                           </button>
                         </form>
                       ))}
+                      <form action={`/api/admin/recurring-billing/${schedule.scheduleId}/generate`} method="post">
+                        <button type="submit" className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
+                          Generate invoice now
+                        </button>
+                      </form>
+                      {retryableInvoice && schedule.billingProvider !== "manual" ? (
+                        <form action={`/api/admin/recurring-billing/${schedule.scheduleId}/retry-provider`} method="post">
+                          <button type="submit" className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
+                            Retry provider billing
+                          </button>
+                        </form>
+                      ) : null}
                     </div>
                   </div>
                 );

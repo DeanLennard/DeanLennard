@@ -3,7 +3,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getApprovedAdminUserByUsername } from "@/lib/admin-users";
+import {
+  getApprovedAdminUserByUsername,
+  type InternalUserRole,
+} from "@/lib/admin-users";
 
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET ?? "";
 const ADMIN_SESSION_COOKIE = "outbreak_admin_session";
@@ -79,6 +82,32 @@ export async function requireAdminAuthentication() {
   if (!authenticated) {
     redirect("/admin/login");
   }
+}
+
+export async function getAuthenticatedAdminUser() {
+  const cookieStore = await cookies();
+  const sessionValue = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (!sessionValue || !isAdminSessionSignatureValid(sessionValue)) {
+    return null;
+  }
+
+  const [payload] = sessionValue.split(".");
+  return getApprovedAdminUserByUsername(payload);
+}
+
+export async function requireAdminRole(roles: InternalUserRole[]) {
+  const user = await getAuthenticatedAdminUser();
+
+  if (!user) {
+    redirect("/admin/login");
+  }
+
+  if (!roles.includes(user.role ?? "admin")) {
+    redirect("/admin");
+  }
+
+  return user;
 }
 
 export function getAdminSessionCookieName() {

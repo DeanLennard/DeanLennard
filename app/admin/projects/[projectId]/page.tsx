@@ -35,6 +35,14 @@ function getSingleValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function formatRecurringInterval(interval: string | undefined) {
+  if (!interval) {
+    return "monthly";
+  }
+
+  return interval.replaceAll("_", " ");
+}
+
 export default async function ProjectDetailPage({
   params,
   searchParams,
@@ -66,9 +74,14 @@ export default async function ProjectDetailPage({
     listProjectCostsByProjectId(project.projectId),
   ]);
   const manualCostTotal = manualCosts.reduce((sum, cost) => sum + cost.amount, 0);
+  const timeCostTotal = tasks.reduce((sum, task) => sum + task.internalCostTotal, 0);
+  const outstandingRevenue = invoices.reduce((sum, invoice) => sum + invoice.balanceDue, 0);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/projects" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Project detail
@@ -98,8 +111,15 @@ export default async function ProjectDetailPage({
           >
             Care Plans
           </Link>
+          <form action={`/api/admin/projects/${project.projectId}/duplicate`} method="post">
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              Duplicate Project
+            </button>
+          </form>
         </div>
-        <AdminNav currentPath="/admin/projects" />
       </section>
 
       {error === "invalid-status" ? (
@@ -329,11 +349,20 @@ export default async function ProjectDetailPage({
                 <span className="text-sm font-semibold text-stone-100">Amount</span>
                 <input name="amount" type="number" min="0.01" step="0.01" className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100" />
               </label>
-              <label className="inline-flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-200 md:self-end">
-                <input type="checkbox" name="recurring" className="h-4 w-4" />
-                Recurring cost
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-stone-100">Recurring interval</span>
+                <select name="recurringInterval" defaultValue="monthly" className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
               </label>
             </div>
+            <label className="inline-flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-200">
+              <input type="checkbox" name="recurring" className="h-4 w-4" />
+              Recurring cost
+            </label>
             <label className="space-y-2">
               <span className="text-sm font-semibold text-stone-100">Description</span>
               <textarea name="description" rows={3} className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100" />
@@ -365,7 +394,11 @@ export default async function ProjectDetailPage({
                     </div>
                     <div className="text-sm font-semibold text-stone-100">
                       {formatMoney(cost.amount)}
-                      {cost.recurring ? <p className="mt-1 text-xs font-normal text-stone-400">Recurring</p> : null}
+                      {cost.recurring ? (
+                        <p className="mt-1 text-xs font-normal text-stone-400">
+                          Recurring {formatRecurringInterval(cost.recurringInterval)}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                 </li>
@@ -468,13 +501,60 @@ export default async function ProjectDetailPage({
         </article>
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
-            Task cost
+            Time cost
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {formatMoney(timeCostTotal)}
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Logged delivery cost only.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Manual cost
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {formatMoney(manualCostTotal)}
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Hosting, software, contractors, and other direct costs.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Total cost
           </p>
           <p className="mt-3 text-3xl font-semibold text-stone-50">
             {formatMoney(project.actualCost)}
           </p>
           <p className="mt-2 text-sm text-stone-400">
-            Includes {formatMoney(manualCostTotal)} in manual costs.
+            Time cost plus manual project costs.
+          </p>
+        </article>
+      </section>
+
+      <section className="mt-8 grid gap-6 md:grid-cols-4">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Paid revenue
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {formatMoney(project.actualRevenue)}
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Based on paid and part-paid invoices.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Outstanding invoiced
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {formatMoney(outstandingRevenue)}
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Invoiced revenue still to be collected.
           </p>
         </article>
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
@@ -483,6 +563,17 @@ export default async function ProjectDetailPage({
           </p>
           <p className="mt-3 text-3xl font-semibold text-stone-50">
             {formatMoney(project.grossProfit)}
+          </p>
+          <p className="mt-2 text-sm text-stone-400">
+            Paid revenue minus total project cost.
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Gross margin
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {project.grossMarginPercent.toFixed(1)}%
           </p>
         </article>
       </section>

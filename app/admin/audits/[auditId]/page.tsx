@@ -41,6 +41,9 @@ export default async function AuditDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin" />
+      </section>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
@@ -64,8 +67,6 @@ export default async function AuditDetailPage({
           Back to all audits
         </Link>
       </div>
-      <AdminNav currentPath="/admin" />
-
       <section className="mt-8 grid gap-6 lg:grid-cols-3">
         {[
           {
@@ -167,6 +168,13 @@ export default async function AuditDetailPage({
             <p>Original URL: {audit.url}</p>
             <p>Normalized URL: {audit.normalizedUrl}</p>
             {audit.businessName ? <p>Business name: {audit.businessName}</p> : null}
+            {audit.traffic?.sourcePage ? <p>Source page: {audit.traffic.sourcePage}</p> : null}
+            {audit.traffic?.referrer ? <p className="break-all">Referrer: {audit.traffic.referrer}</p> : null}
+            {audit.traffic?.ipAddress ? <p>IP address: {audit.traffic.ipAddress}</p> : null}
+            {audit.traffic?.userAgent ? <p className="break-all">User agent: {audit.traffic.userAgent}</p> : null}
+            {audit.traffic?.utmSource ? <p>UTM source: {audit.traffic.utmSource}</p> : null}
+            {audit.traffic?.utmMedium ? <p>UTM medium: {audit.traffic.utmMedium}</p> : null}
+            {audit.traffic?.utmCampaign ? <p>UTM campaign: {audit.traffic.utmCampaign}</p> : null}
             <p>
               Pages checked: {audit.checkedPages.length}
               {audit.crawlLimitReached ? ` of ${audit.crawlLimit} max` : ""}

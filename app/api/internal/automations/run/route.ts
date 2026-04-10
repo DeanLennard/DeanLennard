@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+import {
+  sendCarePlanRenewalNotices,
+  sendMonthlyProjectSummaryEmails,
+} from "@/lib/automation-email";
 import { getAppSettings } from "@/lib/settings-store";
 import { runDueRecurringInvoices } from "@/lib/recurring-billing-store";
 import { runDueRepeatingTaskTemplates } from "@/lib/repeating-task-templates-store";
@@ -22,15 +26,19 @@ async function runAutomations(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [invoicesCreated, tasksCreated] = await Promise.all([
+  const [invoicesCreated, tasksCreated, monthlySummariesSent, renewalNoticesSent] = await Promise.all([
     runDueRecurringInvoices(),
     runDueRepeatingTaskTemplates(),
+    sendMonthlyProjectSummaryEmails(),
+    sendCarePlanRenewalNotices(),
   ]);
 
   return NextResponse.json({
     ok: true,
     invoicesCreated,
     tasksCreated,
+    monthlySummariesSent,
+    renewalNoticesSent,
     ranAt: new Date().toISOString(),
   });
 }

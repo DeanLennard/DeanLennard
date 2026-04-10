@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminNav } from "@/components/admin-nav";
-import { requireAdminAuthentication } from "@/lib/admin-auth";
+import { requireAdminRole } from "@/lib/admin-auth";
 import { getAppSettings } from "@/lib/settings-store";
 
 export const metadata: Metadata = {
@@ -25,14 +25,17 @@ export default async function SettingsPage({
 }: {
   searchParams: SettingsPageSearchParams;
 }) {
-  await requireAdminAuthentication();
+  await requireAdminRole(["admin"]);
 
   const settings = await getAppSettings();
   const resolvedSearchParams = await searchParams;
   const saved = getSingleValue(resolvedSearchParams.saved) === "1";
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/settings" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Settings
@@ -45,8 +48,6 @@ export default async function SettingsPage({
           internal costing defaults in one place so quotes and invoices stay
           consistent.
         </p>
-        <AdminNav currentPath="/admin/settings" />
-
         {saved ? (
           <div className="mt-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
             Settings saved.

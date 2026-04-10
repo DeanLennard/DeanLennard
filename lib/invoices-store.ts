@@ -68,6 +68,9 @@ export type InvoiceRecord = {
   notes?: string;
   footerNotes?: string;
   bankDetailsSnapshot?: BankDetailsSnapshot;
+  reconciliationReference?: string;
+  reconciliationNotes?: string;
+  reconciliationAttachmentPath?: string;
   sentAt?: string;
   lineItems: InvoiceLineItem[];
   createdAt: string;
@@ -198,6 +201,8 @@ export async function listInvoices({
       { invoiceNumber: { $regex: search.trim(), $options: "i" } },
       { customerId: search.trim() },
       { projectId: search.trim() },
+      { sourceQuoteId: search.trim() },
+      { recurringScheduleId: search.trim() },
     ];
   }
 
@@ -217,6 +222,15 @@ export async function listInvoicesByProjectId(projectId: string) {
   return Promise.all(records.map(refreshOverdueInvoice));
 }
 
+export async function listInvoicesByRecurringScheduleId(recurringScheduleId: string) {
+  const collection = await getInvoicesCollection();
+  const records = await collection
+    .find({ recurringScheduleId })
+    .sort({ createdAt: -1 })
+    .toArray();
+  return Promise.all(records.map(refreshOverdueInvoice));
+}
+
 export async function getInvoiceById(invoiceId: string) {
   const collection = await getInvoicesCollection();
   const record = await collection.findOne({ invoiceId });
@@ -226,6 +240,12 @@ export async function getInvoiceById(invoiceId: string) {
 export async function getInvoiceByInvoiceNumber(invoiceNumber: string) {
   const collection = await getInvoicesCollection();
   const record = await collection.findOne({ invoiceNumber });
+  return record ? refreshOverdueInvoice(record) : null;
+}
+
+export async function getInvoiceBySourceQuoteId(sourceQuoteId: string) {
+  const collection = await getInvoicesCollection();
+  const record = await collection.findOne({ sourceQuoteId });
   return record ? refreshOverdueInvoice(record) : null;
 }
 
@@ -511,6 +531,144 @@ export async function createInvoiceFromQuote(quoteId: string) {
   });
 }
 
+export async function updateInvoice(
+  invoiceId: string,
+  input: {
+    customerId: string;
+    projectId?: string;
+    dueDate?: string;
+    currency?: string;
+    taxRate?: number;
+    paymentMethod?: InvoicePaymentMethod;
+    notes?: string;
+    footerNotes?: string;
+    lineItems: Array<{
+      title: string;
+      description?: string;
+      quantity: number;
+      unitPrice: number;
+      taxRate?: number;
+    }>;
+  }
+) {
+  const collection = await getInvoicesCollection();
+  const existing = await collection.findOne({ invoiceId });
+
+  if (!existing) {
+    throw new Error("Invoice not found.");
+  }
+
+  const settings = await getAppSettings();
+  const lineItems = buildInvoiceLineItems(input.lineItems);
+  const taxRate = input.taxRate ?? 0;
+  const totals = calculateInvoiceTotals(lineItems, taxRate);
+  const dueDate = input.dueDate || existing.dueDate;
+  const amountPaid = Math.min(existing.amountPaid ?? 0, totals.total);
+  const balanceDue = Math.max(totals.total - amountPaid, 0);
+  const dueAt = new Date(`${dueDate}T23:59:59Z`).getTime();
+  const isOverdueAfterEdit = Number.isFinite(dueAt) && dueAt < Date.now();
+  const status: InvoiceStatus =
+    existing.status === "cancelled" || existing.status === "refunded"
+      ? existing.status
+      : balanceDue <= 0 && totals.total > 0
+        ? "paid"
+      : amountPaid > 0
+          ? "partially_paid"
+          : existing.status === "draft"
+            ? "draft"
+            : existing.status === "sent"
+              ? isOverdueAfterEdit
+                ? "overdue"
+                : "sent"
+              : isOverdueAfterEdit
+                ? "overdue"
+                : "unpaid";
+  const paymentMethod = input.paymentMethod ?? existing.paymentMethod ?? "bank_transfer";
+  const bankDetailsSnapshot =
+    paymentMethod === "bank_transfer" ? await getBankDetailsSnapshot() : undefined;
+  const now = new Date().toISOString();
+
+  await collection.updateOne(
+    { invoiceId },
+    {
+      $set: {
+        customerId: input.customerId,
+        projectId: input.projectId || undefined,
+        dueDate,
+        currency: input.currency?.trim() || settings.defaultCurrency,
+        taxRate,
+        taxAmount: totals.taxAmount,
+        subtotal: totals.subtotal,
+        total: totals.total,
+        amountPaid,
+        balanceDue,
+        status,
+        paidDate: status === "paid" ? existing.paidDate : undefined,
+        paymentMethod,
+        notes: input.notes?.trim() || undefined,
+        footerNotes: input.footerNotes?.trim() || undefined,
+        bankDetailsSnapshot,
+        lineItems,
+        pdfPath: undefined,
+        stripeInvoiceId: undefined,
+        stripeHostedInvoiceUrl: undefined,
+        gocardlessPaymentId: undefined,
+        gocardlessBillingRequestId: undefined,
+        gocardlessPaymentUrl: undefined,
+        updatedAt: now,
+      },
+    }
+  );
+
+  await createActivityLog({
+    entityType: "invoice",
+    entityId: invoiceId,
+    actionType: "invoice_updated",
+    description: `Invoice ${existing.invoiceNumber} updated.`,
+    metadata: {
+      customerId: input.customerId,
+      projectId: input.projectId ?? null,
+      status,
+    },
+  });
+
+  const clientIds = new Set(
+    [existing.customerId, input.customerId].filter((value): value is string => Boolean(value))
+  );
+
+  for (const clientId of clientIds) {
+    await createActivityLog({
+      entityType: "client",
+      entityId: clientId,
+      actionType: "invoice_updated",
+      description: `Invoice ${existing.invoiceNumber} updated.`,
+      metadata: {
+        invoiceId,
+        projectId: input.projectId ?? existing.projectId ?? null,
+        status,
+      },
+    });
+  }
+
+  const projectIds = new Set(
+    [existing.projectId, input.projectId].filter((value): value is string => Boolean(value))
+  );
+
+  for (const projectId of projectIds) {
+    await createActivityLog({
+      entityType: "project",
+      entityId: projectId,
+      actionType: "invoice_updated",
+      description: `Invoice ${existing.invoiceNumber} updated.`,
+      metadata: {
+        invoiceId,
+        status,
+      },
+    });
+    await syncProjectRevenue(projectId);
+  }
+}
+
 export async function getInvoiceContext({
   customerId,
   projectId,
@@ -616,7 +774,12 @@ export async function updateInvoiceStatus(invoiceId: string, status: InvoiceStat
 export async function recordInvoicePayment(
   invoiceId: string,
   amount: number,
-  paidDate?: string
+  paidDate?: string,
+  input?: {
+    reconciliationReference?: string;
+    reconciliationNotes?: string;
+    reconciliationAttachmentPath?: string;
+  }
 ) {
   const collection = await getInvoicesCollection();
   const existing = await collection.findOne({ invoiceId });
@@ -643,6 +806,9 @@ export async function recordInvoicePayment(
         balanceDue,
         status,
         paidDate: resolvedPaidDate,
+        reconciliationReference: input?.reconciliationReference?.trim() || undefined,
+        reconciliationNotes: input?.reconciliationNotes?.trim() || undefined,
+        reconciliationAttachmentPath: input?.reconciliationAttachmentPath || undefined,
         updatedAt: new Date().toISOString(),
       },
     }
@@ -657,6 +823,7 @@ export async function recordInvoicePayment(
       amount: safeAmount,
       balanceDue,
       status,
+      reconciliationReference: input?.reconciliationReference?.trim() || null,
     },
   });
 

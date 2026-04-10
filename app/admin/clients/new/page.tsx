@@ -31,7 +31,10 @@ export default async function NewClientPage({
   const error = getSingleValue(resolvedSearchParams.error) ?? "";
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/clients" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           New client
@@ -43,8 +46,6 @@ export default async function NewClientPage({
           Use this when a client comes in outside the website audit flow or you
           want to set them up directly.
         </p>
-        <AdminNav currentPath="/admin/clients" />
-
         {error === "missing-business" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             Business name is required.

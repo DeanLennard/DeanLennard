@@ -160,3 +160,94 @@ export async function getPackageTemplateById(templateId: string) {
   const record = await collection.findOne({ templateId });
   return record ? normalizeTemplate(record) : null;
 }
+
+export async function updatePackageTemplate(
+  templateId: string,
+  input: {
+    name: string;
+    description?: string;
+    packageType?: ProjectPackageType;
+    billingType?: ProjectBillingType;
+    defaultPrice?: number;
+    currency?: string;
+    defaultNotes?: string;
+    lineItems?: Array<{
+      title: string;
+      description?: string;
+      quantity: number;
+      unitPrice: number;
+    }>;
+    projectTasks?: Array<{
+      title: string;
+      description?: string;
+      priority: "low" | "medium" | "high" | "urgent";
+      estimatedMinutes?: number;
+    }>;
+    repeatingTasks?: Array<{
+      title: string;
+      description?: string;
+      priority: "low" | "medium" | "high" | "urgent";
+      estimatedMinutes?: number;
+      frequencyType: RepeatingTaskFrequencyType;
+      frequencyInterval: number;
+    }>;
+  }
+) {
+  const collection = await getPackageTemplatesCollection();
+  const existing = await collection.findOne({ templateId });
+
+  if (!existing) {
+    throw new Error("Package template not found.");
+  }
+
+  const now = new Date().toISOString();
+
+  await collection.updateOne(
+    { templateId },
+    {
+      $set: {
+        name: input.name.trim(),
+        description: input.description?.trim() || undefined,
+        packageType: input.packageType ?? "custom",
+        billingType: input.billingType ?? "fixed",
+        defaultPrice: input.defaultPrice ?? 0,
+        currency: input.currency || "GBP",
+        defaultNotes: input.defaultNotes?.trim() || undefined,
+        lineItems:
+          input.lineItems?.map((item) => ({
+            id: new ObjectId().toHexString(),
+            title: item.title.trim(),
+            description: item.description?.trim() || undefined,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+          })) ?? [],
+        projectTasks:
+          input.projectTasks?.map((task) => ({
+            id: new ObjectId().toHexString(),
+            title: task.title.trim(),
+            description: task.description?.trim() || undefined,
+            priority: task.priority,
+            estimatedMinutes: task.estimatedMinutes,
+          })) ?? [],
+        repeatingTasks:
+          input.repeatingTasks?.map((task) => ({
+            id: new ObjectId().toHexString(),
+            title: task.title.trim(),
+            description: task.description?.trim() || undefined,
+            priority: task.priority,
+            estimatedMinutes: task.estimatedMinutes,
+            frequencyType: task.frequencyType,
+            frequencyInterval: task.frequencyInterval,
+          })) ?? [],
+        updatedAt: now,
+      },
+    }
+  );
+
+  await createActivityLog({
+    entityType: "package_template",
+    entityId: templateId,
+    actionType: "package_template_updated",
+    description: `Package template ${input.name.trim()} updated.`,
+  });
+}

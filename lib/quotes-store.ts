@@ -42,6 +42,8 @@ export type QuoteRecord = {
   sentAt?: string;
   acceptedAt?: string;
   rejectedAt?: string;
+  autoCreateProjectOnAcceptance?: boolean;
+  autoCreateInvoiceOnAcceptance?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -73,6 +75,8 @@ export async function createQuote(input: {
   paymentTerms?: string;
   notes?: string;
   expiryDate?: string;
+  autoCreateProjectOnAcceptance?: boolean;
+  autoCreateInvoiceOnAcceptance?: boolean;
   lineItems: Array<{
     title: string;
     description?: string;
@@ -117,6 +121,8 @@ export async function createQuote(input: {
     total: subtotal,
     currency: "GBP",
     lineItems,
+    autoCreateProjectOnAcceptance: input.autoCreateProjectOnAcceptance ?? true,
+    autoCreateInvoiceOnAcceptance: input.autoCreateInvoiceOnAcceptance ?? false,
     createdAt: now,
     updatedAt: now,
   };
@@ -291,6 +297,8 @@ export async function updateQuote(
     paymentTerms?: string;
     notes?: string;
     expiryDate?: string;
+    autoCreateProjectOnAcceptance?: boolean;
+    autoCreateInvoiceOnAcceptance?: boolean;
     lineItems: Array<{
       title: string;
       description?: string;
@@ -337,6 +345,8 @@ export async function updateQuote(
         lineItems,
         subtotal,
         total: subtotal,
+        autoCreateProjectOnAcceptance: input.autoCreateProjectOnAcceptance ?? true,
+        autoCreateInvoiceOnAcceptance: input.autoCreateInvoiceOnAcceptance ?? false,
         updatedAt: now,
       },
     }

@@ -57,6 +57,10 @@ export async function POST(request: Request) {
     paymentTerms: String(formData.get("paymentTerms") ?? ""),
     notes: String(formData.get("notes") ?? ""),
     expiryDate: String(formData.get("expiryDate") ?? "").trim() || undefined,
+    autoCreateProjectOnAcceptance:
+      formData.get("autoCreateProjectOnAcceptance") === "on",
+    autoCreateInvoiceOnAcceptance:
+      formData.get("autoCreateInvoiceOnAcceptance") === "on",
     lineItems: getLineItems(formData),
   });
 

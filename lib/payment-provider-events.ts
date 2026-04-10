@@ -41,3 +41,21 @@ export async function upsertPaymentProviderEventLog(
     { upsert: true }
   );
 }
+
+export async function listPaymentProviderEvents(filters?: {
+  provider?: PaymentProvider | "all";
+  status?: PaymentProviderEventLogRecord["status"] | "all";
+}) {
+  const collection = await getPaymentProviderEventsCollection();
+  const query: Record<string, unknown> = {};
+
+  if (filters?.provider && filters.provider !== "all") {
+    query.provider = filters.provider;
+  }
+
+  if (filters?.status && filters.status !== "all") {
+    query.status = filters.status;
+  }
+
+  return collection.find(query).sort({ receivedAt: -1 }).limit(100).toArray();
+}

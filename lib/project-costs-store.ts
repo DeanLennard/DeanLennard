@@ -12,6 +12,12 @@ export type ProjectCostCategory =
   | "ads"
   | "other";
 
+export type ProjectCostRecurringInterval =
+  | "weekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly";
+
 export type ProjectCostRecord = {
   id: string;
   projectId: string;
@@ -20,6 +26,7 @@ export type ProjectCostRecord = {
   description?: string;
   amount: number;
   recurring: boolean;
+  recurringInterval?: ProjectCostRecurringInterval;
   createdAt: string;
   updatedAt: string;
 };
@@ -35,6 +42,10 @@ function normalizeProjectCostRecord(record: ProjectCostRecord) {
     ...record,
     category: record.category ?? "other",
     recurring: record.recurring ?? false,
+    recurringInterval:
+      record.recurring === false
+        ? undefined
+        : record.recurringInterval ?? "monthly",
     amount: record.amount ?? 0,
   } satisfies ProjectCostRecord;
 }
@@ -46,9 +57,11 @@ export async function createProjectCost(input: {
   description?: string;
   amount: number;
   recurring?: boolean;
+  recurringInterval?: ProjectCostRecurringInterval;
 }) {
   const collection = await getProjectCostsCollection();
   const now = new Date().toISOString();
+  const recurring = input.recurring ?? false;
   const record: ProjectCostRecord = {
     id: new ObjectId().toHexString(),
     projectId: input.projectId,
@@ -56,7 +69,8 @@ export async function createProjectCost(input: {
     category: input.category,
     description: input.description?.trim() || undefined,
     amount: input.amount,
-    recurring: input.recurring ?? false,
+    recurring,
+    recurringInterval: recurring ? input.recurringInterval ?? "monthly" : undefined,
     createdAt: now,
     updatedAt: now,
   };
@@ -71,6 +85,7 @@ export async function createProjectCost(input: {
     metadata: {
       amount: record.amount,
       recurring: record.recurring,
+      recurringInterval: record.recurringInterval ?? null,
     },
   });
 

@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminClientHistoryFeed } from "@/components/admin-client-history-feed";
 import { AdminNav } from "@/components/admin-nav";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
-import { listActivityLogsByEntity } from "@/lib/activity-log";
+import { listActivityLogsByEntityPage } from "@/lib/activity-log";
 import { getAuditById } from "@/lib/audit-store";
 import { getClientById } from "@/lib/clients-store";
-import { listCustomerNotes } from "@/lib/customer-notes";
+import { listCustomerNotesPage } from "@/lib/customer-notes";
 import { formatDisplayDate, formatDisplayDateTime } from "@/lib/date-format";
 import { listInvoicesByClientId } from "@/lib/invoices-store";
 import { formatMoney } from "@/lib/money-format";
@@ -15,6 +16,7 @@ import { listProjectsByClientId } from "@/lib/projects-store";
 import { listRecurringInvoiceSchedules } from "@/lib/recurring-billing-store";
 import { listQuotes } from "@/lib/quotes-store";
 import { listRepeatingTaskTemplates } from "@/lib/repeating-task-templates-store";
+import { listPortalUsersByClientId } from "@/lib/portal-users";
 
 export const metadata: Metadata = {
   title: "Client Detail",
@@ -26,12 +28,18 @@ export const metadata: Metadata = {
 
 export default async function ClientDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ clientId: string }>;
+  searchParams: Promise<{ error?: string | string[] }>;
 }) {
   await requireAdminAuthentication();
 
   const { clientId } = await params;
+  const resolvedSearchParams = await searchParams;
+  const error = Array.isArray(resolvedSearchParams.error)
+    ? resolvedSearchParams.error[0] ?? ""
+    : resolvedSearchParams.error ?? "";
   const client = await getClientById(clientId);
 
   if (!client) {
@@ -41,19 +49,24 @@ export default async function ClientDetailPage({
   const sourceAudit = client.sourceAuditId
     ? await getAuditById(client.sourceAuditId)
     : null;
-  const [notes, activity, projects, quotes, invoices, recurringSchedules, repeatingTemplates] = await Promise.all([
-    listCustomerNotes(client.clientId),
-    listActivityLogsByEntity("client", client.clientId),
+  const [notesPage, activityPage, projects, quotes, invoices, recurringSchedules, repeatingTemplates, portalUsers] = await Promise.all([
+    listCustomerNotesPage(client.clientId, { offset: 0, limit: 10 }),
+    listActivityLogsByEntityPage("client", client.clientId, { offset: 0, limit: 10 }),
     listProjectsByClientId(client.clientId),
     listQuotes(client.clientId),
     listInvoicesByClientId(client.clientId),
     listRecurringInvoiceSchedules({ customerId: client.clientId }),
     listRepeatingTaskTemplates({ customerId: client.clientId }),
+    listPortalUsersByClientId(client.clientId),
   ]);
   const clientQuotes = quotes.filter((quote) => quote.customerId === client.clientId);
+  const outstandingInvoiceTotal = invoices.reduce((sum, invoice) => sum + invoice.balanceDue, 0);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/clients" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Client detail
@@ -96,7 +109,61 @@ export default async function ClientDetailPage({
             Care Plans
           </Link>
         </div>
-        <AdminNav currentPath="/admin/clients" />
+        {error ? (
+          <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+            {decodeURIComponent(error)}
+          </div>
+        ) : null}
+      </section>
+
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-4">
+        <div className="flex flex-wrap gap-3">
+          {[
+            ["overview", "Overview"],
+            ["financial", "Billing"],
+            ["delivery", "Projects"],
+            ["portal", "Portal"],
+            ["notes", "Notes"],
+            ["timeline", "Timeline"],
+          ].map(([id, label]) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className="inline-flex items-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section id="overview" className="mt-8 grid gap-6 md:grid-cols-4">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Projects
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{projects.length}</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Quotes
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{clientQuotes.length}</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Invoices
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">{invoices.length}</p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
+            Outstanding
+          </p>
+          <p className="mt-3 text-3xl font-semibold text-stone-50">
+            {formatMoney(outstandingInvoiceTotal, client.defaultCurrency)}
+          </p>
+        </article>
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -172,7 +239,7 @@ export default async function ClientDetailPage({
         </article>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-3">
+      <section id="delivery" className="mt-8 grid gap-6 lg:grid-cols-3">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Linked projects
@@ -269,7 +336,7 @@ export default async function ClientDetailPage({
         </article>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
+      <section id="financial" className="mt-8 grid gap-6 lg:grid-cols-2">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Care plan schedules
@@ -325,78 +392,104 @@ export default async function ClientDetailPage({
         </article>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <section id="portal" className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
-            Customer notes
+            Portal access
           </p>
           <form
-            action={`/api/admin/clients/${client.clientId}/notes`}
+            action={`/api/admin/clients/${client.clientId}/portal-users`}
             method="post"
             className="mt-6 space-y-4"
           >
-            <textarea
-              name="note"
-              rows={4}
-              placeholder="Add an internal note about this client"
-              className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
-            >
-              Add Note
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Portal email</span>
+              <input name="email" type="email" className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100" />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Portal role</span>
+              <select name="role" className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+                <option value="owner">Owner</option>
+                <option value="member">Member</option>
+              </select>
+            </label>
+            <p className="text-sm leading-7 text-stone-400">
+              Portal customers do not have passwords. Creating access here immediately sends them a secure one-time magic link by email.
+            </p>
+            <button type="submit" className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500">
+              Create Access and Send Link
             </button>
           </form>
-
-          {notes.length > 0 ? (
-            <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
-              {notes.map((note) => (
-                <li
-                  key={note.id}
-                  className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4"
-                >
-                  <p>{note.note}</p>
-                  <p className="mt-2 text-stone-400">
-                    {formatDisplayDateTime(note.createdAt)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-6 text-sm leading-7 text-stone-300">
-              No notes yet for this client.
-            </p>
-          )}
         </article>
 
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
-            Timeline
+            Existing portal users
           </p>
-          {activity.length > 0 ? (
+          {portalUsers.length > 0 ? (
             <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
-              {activity.map((entry) => (
-                <li
-                  key={entry.id}
-                  className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4"
-                >
-                  <p className="font-semibold text-stone-100">{entry.description}</p>
-                  <p className="mt-1">
-                    {entry.actionType} | {entry.actor}
-                  </p>
-                  <p className="mt-1 text-stone-400">
-                    {formatDisplayDateTime(entry.timestamp)}
-                  </p>
+              {portalUsers.map((user) => (
+                <li key={user.portalUserId} className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4">
+                  <p className="font-semibold text-stone-100">{user.email}</p>
+                  <p className="mt-1">{user.role} | {user.active ? "active" : "inactive"}</p>
+                  {user.lastMagicLinkSentAt ? (
+                    <p className="mt-1 text-stone-400">
+                      Last link sent {formatDisplayDateTime(user.lastMagicLinkSentAt)}
+                    </p>
+                  ) : null}
+                  {user.lastLoginAt ? (
+                    <p className="mt-1 text-stone-400">
+                      Last sign-in {formatDisplayDateTime(user.lastLoginAt)}
+                    </p>
+                  ) : null}
+                  <p className="mt-1 text-stone-400">{formatDisplayDateTime(user.createdAt)}</p>
+                  <form action={`/api/admin/portal-users/${user.portalUserId}/magic-link`} method="post" className="mt-3">
+                    <button type="submit" className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] px-3 py-2 text-xs font-semibold text-stone-100 transition hover:bg-white/8">
+                      Send Fresh Magic Link
+                    </button>
+                  </form>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="mt-6 text-sm leading-7 text-stone-300">
-              No timeline events yet for this client.
+              No portal users have been created for this client yet.
             </p>
           )}
         </article>
+      </section>
+
+      <section id="notes" className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div id="timeline">
+          <AdminClientHistoryFeed
+            clientId={client.clientId}
+            type="notes"
+            title="Customer notes"
+            emptyMessage="No notes yet for this client."
+            initialItems={notesPage.items.map((note) => ({
+              id: note.id,
+              title: "Customer note",
+              body: note.note,
+              meta: formatDisplayDateTime(note.createdAt),
+            }))}
+            initialHasMore={notesPage.hasMore}
+            composerAction={`/api/admin/clients/${client.clientId}/notes`}
+          />
+        </div>
+
+        <AdminClientHistoryFeed
+          clientId={client.clientId}
+          type="timeline"
+          title="Timeline"
+          emptyMessage="No timeline events yet for this client."
+          initialItems={activityPage.items.map((entry) => ({
+            id: entry.id,
+            title: entry.description,
+            body: `${entry.actionType} | ${entry.actor}`,
+            meta: formatDisplayDateTime(entry.timestamp),
+          }))}
+          initialHasMore={activityPage.hasMore}
+        />
       </section>
     </main>
   );

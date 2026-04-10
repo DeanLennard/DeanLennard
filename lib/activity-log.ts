@@ -56,7 +56,51 @@ export async function listActivityLogsByEntity(entityType: string, entityId: str
     .toArray();
 }
 
+export async function listActivityLogsByEntityPage(
+  entityType: string,
+  entityId: string,
+  input?: { offset?: number; limit?: number }
+) {
+  const collection = await getActivityCollection();
+  const offset = Math.max(0, input?.offset ?? 0);
+  const limit = Math.max(1, Math.min(50, input?.limit ?? 10));
+  const query = { entityType, entityId };
+
+  const [items, total] = await Promise.all([
+    collection.find(query).sort({ timestamp: -1 }).skip(offset).limit(limit).toArray(),
+    collection.countDocuments(query),
+  ]);
+
+  return {
+    items,
+    total,
+    hasMore: offset + items.length < total,
+    nextOffset: offset + items.length,
+  };
+}
+
 export async function listRecentActivity(limit = 10) {
   const collection = await getActivityCollection();
   return collection.find({}).sort({ timestamp: -1 }).limit(limit).toArray();
+}
+
+export async function hasActivityLogRecord(input: {
+  entityType: string;
+  entityId: string;
+  actionType: string;
+  since?: string;
+}) {
+  const collection = await getActivityCollection();
+  const query: Record<string, unknown> = {
+    entityType: input.entityType,
+    entityId: input.entityId,
+    actionType: input.actionType,
+  };
+
+  if (input.since) {
+    query.timestamp = { $gte: input.since };
+  }
+
+  const record = await collection.findOne(query);
+  return Boolean(record);
 }

@@ -51,8 +51,10 @@ export async function POST(
 
   const pdfBytes = generateInvoicePdf({
     invoiceNumber: invoice.invoiceNumber,
+    status: invoice.status,
     issueDate: invoice.issueDate,
     dueDate: invoice.dueDate,
+    paidDate: invoice.paidDate,
     businessName: settings.businessName,
     businessAddress: settings.registeredAddress,
     companyNumber: settings.companyNumber,
@@ -66,6 +68,8 @@ export async function POST(
     taxAmount: invoice.taxAmount,
     subtotal: invoice.subtotal,
     total: invoice.total,
+    amountPaid: invoice.amountPaid,
+    balanceDue: invoice.balanceDue,
     lineItems: invoice.lineItems,
   });
 

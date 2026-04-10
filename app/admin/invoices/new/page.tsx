@@ -52,7 +52,10 @@ export default async function NewInvoicePage({
   ]);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/invoices" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           New invoice
@@ -64,8 +67,6 @@ export default async function NewInvoicePage({
           Build an invoice manually or prefill it from a quote or project so
           revenue and payment tracking stay tied to the delivery work.
         </p>
-        <AdminNav currentPath="/admin/invoices" />
-
         {error === "missing-customer" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             A client is required before an invoice can be created.

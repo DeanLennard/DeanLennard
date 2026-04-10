@@ -6,7 +6,7 @@ function getPublicDocumentsRoot() {
 }
 
 export async function saveGeneratedDocument(input: {
-  kind: "quotes" | "invoices";
+  kind: "quotes" | "invoices" | "reconciliation";
   fileName: string;
   bytes: Uint8Array;
 }) {

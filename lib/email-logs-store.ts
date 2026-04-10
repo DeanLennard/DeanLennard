@@ -4,7 +4,7 @@ import { getDatabase } from "@/lib/mongodb";
 
 export type EmailLogRecord = {
   id: string;
-  entityType: "quote" | "invoice";
+  entityType: "quote" | "invoice" | "project" | "client" | "recurring_schedule";
   entityId: string;
   recipient: string;
   subject: string;
@@ -32,7 +32,10 @@ export async function createEmailLog(input: Omit<EmailLogRecord, "id" | "sentAt"
   return record;
 }
 
-export async function listEmailLogsByEntity(entityType: "quote" | "invoice", entityId: string) {
+export async function listEmailLogsByEntity(
+  entityType: EmailLogRecord["entityType"],
+  entityId: string
+) {
   const collection = await getEmailLogsCollection();
   return collection.find({ entityType, entityId }).sort({ sentAt: -1 }).toArray();
 }

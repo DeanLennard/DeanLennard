@@ -58,6 +58,9 @@ export default async function InvoiceDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/invoices" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Invoice detail
@@ -69,7 +72,6 @@ export default async function InvoiceDetailPage({
           {customer?.businessName ?? invoice.customerId} |{" "}
           {invoice.status.replaceAll("_", " ")}
         </p>
-        <AdminNav currentPath="/admin/invoices" />
       </section>
 
       {error === "invalid-status" ? (
@@ -115,9 +117,18 @@ export default async function InvoiceDetailPage({
             <p>Total: {formatMoney(invoice.total, invoice.currency)}</p>
             <p>Amount paid: {formatMoney(invoice.amountPaid, invoice.currency)}</p>
             <p>Balance due: {formatMoney(invoice.balanceDue, invoice.currency)}</p>
+            {invoice.reconciliationReference ? (
+              <p>Reconciliation reference: {invoice.reconciliationReference}</p>
+            ) : null}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href={`/admin/invoices/${invoice.invoiceId}/edit`}
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              Edit Invoice
+            </Link>
             <form action={`/api/admin/invoices/${invoice.invoiceId}/pdf`} method="post">
               <button
                 type="submit"
@@ -134,6 +145,26 @@ export default async function InvoiceDetailPage({
                 Email Invoice
               </button>
             </form>
+            {invoice.status === "overdue" ? (
+              <form action={`/api/admin/invoices/${invoice.invoiceId}/send-overdue-reminder`} method="post">
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                >
+                  Send Overdue Reminder
+                </button>
+              </form>
+            ) : null}
+            {invoice.status === "paid" ? (
+              <form action={`/api/admin/invoices/${invoice.invoiceId}/send-payment-confirmation`} method="post">
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                >
+                  Send Payment Confirmation
+                </button>
+              </form>
+            ) : null}
             <form action={`/api/admin/invoices/${invoice.invoiceId}/provider`} method="post">
               <input type="hidden" name="provider" value="stripe" />
               <button
@@ -268,7 +299,7 @@ export default async function InvoiceDetailPage({
             ))}
           </div>
 
-          {invoice.bankDetailsSnapshot ? (
+            {invoice.bankDetailsSnapshot ? (
             <div className="mt-6 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4 text-sm leading-7 text-stone-300">
               <p className="font-semibold text-stone-100">Bank transfer details snapshot</p>
               {invoice.bankDetailsSnapshot.accountName ? <p>Account name: {invoice.bankDetailsSnapshot.accountName}</p> : null}
@@ -281,6 +312,19 @@ export default async function InvoiceDetailPage({
               ) : null}
             </div>
           ) : null}
+          {invoice.reconciliationNotes || invoice.reconciliationAttachmentPath ? (
+            <div className="mt-6 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4 text-sm leading-7 text-stone-300">
+              <p className="font-semibold text-stone-100">Bank transfer reconciliation</p>
+              {invoice.reconciliationNotes ? (
+                <p className="mt-2">{invoice.reconciliationNotes}</p>
+              ) : null}
+              {invoice.reconciliationAttachmentPath ? (
+                <Link href={invoice.reconciliationAttachmentPath} target="_blank" className="mt-3 block font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4">
+                  Open uploaded proof
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
         </article>
 
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
@@ -290,6 +334,7 @@ export default async function InvoiceDetailPage({
           <form
             action={`/api/admin/invoices/${invoice.invoiceId}/payment`}
             method="post"
+            encType="multipart/form-data"
             className="mt-6 space-y-4"
           >
             <label className="space-y-2">
@@ -308,6 +353,32 @@ export default async function InvoiceDetailPage({
               <DateInput
                 name="paidDate"
                 className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Bank transfer reference</span>
+              <input
+                name="reconciliationReference"
+                type="text"
+                defaultValue={invoice.reconciliationReference || ""}
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Reconciliation notes</span>
+              <textarea
+                name="reconciliationNotes"
+                rows={3}
+                defaultValue={invoice.reconciliationNotes || ""}
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-stone-100">Upload proof or receipt</span>
+              <input
+                name="reconciliationAttachment"
+                type="file"
+                className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100"
               />
             </label>
             <button

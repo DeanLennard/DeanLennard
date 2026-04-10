@@ -9,7 +9,9 @@ import { getClientById } from "@/lib/clients-store";
 import { listActivityLogsByEntity } from "@/lib/activity-log";
 import { formatDisplayDate, formatDisplayDateTime } from "@/lib/date-format";
 import { listEmailLogsByEntity } from "@/lib/email-logs-store";
+import { getInvoiceBySourceQuoteId } from "@/lib/invoices-store";
 import { getProjectById } from "@/lib/projects-store";
+import { buildPublicQuoteUrl } from "@/lib/public-quote-links";
 import { getQuoteById } from "@/lib/quotes-store";
 
 export const metadata: Metadata = {
@@ -40,16 +42,21 @@ export default async function QuoteDetailPage({
     notFound();
   }
 
-  const [client, lead, project, activity, emailLogs] = await Promise.all([
+  const [client, lead, project, activity, emailLogs, linkedInvoice] = await Promise.all([
     quote.customerId ? getClientById(quote.customerId) : null,
     quote.leadId ? getAuditById(quote.leadId) : null,
     quote.projectId ? getProjectById(quote.projectId) : null,
     listActivityLogsByEntity("quote", quote.quoteId),
     listEmailLogsByEntity("quote", quote.quoteId),
+    getInvoiceBySourceQuoteId(quote.quoteId),
   ]);
+  const hostedQuoteUrl = buildPublicQuoteUrl(quote.quoteId);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/quotes" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           Quote detail
@@ -77,8 +84,12 @@ export default async function QuoteDetailPage({
               Email Quote
             </button>
           </form>
+          <form action={`/api/admin/quotes/${quote.quoteId}/duplicate`} method="post">
+            <button type="submit" className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8">
+              Duplicate Quote
+            </button>
+          </form>
         </div>
-        <AdminNav currentPath="/admin/quotes" />
       </section>
 
       {error === "missing-email" ? (
@@ -100,6 +111,7 @@ export default async function QuoteDetailPage({
           <div className="mt-4 space-y-2 text-sm leading-7 text-stone-300">
             <p>Issue date: {formatDisplayDate(quote.issueDate)}</p>
             {quote.expiryDate ? <p>Expiry date: {formatDisplayDate(quote.expiryDate)}</p> : null}
+            {quote.acceptedAt ? <p>Accepted at: {formatDisplayDateTime(quote.acceptedAt)}</p> : null}
             <p>Currency: {quote.currency}</p>
             <p>Subtotal: {quote.currency} {quote.subtotal.toFixed(2)}</p>
             <p>Total: {quote.currency} {quote.total.toFixed(2)}</p>
@@ -252,6 +264,15 @@ export default async function QuoteDetailPage({
                 </Link>
               </div>
             ) : null}
+            <div className="mt-4">
+              <Link
+                href={hostedQuoteUrl}
+                target="_blank"
+                className="inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+              >
+                Open hosted quote page
+              </Link>
+            </div>
             {emailLogs.length > 0 ? (
               <ul className="mt-4 space-y-3 text-sm leading-7 text-stone-300">
                 {emailLogs.map((log) => (
@@ -290,6 +311,16 @@ export default async function QuoteDetailPage({
                 className="inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
               >
                 Open linked project
+              </Link>
+            </div>
+          ) : null}
+          {linkedInvoice ? (
+            <div className="mt-6">
+              <Link
+                href={`/admin/invoices/${linkedInvoice.invoiceId}`}
+                className="inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+              >
+                Open invoice created from this quote
               </Link>
             </div>
           ) : null}

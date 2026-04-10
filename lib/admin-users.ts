@@ -7,11 +7,18 @@ export type AdminUserRecord = {
   normalizedUsername: string;
   passwordHash: string;
   salt: string;
+  role?: InternalUserRole;
   approved: boolean;
   approvedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
+
+export type InternalUserRole =
+  | "admin"
+  | "contractor"
+  | "accountant"
+  | "readonly";
 
 function getAdminUsersCollection() {
   return getDatabase().then((db) =>
@@ -60,6 +67,7 @@ export async function registerAdminUser(username: string, password: string) {
     normalizedUsername,
     passwordHash: hashPassword(password, salt),
     salt,
+    role: "admin",
     approved: false,
     createdAt: now,
     updatedAt: now,
@@ -101,8 +109,46 @@ export async function validateAdminLogin(username: string, password: string) {
 
 export async function getApprovedAdminUserByUsername(username: string) {
   const collection = await getAdminUsersCollection();
-  return collection.findOne({
+  const user = await collection.findOne({
     normalizedUsername: normalizeUsername(username),
     approved: true,
   });
+  return user
+    ? {
+        ...user,
+        role: user.role ?? "admin",
+      }
+    : null;
+}
+
+export async function listAdminUsers() {
+  const collection = await getAdminUsersCollection();
+  const records = await collection.find({}).sort({ createdAt: -1 }).toArray();
+  return records.map((record) => ({
+    ...record,
+    role: record.role ?? "admin",
+  }));
+}
+
+export async function updateAdminUserAccess(
+  normalizedUsername: string,
+  input: {
+    approved: boolean;
+    role: InternalUserRole;
+  }
+) {
+  const collection = await getAdminUsersCollection();
+  const now = new Date().toISOString();
+
+  await collection.updateOne(
+    { normalizedUsername: normalizeUsername(normalizedUsername) },
+    {
+      $set: {
+        approved: input.approved,
+        role: input.role,
+        approvedAt: input.approved ? now : undefined,
+        updatedAt: now,
+      },
+    }
+  );
 }

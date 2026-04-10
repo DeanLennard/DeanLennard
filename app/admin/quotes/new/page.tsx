@@ -58,7 +58,10 @@ export default async function NewQuotePage({
         : "";
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/quotes" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
           New quote
@@ -70,8 +73,6 @@ export default async function NewQuotePage({
           Build a draft quote manually or prefill it from a lead or client before
           moving into paid project work.
         </p>
-        <AdminNav currentPath="/admin/quotes" />
-
         {error === "missing-title" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
             Quote title is required.
@@ -218,6 +219,26 @@ export default async function NewQuotePage({
               defaultValue={packageTemplate?.defaultNotes || ""}
               className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
             />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+              <input
+                type="checkbox"
+                name="autoCreateProjectOnAcceptance"
+                defaultChecked
+                className="h-4 w-4 rounded border-[color:var(--color-border)]"
+              />
+              Auto-create project when quote is approved
+            </label>
+            <label className="flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+              <input
+                type="checkbox"
+                name="autoCreateInvoiceOnAcceptance"
+                className="h-4 w-4 rounded border-[color:var(--color-border)]"
+              />
+              Auto-create initial invoice when quote is approved
+            </label>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">

@@ -16,6 +16,7 @@ export type TaskRecord = {
   customerId?: string;
   title: string;
   description?: string;
+  internalNotes?: string;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate?: string;
@@ -213,6 +214,7 @@ export async function createTask(input: {
   customerId?: string;
   title: string;
   description?: string;
+  internalNotes?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
   dueDate?: string;
@@ -242,6 +244,7 @@ export async function createTask(input: {
     customerId: resolvedCustomerId,
     title: input.title.trim(),
     description: input.description?.trim() || undefined,
+    internalNotes: input.internalNotes?.trim() || undefined,
     status,
     sortOrder,
     priority: input.priority ?? "medium",
@@ -412,6 +415,7 @@ export async function updateTask(
     customerId?: string;
     title: string;
     description?: string;
+    internalNotes?: string;
     status: TaskStatus;
     priority: TaskPriority;
     dueDate?: string;
@@ -449,6 +453,7 @@ export async function updateTask(
         customerId: resolvedCustomerId,
         title: input.title.trim(),
         description: input.description?.trim() || undefined,
+        internalNotes: input.internalNotes?.trim() || undefined,
         status: input.status,
         sortOrder,
         priority: input.priority,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { getAuthenticatedAdminUser } from "@/lib/admin-auth";
 import { saveAppSettings } from "@/lib/settings-store";
 
 function toAbsoluteRedirect(request: Request, path: string) {
@@ -13,8 +13,14 @@ function asNumber(value: FormDataEntryValue | null, fallback: number) {
 }
 
 export async function POST(request: Request) {
-  if (!(await isAdminAuthenticated())) {
+  const user = await getAuthenticatedAdminUser();
+
+  if (!user) {
     return NextResponse.redirect(toAbsoluteRedirect(request, "/admin/login"), 303);
+  }
+
+  if ((user.role ?? "admin") !== "admin") {
+    return NextResponse.redirect(toAbsoluteRedirect(request, "/admin"), 303);
   }
 
   const formData = await request.formData();

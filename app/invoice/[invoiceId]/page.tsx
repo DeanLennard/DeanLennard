@@ -15,6 +15,87 @@ export const metadata: Metadata = {
   },
 };
 
+function getInvoiceStatusPresentation(input: {
+  status: string;
+  currency: string;
+  balanceDue: number;
+  amountPaid: number;
+  paidDate?: string;
+}) {
+  switch (input.status) {
+    case "paid":
+      return {
+        label: "Paid",
+        bannerClassName:
+          "border-emerald-500/30 bg-emerald-500/10 text-emerald-50",
+        badgeClassName:
+          "border-emerald-400/30 bg-emerald-400/15 text-emerald-100",
+        title: "This invoice has been paid.",
+        description: input.paidDate
+          ? `Payment was recorded on ${formatDisplayDate(input.paidDate)}.`
+          : "Payment has been recorded against this invoice.",
+      };
+    case "overdue":
+      return {
+        label: "Overdue",
+        bannerClassName: "border-red-500/30 bg-red-500/10 text-red-50",
+        badgeClassName: "border-red-400/30 bg-red-400/15 text-red-100",
+        title: "This invoice is overdue.",
+        description: `There is still ${formatMoney(
+          input.balanceDue,
+          input.currency
+        )} outstanding on this invoice.`,
+      };
+    case "partially_paid":
+      return {
+        label: "Partially paid",
+        bannerClassName:
+          "border-amber-500/30 bg-amber-500/10 text-amber-50",
+        badgeClassName:
+          "border-amber-400/30 bg-amber-400/15 text-amber-100",
+        title: "This invoice has been partially paid.",
+        description: `${formatMoney(
+          input.amountPaid,
+          input.currency
+        )} has been received and ${formatMoney(
+          input.balanceDue,
+          input.currency
+        )} remains due.`,
+      };
+    case "cancelled":
+      return {
+        label: "Cancelled",
+        bannerClassName:
+          "border-stone-500/30 bg-stone-500/10 text-stone-100",
+        badgeClassName:
+          "border-stone-400/30 bg-stone-400/15 text-stone-100",
+        title: "This invoice has been cancelled.",
+        description: "No further payment is required for this invoice.",
+      };
+    case "refunded":
+      return {
+        label: "Refunded",
+        bannerClassName: "border-sky-500/30 bg-sky-500/10 text-sky-50",
+        badgeClassName: "border-sky-400/30 bg-sky-400/15 text-sky-100",
+        title: "This invoice has been refunded.",
+        description: "Payment for this invoice has been reversed or refunded.",
+      };
+    default:
+      return {
+        label: input.status.replaceAll("_", " "),
+        bannerClassName:
+          "border-white/10 bg-white/[0.04] text-stone-100",
+        badgeClassName:
+          "border-white/10 bg-white/[0.06] text-stone-100",
+        title: "This invoice is ready for review.",
+        description: `The current balance due is ${formatMoney(
+          input.balanceDue,
+          input.currency
+        )}.`,
+      };
+  }
+}
+
 export default async function PublicInvoicePage({
   params,
   searchParams,
@@ -39,6 +120,14 @@ export default async function PublicInvoicePage({
   }
 
   const { customer } = await getInvoiceLinkedContext(invoice);
+  const statusPresentation = getInvoiceStatusPresentation({
+    status: invoice.status,
+    currency: invoice.currency,
+    balanceDue: invoice.balanceDue,
+    amountPaid: invoice.amountPaid,
+    paidDate: invoice.paidDate,
+  });
+  const canCollectPayment = !["paid", "cancelled", "refunded"].includes(invoice.status);
 
   return (
     <main className="min-h-screen bg-stone-950 px-6 py-12 text-stone-100 lg:px-8">
@@ -59,7 +148,11 @@ export default async function PublicInvoicePage({
           <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm leading-7 text-stone-200">
             <p>
               <span className="font-semibold text-white">Status:</span>{" "}
-              {invoice.status.replaceAll("_", " ")}
+              <span
+                className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${statusPresentation.badgeClassName}`}
+              >
+                {statusPresentation.label}
+              </span>
             </p>
             <p>
               <span className="font-semibold text-white">Issue date:</span>{" "}
@@ -74,6 +167,18 @@ export default async function PublicInvoicePage({
               {formatMoney(invoice.balanceDue, invoice.currency)}
             </p>
           </div>
+        </div>
+
+        <div
+          className={`mt-8 rounded-2xl border px-6 py-5 ${statusPresentation.bannerClassName}`}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.24em]">
+            Invoice status
+          </p>
+          <p className="mt-2 text-lg font-semibold">{statusPresentation.title}</p>
+          <p className="mt-2 text-sm leading-7 opacity-90">
+            {statusPresentation.description}
+          </p>
         </div>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -157,7 +262,7 @@ export default async function PublicInvoicePage({
               Payment options
             </p>
             <div className="mt-5 space-y-4">
-              {invoice.stripeHostedInvoiceUrl ? (
+              {canCollectPayment && invoice.stripeHostedInvoiceUrl ? (
                 <Link
                   href={invoice.stripeHostedInvoiceUrl}
                   target="_blank"
@@ -166,7 +271,7 @@ export default async function PublicInvoicePage({
                   Pay by card
                 </Link>
               ) : null}
-              {invoice.gocardlessPaymentUrl ? (
+              {canCollectPayment && invoice.gocardlessPaymentUrl ? (
                 <Link
                   href={invoice.gocardlessPaymentUrl}
                   target="_blank"
@@ -175,7 +280,7 @@ export default async function PublicInvoicePage({
                   Pay by direct debit
                 </Link>
               ) : null}
-              {invoice.bankDetailsSnapshot ? (
+              {canCollectPayment && invoice.bankDetailsSnapshot ? (
                 <a
                   href="#bank-transfer"
                   className="flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] px-5 py-4 text-sm font-semibold text-white transition hover:bg-white/[0.08]"
@@ -193,6 +298,19 @@ export default async function PublicInvoicePage({
                 </Link>
               ) : null}
             </div>
+
+            {!canCollectPayment ? (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-stone-950/50 p-5 text-sm leading-7 text-stone-300">
+                <p className="font-semibold text-white">Payment update</p>
+                <p className="mt-2">
+                  {invoice.status === "paid"
+                    ? "No payment action is needed because this invoice has already been settled."
+                    : invoice.status === "cancelled"
+                      ? "Payment options are hidden because this invoice has been cancelled."
+                      : "Payment options are hidden because this invoice has already been refunded."}
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-stone-950/50 p-5 text-sm leading-7 text-stone-300">
               <p className="font-semibold text-white">Totals</p>

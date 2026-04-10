@@ -229,6 +229,17 @@ export function WebsiteGrowthCheckTool({
           url,
           businessName,
           location,
+          sourcePage: window.location.pathname,
+          utmSource:
+            new URLSearchParams(window.location.search).get("utm_source") || undefined,
+          utmMedium:
+            new URLSearchParams(window.location.search).get("utm_medium") || undefined,
+          utmCampaign:
+            new URLSearchParams(window.location.search).get("utm_campaign") || undefined,
+          utmTerm:
+            new URLSearchParams(window.location.search).get("utm_term") || undefined,
+          utmContent:
+            new URLSearchParams(window.location.search).get("utm_content") || undefined,
         }),
       });
 

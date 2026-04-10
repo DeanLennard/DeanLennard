@@ -42,6 +42,7 @@ export async function POST(
     customerId: String(formData.get("customerId") ?? "").trim() || undefined,
     title,
     description: String(formData.get("description") ?? ""),
+    internalNotes: String(formData.get("internalNotes") ?? ""),
     status,
     priority,
     dueDate: String(formData.get("dueDate") ?? "").trim() || undefined,

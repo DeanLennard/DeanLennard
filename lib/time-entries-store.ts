@@ -116,6 +116,161 @@ export async function addTimeEntry(input: {
   return record;
 }
 
+export async function getTimeEntryById(id: string) {
+  const collection = await getTimeEntriesCollection();
+  return collection.findOne({ id });
+}
+
+export async function updateTimeEntry(
+  id: string,
+  input: {
+    entryDate: string;
+    durationMinutes: number;
+    description?: string;
+    internalHourlyRate: number;
+    billable: boolean;
+  }
+) {
+  const collection = await getTimeEntriesCollection();
+  const existing = await collection.findOne({ id });
+
+  if (!existing) {
+    throw new Error("Time entry not found.");
+  }
+
+  const task = await getTaskById(existing.taskId);
+
+  if (!task) {
+    throw new Error("Task not found.");
+  }
+
+  const project = existing.projectId ? await getProjectById(existing.projectId) : null;
+  const resolvedCustomerId = existing.customerId ?? task.customerId ?? project?.customerId;
+  const client = resolvedCustomerId ? await getClientById(resolvedCustomerId) : null;
+  const derivedHourlyRate =
+    input.internalHourlyRate > 0
+      ? input.internalHourlyRate
+      : client?.defaultHourlyInternalCost ?? 0;
+
+  const costAmount = calculateTimeEntryCost(
+    input.durationMinutes,
+    derivedHourlyRate
+  );
+
+  await collection.updateOne(
+    { id },
+    {
+      $set: {
+        entryDate: input.entryDate,
+        durationMinutes: input.durationMinutes,
+        description: input.description?.trim() || undefined,
+        internalHourlyRate: derivedHourlyRate,
+        costAmount,
+        billable: input.billable,
+      },
+    }
+  );
+
+  await recalculateTaskTotalsFromTimeEntries(existing.taskId);
+
+  if (existing.projectId) {
+    await recalculateProjectCostsFromTasks(existing.projectId);
+  }
+
+  await createActivityLog({
+    entityType: "task",
+    entityId: existing.taskId,
+    actionType: "time_entry_updated",
+    description: `Time entry updated to ${input.durationMinutes} minutes.`,
+    metadata: {
+      timeEntryId: existing.id,
+      costAmount,
+    },
+  });
+
+  if (existing.projectId) {
+    await createActivityLog({
+      entityType: "project",
+      entityId: existing.projectId,
+      actionType: "time_entry_updated",
+      description: `Time entry updated on task ${task.title}.`,
+      metadata: {
+        taskId: existing.taskId,
+        timeEntryId: existing.id,
+        minutes: input.durationMinutes,
+      },
+    });
+  }
+
+  if (existing.customerId) {
+    await createActivityLog({
+      entityType: "client",
+      entityId: existing.customerId,
+      actionType: "time_entry_updated",
+      description: `Time entry updated on task ${task.title}.`,
+      metadata: {
+        taskId: existing.taskId,
+        timeEntryId: existing.id,
+        minutes: input.durationMinutes,
+      },
+    });
+  }
+}
+
+export async function deleteTimeEntry(id: string) {
+  const collection = await getTimeEntriesCollection();
+  const existing = await collection.findOne({ id });
+
+  if (!existing) {
+    throw new Error("Time entry not found.");
+  }
+
+  const task = await getTaskById(existing.taskId);
+
+  await collection.deleteOne({ id });
+  await recalculateTaskTotalsFromTimeEntries(existing.taskId);
+
+  if (existing.projectId) {
+    await recalculateProjectCostsFromTasks(existing.projectId);
+  }
+
+  await createActivityLog({
+    entityType: "task",
+    entityId: existing.taskId,
+    actionType: "time_entry_deleted",
+    description: `Time entry for ${existing.durationMinutes} minutes deleted.`,
+    metadata: {
+      timeEntryId: existing.id,
+    },
+  });
+
+  if (existing.projectId && task) {
+    await createActivityLog({
+      entityType: "project",
+      entityId: existing.projectId,
+      actionType: "time_entry_deleted",
+      description: `Time entry deleted from task ${task.title}.`,
+      metadata: {
+        taskId: existing.taskId,
+        timeEntryId: existing.id,
+      },
+    });
+  }
+
+  if (existing.customerId && task) {
+    await createActivityLog({
+      entityType: "client",
+      entityId: existing.customerId,
+      actionType: "time_entry_deleted",
+      description: `Time entry deleted from task ${task.title}.`,
+      metadata: {
+        taskId: existing.taskId,
+        timeEntryId: existing.id,
+      },
+    });
+  }
+}
+
 export async function listTimeEntriesByTaskId(taskId: string) {
   const collection = await getTimeEntriesCollection();
   return collection.find({ taskId }).sort({ createdAt: -1 }).toArray();

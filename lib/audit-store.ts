@@ -5,11 +5,39 @@ import type { AuditIntentType } from "@/lib/audit-intents";
 import { getDatabase } from "@/lib/mongodb";
 import type { WebsiteGrowthAuditResult } from "@/lib/website-growth-audit";
 
-export type LeadStatus = "new" | "contacted" | "converted" | "lost";
+export type LeadStatus =
+  | "new"
+  | "reviewed"
+  | "contacted"
+  | "qualified"
+  | "converted"
+  | "lost"
+  | "archived";
+export type LeadLostReason =
+  | "no_budget"
+  | "no_response"
+  | "not_a_fit"
+  | "chose_competitor"
+  | "duplicate"
+  | "spam"
+  | "other";
+export type LeadQualificationFit = "strong" | "medium" | "weak";
 
 type StoredAuditIntent = {
   type: AuditIntentType;
   at: string;
+};
+
+export type AuditTrafficMetadata = {
+  sourcePage?: string;
+  referrer?: string;
+  userAgent?: string;
+  ipAddress?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
 };
 
 export type StoredAuditRecord = {
@@ -28,7 +56,14 @@ export type StoredAuditRecord = {
   followUpConsent: boolean;
   consentedAt?: string;
   intents: StoredAuditIntent[];
+  traffic?: AuditTrafficMetadata;
   leadStatus: LeadStatus;
+  lostReason?: LeadLostReason;
+  lostReasonNotes?: string;
+  qualificationBudget?: string;
+  qualificationTimeline?: string;
+  qualificationFit?: LeadQualificationFit;
+  qualificationNotes?: string;
   convertedClientId?: string;
   createdAt: string;
   updatedAt: string;
@@ -39,6 +74,7 @@ type CreateAuditInput = {
   businessName?: string;
   location?: string;
   result: WebsiteGrowthAuditResult;
+  traffic?: AuditTrafficMetadata;
 };
 
 type AuditListFilter = "all" | "consented" | "not_consented";
@@ -52,6 +88,10 @@ function normalizeAuditRecord(record: StoredAuditRecord) {
   return {
     ...record,
     leadStatus: record.leadStatus ?? "new",
+    qualificationBudget: record.qualificationBudget?.trim() || undefined,
+    qualificationTimeline: record.qualificationTimeline?.trim() || undefined,
+    qualificationFit: record.qualificationFit ?? undefined,
+    qualificationNotes: record.qualificationNotes?.trim() || undefined,
   } satisfies StoredAuditRecord;
 }
 
@@ -60,6 +100,7 @@ export async function createStoredAudit({
   businessName,
   location,
   result,
+  traffic,
 }: CreateAuditInput) {
   const collection = await getAuditCollection();
   const now = new Date().toISOString();
@@ -80,6 +121,7 @@ export async function createStoredAudit({
     goodSignals: result.goodSignals,
     followUpConsent: false,
     intents: [],
+    traffic,
     leadStatus: "new",
     createdAt: now,
     updatedAt: now,
@@ -178,6 +220,14 @@ export async function updateLeadStatus(auditId: string, leadStatus: LeadStatus) 
     };
   }
 
+  if (leadStatus !== "lost") {
+    update.$unset = {
+      ...(update.$unset ?? {}),
+      lostReason: "",
+      lostReasonNotes: "",
+    };
+  }
+
   await collection.updateOne({ auditId }, update);
   await createActivityLog({
     entityType: "lead",
@@ -197,6 +247,12 @@ export async function updateLeadDetails(
     location?: string;
     leadStatus: LeadStatus;
     followUpConsent: boolean;
+    lostReason?: LeadLostReason;
+    lostReasonNotes?: string;
+    qualificationBudget?: string;
+    qualificationTimeline?: string;
+    qualificationFit?: LeadQualificationFit;
+    qualificationNotes?: string;
   }
 ) {
   const collection = await getAuditCollection();
@@ -216,6 +272,16 @@ export async function updateLeadDetails(
       location: input.location?.trim() || undefined,
       leadStatus: input.leadStatus,
       followUpConsent: input.followUpConsent,
+      lostReason:
+        input.leadStatus === "lost" ? input.lostReason ?? "other" : undefined,
+      lostReasonNotes:
+        input.leadStatus === "lost"
+          ? input.lostReasonNotes?.trim() || undefined
+          : undefined,
+      qualificationBudget: input.qualificationBudget?.trim() || undefined,
+      qualificationTimeline: input.qualificationTimeline?.trim() || undefined,
+      qualificationFit: input.qualificationFit || undefined,
+      qualificationNotes: input.qualificationNotes?.trim() || undefined,
       consentedAt: input.followUpConsent ? existing.consentedAt ?? now : undefined,
       updatedAt: now,
     },
@@ -235,6 +301,14 @@ export async function updateLeadDetails(
     };
   }
 
+  if (input.leadStatus !== "lost") {
+    update.$unset = {
+      ...(update.$unset ?? {}),
+      lostReason: "",
+      lostReasonNotes: "",
+    };
+  }
+
   await collection.updateOne({ auditId }, update);
 
   await createActivityLog({
@@ -245,6 +319,8 @@ export async function updateLeadDetails(
     metadata: {
       leadStatus: input.leadStatus,
       followUpConsent: input.followUpConsent,
+      lostReason: input.leadStatus === "lost" ? input.lostReason ?? "other" : null,
+      qualificationFit: input.qualificationFit ?? null,
     },
   });
 }

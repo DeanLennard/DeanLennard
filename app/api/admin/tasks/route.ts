@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   const customerId = String(formData.get("customerId") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
+  const internalNotes = String(formData.get("internalNotes") ?? "").trim();
   const status = String(formData.get("status") ?? "").trim();
   const priority = String(formData.get("priority") ?? "").trim();
   const dueDate = String(formData.get("dueDate") ?? "").trim();
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
     customerId: customerId || undefined,
     title,
     description: description || undefined,
+    internalNotes: internalNotes || undefined,
     status: (status || "todo") as TaskStatus,
     priority: (priority || "medium") as TaskPriority,
     dueDate: dueDate || undefined,

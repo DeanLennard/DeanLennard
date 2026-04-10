@@ -40,12 +40,13 @@ export default async function EditQuotePage({
   });
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
+      <section className="mb-8">
+        <AdminNav currentPath="/admin/quotes" />
+      </section>
       <section className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8 lg:p-10">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">Edit quote</p>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-stone-50">{quote.title}</h1>
-        <AdminNav currentPath="/admin/quotes" />
-
         {error === "missing-title" ? (
           <div className="mt-6 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">Quote title is required.</div>
         ) : null}
@@ -93,6 +94,27 @@ export default async function EditQuotePage({
             <span className="text-sm font-semibold text-stone-100">Internal notes</span>
             <textarea name="notes" rows={4} defaultValue={quote.notes || ""} className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100" />
           </label>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+              <input
+                type="checkbox"
+                name="autoCreateProjectOnAcceptance"
+                defaultChecked={quote.autoCreateProjectOnAcceptance ?? true}
+                className="h-4 w-4 rounded border-[color:var(--color-border)]"
+              />
+              Auto-create project when quote is approved
+            </label>
+            <label className="flex items-center gap-3 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100">
+              <input
+                type="checkbox"
+                name="autoCreateInvoiceOnAcceptance"
+                defaultChecked={quote.autoCreateInvoiceOnAcceptance ?? false}
+                className="h-4 w-4 rounded border-[color:var(--color-border)]"
+              />
+              Auto-create initial invoice when quote is approved
+            </label>
+          </div>
 
           <div className="flex flex-wrap gap-3">
             <button type="submit" className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500">Save Quote</button>
