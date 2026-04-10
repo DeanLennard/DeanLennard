@@ -69,30 +69,71 @@ export default function RootLayout({
           </>
         ) : null}
         {isPostHogEnabled ? (
-          <>
-            <Script
-              src={`${POSTHOG_HOST}/static/array.js`}
-              strategy="afterInteractive"
-            />
-            <Script id="posthog-analytics" strategy="afterInteractive">
-              {`
-                window.posthog = window.posthog || [];
-                if (typeof window.posthog.init === 'function') {
-                  window.posthog.init('${POSTHOG_PROJECT_TOKEN}', {
-                    api_host: '${POSTHOG_HOST}',
-                    capture_pageview: false,
-                    capture_pageleave: false
-                  });
-                  if (Array.isArray(window.__posthogEventQueue)) {
-                    window.__posthogEventQueue.forEach(function(event) {
-                      window.posthog.capture(event.name, event.properties);
-                    });
-                    window.__posthogEventQueue = [];
-                  }
+          <Script id="posthog-analytics" strategy="afterInteractive">
+            {`
+              !function(t,e){
+                var o,n,p,r;
+                if(!e.__SV){
+                  window.posthog=e;
+                  e._i=[];
+                  e.init=function(i,s,a){
+                    function g(t,e){
+                      var o=e.split(".");
+                      if(o.length===2){
+                        t=t[o[0]];
+                        e=o[1];
+                      }
+                      t[e]=function(){
+                        t.push([e].concat(Array.prototype.slice.call(arguments,0)));
+                      };
+                    }
+                    (p=t.createElement("script")).type="text/javascript";
+                    p.crossOrigin="anonymous";
+                    p.async=!0;
+                    p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js";
+                    (r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);
+                    var u=e;
+                    if(a!==undefined){
+                      u=e[a]=[];
+                    } else {
+                      a="posthog";
+                    }
+                    u.people=u.people||[];
+                    u.toString=function(t){
+                      var e="posthog";
+                      if(a!=="posthog"){
+                        e+="."+a;
+                      }
+                      if(!t){
+                        e+=" (stub)";
+                      }
+                      return e;
+                    };
+                    u.people.toString=function(){
+                      return u.toString(1)+".people (stub)";
+                    };
+                    o="init capture register register_once register_for_session unregister unregister_for_session identify alias set_config reset opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing onFeatureFlags onSessionId".split(" ");
+                    for(n=0;n<o.length;n++){
+                      g(u,o[n]);
+                    }
+                    e._i.push([i,s,a]);
+                  };
+                  e.__SV=1;
                 }
-              `}
-            </Script>
-          </>
+              }(document,window.posthog||[]);
+              window.posthog.init('${POSTHOG_PROJECT_TOKEN}', {
+                api_host: '${POSTHOG_HOST}',
+                capture_pageview: false,
+                capture_pageleave: false
+              });
+              if (Array.isArray(window.__posthogEventQueue)) {
+                window.__posthogEventQueue.forEach(function(event) {
+                  window.posthog.capture(event.name, event.properties);
+                });
+                window.__posthogEventQueue = [];
+              }
+            `}
+          </Script>
         ) : null}
       </head>
       <body className="min-h-full bg-background text-foreground">
