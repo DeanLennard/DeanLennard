@@ -5,6 +5,7 @@ const footerLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Privacy" },
   { href: "/website-growth-check", label: "Website Growth Check" },
 ];
 
@@ -109,7 +110,9 @@ export function SiteFooter() {
               <span>dean@deanlennard.com</span>
             </a>
           </div>
-          <p className="text-xs text-stone-400">&copy; Dean Lennard 2026</p>
+          <p className="text-xs text-stone-400">
+            &copy; 2026 Outbreak LTD. All rights reserved.
+          </p>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

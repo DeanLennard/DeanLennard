@@ -155,6 +155,17 @@ export default async function ContactPage({
                 suggested next steps, and whether a call makes sense.
               </p>
               <p className="mt-4 text-sm leading-7 text-stone-300">
+                By getting in touch, you are sharing the details needed for a
+                reply. Read the{" "}
+                <Link
+                  href="/privacy"
+                  className="font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                for how enquiry information is handled.
+              </p>
+              <p className="mt-4 text-sm leading-7 text-stone-300">
                 If you want a quick starting point first, you can run the{" "}
                 <Link
                   href="/website-growth-check"

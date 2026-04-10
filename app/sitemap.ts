@@ -9,6 +9,7 @@ const routes = [
   { path: "/projects", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/services", priority: 0.9, changeFrequency: "weekly" as const },
   { path: "/contact", priority: 0.8, changeFrequency: "monthly" as const },
+  { path: "/privacy", priority: 0.4, changeFrequency: "yearly" as const },
   {
     path: "/nextjs-developer-uk",
     priority: 0.8,
