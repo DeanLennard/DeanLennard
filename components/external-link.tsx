@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 
-type ExternalLinkProps = {
+type ExternalLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string;
   children: ReactNode;
   className?: string;
@@ -12,6 +12,7 @@ export function ExternalLink({
   children,
   className,
   ariaLabel,
+  ...props
 }: ExternalLinkProps) {
   return (
     <a
@@ -20,6 +21,7 @@ export function ExternalLink({
       rel="noopener noreferrer"
       aria-label={ariaLabel}
       className={className}
+      {...props}
     >
       {children}
       <span className="sr-only"> (opens in a new tab)</span>

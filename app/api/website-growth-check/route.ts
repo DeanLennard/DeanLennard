@@ -1,3 +1,4 @@
+import { createStoredAudit } from "@/lib/audit-store";
 import { runWebsiteGrowthAudit } from "@/lib/website-growth-audit";
 
 export const runtime = "nodejs";
@@ -16,8 +17,17 @@ export async function POST(request: Request) {
       businessName: body.businessName,
       location: body.location,
     });
+    const auditId = await createStoredAudit({
+      url: body.url ?? "",
+      businessName: body.businessName,
+      location: body.location,
+      result,
+    });
 
-    return Response.json(result);
+    return Response.json({
+      ...result,
+      auditId,
+    });
   } catch (error) {
     const message =
       error instanceof Error

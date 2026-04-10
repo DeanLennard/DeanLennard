@@ -15,6 +15,7 @@ export type AuditScore = {
 };
 
 export type WebsiteGrowthAuditResult = {
+  auditId?: string;
   normalizedUrl: string;
   checkedAt: string;
   checkedPages: string[];

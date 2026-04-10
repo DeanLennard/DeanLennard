@@ -19,6 +19,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 type ContactPageSearchParams = Promise<{
+  auditId?: string | string[];
   website?: string | string[];
   business?: string | string[];
   location?: string | string[];
@@ -37,6 +38,7 @@ export default async function ContactPage({
   searchParams: ContactPageSearchParams;
 }) {
   const resolvedSearchParams = await searchParams;
+  const auditId = getSingleValue(resolvedSearchParams.auditId)?.trim() ?? "";
   const website = getSingleValue(resolvedSearchParams.website)?.trim() ?? "";
   const business = getSingleValue(resolvedSearchParams.business)?.trim() ?? "";
   const location = getSingleValue(resolvedSearchParams.location)?.trim() ?? "";
@@ -47,6 +49,7 @@ export default async function ContactPage({
   const visibilityScore =
     getSingleValue(resolvedSearchParams.visibilityScore)?.trim() ?? "";
   const hasAuditContext = Boolean(
+    auditId ||
     website ||
       business ||
       location ||
@@ -58,6 +61,7 @@ export default async function ContactPage({
     "Hi Dean,",
     "",
     "I would like to discuss a project.",
+    auditId ? `Audit ID: ${auditId}` : "",
     website ? `Website checked: ${website}` : "",
     business ? `Business name: ${business}` : "",
     location ? `Location: ${location}` : "",
@@ -313,8 +317,13 @@ export default async function ContactPage({
                   <p className="font-semibold text-stone-100">
                     Audit details will be added to the email draft
                   </p>
-                  {website ? (
+                  {auditId ? (
                     <p className="mt-2">
+                      Audit ID: <span className="text-stone-100">{auditId}</span>
+                    </p>
+                  ) : null}
+                  {website ? (
+                    <p className={auditId ? "" : "mt-2"}>
                       Website: <span className="text-stone-100">{website}</span>
                     </p>
                   ) : null}
@@ -360,6 +369,8 @@ export default async function ContactPage({
               ) : null}
               <a
                 href={emailHref}
+                data-audit-id={auditId || undefined}
+                data-audit-intent="send_email"
                 className="mt-5 inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 dean@deanlennard.com
@@ -420,14 +431,19 @@ export default async function ContactPage({
             </p>
             {hasAuditContext ? (
               <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-7 text-stone-200">
-                <p className="font-semibold text-stone-100">
-                  Audit summary for reference during the call
-                </p>
-                {website ? (
-                  <p className="mt-2">
-                    Website: <span className="text-stone-100">{website}</span>
+                  <p className="font-semibold text-stone-100">
+                    Audit summary for reference during the call
                   </p>
-                ) : null}
+                  {auditId ? (
+                    <p className="mt-2">
+                      Audit ID: <span className="text-stone-100">{auditId}</span>
+                    </p>
+                  ) : null}
+                  {website ? (
+                    <p className={auditId ? "" : "mt-2"}>
+                      Website: <span className="text-stone-100">{website}</span>
+                    </p>
+                  ) : null}
                 {business ? (
                   <p>
                     Business: <span className="text-stone-100">{business}</span>
@@ -476,6 +492,8 @@ export default async function ContactPage({
             <ExternalLink
               href="https://calendly.com/psyberpixie77/30min"
               ariaLabel="Open Calendly booking page for a 30-minute project consultation"
+              data-audit-id={auditId || undefined}
+              data-audit-intent="book_call"
               className="mt-5 inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             >
               Open Booking Page

@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { recordAuditIntentClient } from "@/lib/audit-intent-client";
+import type { AuditIntentType } from "@/lib/audit-intents";
 import { trackEvent, trackPageView } from "@/lib/analytics";
 
 function getPathWithSearch(pathname: string, searchParams: URLSearchParams) {
@@ -47,6 +49,38 @@ function isServicePage(pathname: string) {
   return !["/", "/about", "/contact", "/projects", "/services"].includes(pathname);
 }
 
+function getAuditIdFromCurrentLocation() {
+  return new URL(window.location.href).searchParams.get("auditId");
+}
+
+function getAuditIntentForLink(link: HTMLAnchorElement): AuditIntentType | null {
+  const explicitIntent = link.dataset.auditIntent;
+
+  if (
+    explicitIntent === "request_review" ||
+    explicitIntent === "request_fix_free_review" ||
+    explicitIntent === "book_call" ||
+    explicitIntent === "send_email" ||
+    explicitIntent === "calendly_open"
+  ) {
+    return explicitIntent;
+  }
+
+  if (link.href.startsWith("mailto:")) {
+    return "send_email";
+  }
+
+  if (link.hash === "#book-call") {
+    return "book_call";
+  }
+
+  if (link.href.includes("calendly.com")) {
+    return "book_call";
+  }
+
+  return null;
+}
+
 export function Analytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -85,12 +119,18 @@ export function Analytics() {
       const isExternal = url.origin !== window.location.origin;
       const linkText = getLinkText(link);
       const destination = getLinkDestination(link);
+      const auditId = link.dataset.auditId || getAuditIdFromCurrentLocation();
+      const auditIntent = getAuditIntentForLink(link);
       const baseParams = {
         cta_label: linkText,
         destination,
         link_url: link.href,
         page_path: window.location.pathname,
       };
+
+      if (auditId && auditIntent) {
+        recordAuditIntentClient(auditId, auditIntent);
+      }
 
       if (link.href.startsWith("mailto:")) {
         trackEvent("generate_lead", {
@@ -149,8 +189,12 @@ export function Analytics() {
       const baseParams = {
         page_path: window.location.pathname,
       };
+      const auditId = getAuditIdFromCurrentLocation();
 
       if (event.data.event === "calendly.profile_page_viewed") {
+        if (auditId) {
+          recordAuditIntentClient(auditId, "calendly_open");
+        }
         trackEvent("calendly_open", baseParams);
       }
 

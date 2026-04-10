@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
+import { recordAuditIntentClient } from "@/lib/audit-intent-client";
 import { trackEvent } from "@/lib/analytics";
 import type { WebsiteGrowthAuditResult } from "@/lib/website-growth-audit";
 
@@ -79,6 +80,13 @@ export function WebsiteGrowthCheckTool({
   const [error, setError] = useState("");
   const [result, setResult] = useState<WebsiteGrowthAuditResult | null>(null);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
+  const autoStartKey = useMemo(() => {
+    return [
+      initialUrl.trim().toLowerCase(),
+      initialBusinessName.trim().toLowerCase(),
+      initialLocation.trim().toLowerCase(),
+    ].join("|");
+  }, [initialBusinessName, initialLocation, initialUrl]);
 
   useEffect(() => {
     if (status !== "loading") {
@@ -97,6 +105,17 @@ export function WebsiteGrowthCheckTool({
   useEffect(() => {
     if (!autoStart || hasAutoStarted || !initialUrl.trim()) {
       return;
+    }
+
+    if (typeof window !== "undefined") {
+      const storageKey = `website-growth-audit-autostart:${autoStartKey}`;
+
+      if (window.sessionStorage.getItem(storageKey) === "1") {
+        setHasAutoStarted(true);
+        return;
+      }
+
+      window.sessionStorage.setItem(storageKey, "1");
     }
 
     containerRef.current?.scrollIntoView({
@@ -118,6 +137,7 @@ export function WebsiteGrowthCheckTool({
     initialBusinessName,
     initialLocation,
     initialUrl,
+    autoStartKey,
   ]);
 
   useEffect(() => {
@@ -129,11 +149,16 @@ export function WebsiteGrowthCheckTool({
     }
   }, [status]);
 
-  const ctaHref = useMemo(() => {
+  const contactQueryString = useMemo(() => {
     const params = new URLSearchParams();
 
-    if (url.trim()) {
-      params.set("website", url.trim());
+    if (result?.auditId) {
+      params.set("auditId", result.auditId);
+    }
+
+    const websiteValue = result?.normalizedUrl || url.trim();
+    if (websiteValue) {
+      params.set("website", websiteValue);
     }
 
     if (businessName.trim()) {
@@ -150,38 +175,26 @@ export function WebsiteGrowthCheckTool({
       params.set("visibilityScore", String(result.scores.visibility.score));
     }
 
-    const query = params.toString();
-    return query
-      ? `/contact?${query}#project-enquiry`
-      : "/contact#project-enquiry";
+    return params.toString();
   }, [businessName, location, result, url]);
+
+  const ctaHref = useMemo(() => {
+    return contactQueryString
+      ? `/contact?${contactQueryString}#project-enquiry`
+      : "/contact#project-enquiry";
+  }, [contactQueryString]);
 
   const reviewHref = useMemo(() => {
-    const params = new URLSearchParams();
-
-    if (url.trim()) {
-      params.set("website", url.trim());
-    }
-
-    if (businessName.trim()) {
-      params.set("business", businessName.trim());
-    }
-
-    if (location.trim()) {
-      params.set("location", location.trim());
-    }
-
-    if (result) {
-      params.set("conversionScore", String(result.scores.conversion.score));
-      params.set("performanceScore", String(result.scores.performance.score));
-      params.set("visibilityScore", String(result.scores.visibility.score));
-    }
-
-    const query = params.toString();
-    return query
-      ? `/contact?${query}#project-enquiry`
+    return contactQueryString
+      ? `/contact?${contactQueryString}#project-enquiry`
       : "/contact#project-enquiry";
-  }, [businessName, location, result, url]);
+  }, [contactQueryString]);
+
+  const bookCallHref = useMemo(() => {
+    return contactQueryString
+      ? `/contact?${contactQueryString}#book-call`
+      : "/contact#book-call";
+  }, [contactQueryString]);
 
   async function runAudit({
     url,
@@ -260,6 +273,27 @@ export function WebsiteGrowthCheckTool({
       url,
       businessName,
       location,
+    });
+  }
+
+  function handleAuditCtaClick(
+    ctaLabel: string,
+    intentType?: "request_fix_free_review" | "request_review" | "book_call"
+  ) {
+    if (!result) {
+      return;
+    }
+
+    if (intentType) {
+      recordAuditIntentClient(result.auditId, intentType);
+    }
+
+    trackEvent("website_growth_audit_cta_click", {
+      page_path: "/website-growth-check",
+      cta_label: ctaLabel,
+      conversion_score: result.scores.conversion.score,
+      performance_score: result.scores.performance.score,
+      visibility_score: result.scores.visibility.score,
     });
   }
 
@@ -488,13 +522,10 @@ export function WebsiteGrowthCheckTool({
               <Link
                 href={ctaHref}
                 onClick={() =>
-                  trackEvent("website_growth_audit_cta_click", {
-                    page_path: "/website-growth-check",
-                    cta_label: "Request Fix / Free Review",
-                    conversion_score: result.scores.conversion.score,
-                    performance_score: result.scores.performance.score,
-                    visibility_score: result.scores.visibility.score,
-                  })
+                  handleAuditCtaClick(
+                    "Request Fix / Free Review",
+                    "request_fix_free_review"
+                  )
                 }
                 className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
               >
@@ -503,20 +534,15 @@ export function WebsiteGrowthCheckTool({
               <Link
                 href={reviewHref}
                 onClick={() =>
-                  trackEvent("website_growth_audit_cta_click", {
-                    page_path: "/website-growth-check",
-                    cta_label: "Request Review",
-                    conversion_score: result.scores.conversion.score,
-                    performance_score: result.scores.performance.score,
-                    visibility_score: result.scores.visibility.score,
-                  })
+                  handleAuditCtaClick("Request Review", "request_review")
                 }
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 Request Review
               </Link>
               <Link
-                href="/contact#book-call"
+                href={bookCallHref}
+                onClick={() => handleAuditCtaClick("Book a Call", "book_call")}
                 className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
               >
                 Book a Call
