@@ -25,6 +25,13 @@ export const metadata: Metadata = {
   },
 };
 
+function formatLeadStatusLabel(value: string) {
+  return value
+    .split("_")
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
 export default async function LeadDetailPage({
   params,
 }: {
@@ -73,7 +80,7 @@ export default async function LeadDetailPage({
             Lead status
           </p>
           <p className="mt-4 text-lg font-semibold text-stone-50">
-            {lead.leadStatus}
+            {formatLeadStatusLabel(lead.leadStatus)}
           </p>
           <p className="mt-3 text-sm leading-7 text-stone-300">
             Follow-up consent: {lead.followUpConsent ? "Yes" : "No"}
@@ -113,11 +120,11 @@ export default async function LeadDetailPage({
                 <button
                   type="submit"
                   className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-              >
-                Mark {status.charAt(0).toUpperCase() + status.slice(1)}
-              </button>
-            </form>
-          ))}
+                >
+                  Mark {formatLeadStatusLabel(status)}
+                </button>
+              </form>
+            ))}
             {lead.leadStatus !== "converted" ? (
               <form action={`/api/admin/leads/${lead.auditId}/convert`} method="post">
                 <button

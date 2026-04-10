@@ -41,6 +41,17 @@ body {
   overflow-x: hidden;
 }
 
+select,
+option,
+optgroup {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+select {
+  color-scheme: dark;
+}
+
 a {
   text-decoration: none;
 }

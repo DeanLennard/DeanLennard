@@ -3,8 +3,12 @@ import Link from "next/link";
 
 import { AdminNav } from "@/components/admin-nav";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
+import { listClients } from "@/lib/clients-store";
 import { formatDisplayDateTime } from "@/lib/date-format";
+import { listInvoices } from "@/lib/invoices-store";
 import { listPaymentProviderEvents } from "@/lib/payment-provider-events";
+import { formatMoney } from "@/lib/money-format";
+import { listRecurringInvoiceSchedules } from "@/lib/recurring-billing-store";
 
 export const metadata: Metadata = {
   title: "Provider Events",
@@ -31,16 +35,34 @@ export default async function ProviderEventsPage({
   const resolvedSearchParams = await searchParams;
   const provider = getSingleValue(resolvedSearchParams.provider) ?? "all";
   const status = getSingleValue(resolvedSearchParams.status) ?? "all";
-  const events = await listPaymentProviderEvents({
-    provider: provider as "all" | "stripe" | "gocardless",
-    status: status as
-      | "all"
-      | "received"
-      | "processed"
-      | "ignored"
-      | "failed"
-      | "invalid_signature",
-  });
+  const [events, clients, invoices, schedules] = await Promise.all([
+    listPaymentProviderEvents({
+      provider: provider as "all" | "stripe" | "gocardless",
+      status: status as
+        | "all"
+        | "received"
+        | "processed"
+        | "ignored"
+        | "failed"
+        | "invalid_signature",
+    }),
+    listClients(),
+    listInvoices(),
+    listRecurringInvoiceSchedules(),
+  ]);
+  const stripeLinkedInvoices = invoices.filter((invoice) => invoice.stripeInvoiceId);
+  const gocardlessLinkedInvoices = invoices.filter(
+    (invoice) => invoice.gocardlessBillingRequestId || invoice.gocardlessPaymentId
+  );
+  const clientsWithStripe = clients.filter((client) => client.stripeCustomerId).length;
+  const clientsWithGoCardless = clients.filter((client) => client.gocardlessCustomerId).length;
+  const clientsWithMandates = clients.filter((client) => client.gocardlessMandateId).length;
+  const activeStripeSchedules = schedules.filter(
+    (schedule) => schedule.status === "active" && schedule.billingProvider === "stripe"
+  );
+  const activeGoCardlessSchedules = schedules.filter(
+    (schedule) => schedule.status === "active" && schedule.billingProvider === "gocardless"
+  );
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
@@ -58,6 +80,50 @@ export default async function ProviderEventsPage({
           Inspect recent webhook activity, failures, and invoice links without going into
           Mongo directly.
         </p>
+      </section>
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-3">
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Stripe lifecycle
+          </p>
+          <p className="mt-4 text-3xl font-semibold text-stone-50">{clientsWithStripe}</p>
+          <p className="mt-2 text-sm leading-7 text-stone-300">
+            Clients linked to Stripe customer records.
+          </p>
+          <p className="mt-4 text-sm text-stone-400">
+            {stripeLinkedInvoices.length} invoices linked | {activeStripeSchedules.length} active recurring schedules
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            GoCardless lifecycle
+          </p>
+          <p className="mt-4 text-3xl font-semibold text-stone-50">{clientsWithGoCardless}</p>
+          <p className="mt-2 text-sm leading-7 text-stone-300">
+            Clients linked to GoCardless customer records.
+          </p>
+          <p className="mt-4 text-sm text-stone-400">
+            {gocardlessLinkedInvoices.length} invoices linked | {activeGoCardlessSchedules.length} active recurring schedules
+          </p>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Mandates and payment state
+          </p>
+          <p className="mt-4 text-3xl font-semibold text-stone-50">{clientsWithMandates}</p>
+          <p className="mt-2 text-sm leading-7 text-stone-300">
+            Clients with stored GoCardless mandate IDs.
+          </p>
+          <p className="mt-4 text-sm text-stone-400">
+            Provider-linked invoice total {formatMoney(
+              [...stripeLinkedInvoices, ...gocardlessLinkedInvoices].reduce(
+                (sum, invoice) => sum + invoice.total,
+                0
+              )
+            )}
+          </p>
+        </article>
       </section>
 
       <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
@@ -119,6 +185,9 @@ export default async function ProviderEventsPage({
                   <p className="mt-1 text-sm text-stone-400">
                     Received {formatDisplayDateTime(event.receivedAt)}
                   </p>
+                  {event.invoiceId ? (
+                    <p className="mt-1 text-sm text-stone-400">Linked invoice ID: {event.invoiceId}</p>
+                  ) : null}
                 </div>
                 <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-200">
                   <p>Status: {event.status.replaceAll("_", " ")}</p>
