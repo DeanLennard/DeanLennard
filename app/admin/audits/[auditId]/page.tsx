@@ -68,17 +68,17 @@ export default async function AuditDetailPage({
           {
             label: "Conversion",
             score: audit.scores.conversion.score,
-            description: audit.scores.conversion.summary,
+            description: audit.scores.conversion.label,
           },
           {
             label: "Performance",
             score: audit.scores.performance.score,
-            description: audit.scores.performance.summary,
+            description: audit.scores.performance.label,
           },
           {
             label: "Visibility",
             score: audit.scores.visibility.score,
-            description: audit.scores.visibility.summary,
+            description: audit.scores.visibility.label,
           },
         ].map((item) => (
           <article

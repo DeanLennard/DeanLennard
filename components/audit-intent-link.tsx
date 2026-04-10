@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import type { AuditIntentType } from "@/lib/audit-store";
+import type { AuditIntentType } from "@/lib/audit-intents";
 
 async function sendAuditIntent(auditId: string, action: AuditIntentType) {
   try {
@@ -12,7 +12,7 @@ async function sendAuditIntent(auditId: string, action: AuditIntentType) {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({ intentType: action }),
       keepalive: true,
     });
   } catch {
