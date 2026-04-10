@@ -37,7 +37,7 @@ export function createAdminSessionValue(username: string) {
   return `${payload}.${signValue(payload)}`;
 }
 
-export async function isAdminSessionValueValid(
+export function isAdminSessionSignatureValid(
   sessionValue: string | undefined
 ) {
   ensureAdminConfig();
@@ -51,9 +51,17 @@ export async function isAdminSessionValueValid(
     return false;
   }
 
-  if (!safeEqual(signature, signValue(payload))) {
+  return safeEqual(signature, signValue(payload));
+}
+
+export async function isAdminSessionValueValid(
+  sessionValue: string | undefined
+) {
+  if (!isAdminSessionSignatureValid(sessionValue)) {
     return false;
   }
+
+  const [payload] = sessionValue!.split(".");
 
   const user = await getApprovedAdminUserByUsername(payload);
   return Boolean(user);
@@ -75,4 +83,14 @@ export async function requireAdminAuthentication() {
 
 export function getAdminSessionCookieName() {
   return ADMIN_SESSION_COOKIE;
+}
+
+export async function shouldDisableAnalyticsForAdminSession() {
+  try {
+    const cookieStore = await cookies();
+    const sessionValue = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+    return isAdminSessionSignatureValid(sessionValue);
+  } catch {
+    return false;
+  }
 }

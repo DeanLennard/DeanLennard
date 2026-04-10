@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AdminNav } from "@/components/admin-nav";
 import { listAudits } from "@/lib/audit-store";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
+import { formatDisplayDateTime } from "@/lib/date-format";
 
 export const metadata: Metadata = {
   title: "Audit Admin",
@@ -89,7 +91,9 @@ export default async function AdminPage({
         </div>
 
         <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-3">
+          <div className="space-y-4">
+            <AdminNav currentPath="/admin" />
+            <div className="flex flex-wrap gap-3">
             {(["all", "consented", "not_consented"] as AuditListFilter[]).map(
               (option) => {
                 const active = option === filter;
@@ -115,6 +119,7 @@ export default async function AdminPage({
                 );
               }
             )}
+            </div>
           </div>
 
           <form action="/admin" method="get" className="flex w-full gap-3 lg:max-w-xl">
@@ -177,7 +182,7 @@ export default async function AdminPage({
                     </p>
                   ) : null}
                   <p className="text-sm leading-7 text-stone-400">
-                    Checked on {new Date(audit.checkedAt).toLocaleString("en-GB")}
+                    Checked on {formatDisplayDateTime(audit.checkedAt)}
                   </p>
                 </div>
 
@@ -216,12 +221,20 @@ export default async function AdminPage({
                     ? audit.intents.map((intent) => intent.type).join(", ")
                     : "None recorded yet"}
                 </p>
-                <Link
-                  href={`/admin/audits/${audit.auditId}`}
-                  className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
-                >
-                  View Audit Detail
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href={`/admin/audits/${audit.auditId}`}
+                    className="inline-flex items-center justify-center rounded-md bg-amber-600 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+                  >
+                    View Audit Detail
+                  </Link>
+                  <Link
+                    href={`/admin/leads/${audit.auditId}`}
+                    className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+                  >
+                    Open as Lead
+                  </Link>
+                </div>
               </div>
             </article>
           ))

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminNav } from "@/components/admin-nav";
 import { getAuditById } from "@/lib/audit-store";
 import { requireAdminAuthentication } from "@/lib/admin-auth";
+import { formatDisplayDateTime } from "@/lib/date-format";
 
 export const metadata: Metadata = {
   title: "Audit Detail",
@@ -62,6 +64,7 @@ export default async function AuditDetailPage({
           Back to all audits
         </Link>
       </div>
+      <AdminNav currentPath="/admin" />
 
       <section className="mt-8 grid gap-6 lg:grid-cols-3">
         {[
@@ -107,11 +110,11 @@ export default async function AuditDetailPage({
             {audit.followUpConsent ? "Consented to follow-up" : "No consent yet"}
           </p>
           <div className="mt-4 space-y-2 text-sm leading-7 text-stone-300">
-            <p>Checked on: {new Date(audit.checkedAt).toLocaleString("en-GB")}</p>
-            <p>Stored on: {new Date(audit.createdAt).toLocaleString("en-GB")}</p>
+            <p>Checked on: {formatDisplayDateTime(audit.checkedAt)}</p>
+            <p>Stored on: {formatDisplayDateTime(audit.createdAt)}</p>
             {audit.consentedAt ? (
               <p>
-                Consented on: {new Date(audit.consentedAt).toLocaleString("en-GB")}
+                Consented on: {formatDisplayDateTime(audit.consentedAt)}
               </p>
             ) : null}
             {audit.location ? <p>Location: {audit.location}</p> : null}
@@ -127,7 +130,7 @@ export default async function AuditDetailPage({
                   <li key={`${intent.type}-${intent.at}`} className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4">
                     <p className="font-semibold text-stone-100">{intent.type}</p>
                     <p className="mt-1 text-stone-400">
-                      {new Date(intent.at).toLocaleString("en-GB")}
+                      {formatDisplayDateTime(intent.at)}
                     </p>
                   </li>
                 ))}
@@ -137,6 +140,22 @@ export default async function AuditDetailPage({
                 No intent signals recorded yet.
               </p>
             )}
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href={`/admin/leads/${audit.auditId}`}
+              className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            >
+              Open lead view
+            </Link>
+            {audit.convertedClientId ? (
+              <Link
+                href={`/admin/clients/${audit.convertedClientId}`}
+                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              >
+                Open client view
+              </Link>
+            ) : null}
           </div>
         </article>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { recordAuditIntentClient } from "@/lib/audit-intent-client";
 import { trackEvent } from "@/lib/analytics";
+import { formatDisplayDateTime } from "@/lib/date-format";
 import type { WebsiteGrowthAuditResult } from "@/lib/website-growth-audit";
 
 type AuditState = "idle" | "loading" | "success" | "error";
@@ -495,7 +496,7 @@ export function WebsiteGrowthCheckTool({
                 ))}
               </ul>
               <p className="mt-6 text-xs leading-6 text-stone-400">
-                Checked on {new Date(result.checkedAt).toLocaleString("en-GB")}
+                Checked on {formatDisplayDateTime(result.checkedAt)}
               </p>
             </section>
           </div>

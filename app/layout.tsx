@@ -6,6 +6,7 @@ import Script from "next/script";
 import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { shouldDisableAnalyticsForAdminSession } from "@/lib/admin-auth";
 import {
   GA_MEASUREMENT_ID,
   POSTHOG_HOST,
@@ -38,18 +39,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const disableAnalyticsForAdmin = await shouldDisableAnalyticsForAdminSession();
+  const shouldLoadGa = isAnalyticsEnabled && !disableAnalyticsForAdmin;
+  const shouldLoadPostHog = isPostHogEnabled && !disableAnalyticsForAdmin;
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {isAnalyticsEnabled ? (
+        {shouldLoadGa ? (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -68,7 +73,7 @@ export default function RootLayout({
             </Script>
           </>
         ) : null}
-        {isPostHogEnabled ? (
+        {shouldLoadPostHog ? (
           <Script id="posthog-analytics" strategy="afterInteractive">
             {`
               !function(t,e){
@@ -145,9 +150,11 @@ export default function RootLayout({
         </a>
         <div className="relative flex min-h-full flex-col">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,_rgba(31,41,55,1)_0%,_rgba(17,24,39,1)_100%)]" />
-          <Suspense fallback={null}>
-            <Analytics />
-          </Suspense>
+          {!disableAnalyticsForAdmin ? (
+            <Suspense fallback={null}>
+              <Analytics />
+            </Suspense>
+          ) : null}
           <SiteHeader />
           <div id="page-content" tabIndex={-1} className="flex-1">
             {children}
