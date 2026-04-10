@@ -2,9 +2,17 @@ import { NextResponse } from "next/server";
 
 import { getAdminSessionCookieName } from "@/lib/admin-auth";
 
+function redirectTo(path: string) {
+  return new NextResponse(null, {
+    status: 303,
+    headers: {
+      Location: path,
+    },
+  });
+}
+
 export async function POST(request: Request) {
-  const origin = new URL(request.url).origin;
-  const response = NextResponse.redirect(`${origin}/admin/login`, 303);
+  const response = redirectTo("/admin/login");
 
   response.cookies.set({
     name: getAdminSessionCookieName(),
