@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildServiceSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -96,27 +102,37 @@ const faqs = [
 ];
 
 export default function TechnicalSeoServicesUkPage() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: "Technical SEO Services UK",
-    serviceType: "Technical SEO",
-    areaServed: "United Kingdom",
-    provider: {
-      "@type": "Person",
-      name: "Dean Lennard",
-    },
-  };
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Technical SEO Services UK", path: "/technical-seo-services-uk" },
+  ];
 
   return (
     <main>
-      <Script
+      <SchemaScript
         id="technical-seo-services-uk-schema"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(jsonLd)}
-      </Script>
+        value={[
+          buildServiceSchema({
+            name: "Technical SEO Services UK",
+            path: "/technical-seo-services-uk",
+            description:
+              "Technical SEO services in the UK including audits, performance optimisation, indexing fixes, and Core Web Vitals improvements.",
+            serviceType: "Technical SEO",
+          }),
+          buildBreadcrumbSchema(breadcrumbItems),
+          buildFaqSchema(faqs),
+        ]}
+      />
+      <div className="mx-auto w-full max-w-7xl px-6 pt-10 lg:px-8">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Services", href: "/services" },
+            { label: "Technical SEO Services UK" },
+          ]}
+        />
+      </div>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div className="space-y-8">

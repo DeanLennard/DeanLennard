@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
 import { WebsiteGrowthCheckTool } from "@/components/website-growth-check-tool";
+import {
+  buildBreadcrumbSchema,
+  buildSoftwareApplicationSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -33,6 +39,10 @@ export default async function WebsiteGrowthCheckPage({
 }: {
   searchParams: WebsiteGrowthCheckSearchParams;
 }) {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Website Growth Check", path: "/website-growth-check" },
+  ];
   const resolvedSearchParams = await searchParams;
   const initialUrl = getSingleValue(resolvedSearchParams.url)?.trim() ?? "";
   const initialBusinessName =
@@ -43,6 +53,27 @@ export default async function WebsiteGrowthCheckPage({
 
   return (
     <main>
+      <div className="mx-auto w-full max-w-7xl px-6 pt-10 lg:px-8">
+        <SchemaScript
+          id="website-growth-check-schema"
+          value={[
+            buildSoftwareApplicationSchema({
+              name: "Website Growth Check",
+              path: "/website-growth-check",
+              description:
+                "A free website audit tool that reviews conversion, performance, and visibility issues and highlights likely growth blockers.",
+              applicationCategory: "BusinessApplication",
+            }),
+            buildBreadcrumbSchema(breadcrumbItems),
+          ]}
+        />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Website Growth Check" },
+          ]}
+        />
+      </div>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-16">
           <div className="space-y-8">

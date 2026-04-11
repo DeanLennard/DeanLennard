@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import { buildBreadcrumbSchema, buildServiceSchema } from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -62,8 +65,36 @@ const audiences = [
 ];
 
 export default function FreelanceDeveloperForAgenciesPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Freelance Developer for Agencies", path: "/freelance-developer-for-agencies" },
+  ];
+
   return (
     <main>
+      <div className="mx-auto w-full max-w-7xl px-6 pt-10 lg:px-8">
+        <SchemaScript
+          id="freelance-developer-for-agencies-schema"
+          value={[
+            buildServiceSchema({
+              name: "Freelance Developer for Agencies",
+              path: "/freelance-developer-for-agencies",
+              description:
+                "Freelance full-stack development support for agencies, including white-label delivery, web application builds, and reliable project execution.",
+              serviceType: "Agency development support",
+            }),
+            buildBreadcrumbSchema(breadcrumbItems),
+          ]}
+        />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Services", href: "/services" },
+            { label: "Freelance Developer for Agencies" },
+          ]}
+        />
+      </div>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div className="space-y-8">

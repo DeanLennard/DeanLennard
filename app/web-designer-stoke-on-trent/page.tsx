@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import { buildBreadcrumbSchema, buildServiceSchema } from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -54,8 +57,37 @@ const audiences = [
 ];
 
 export default function WebDesignerStokeOnTrentPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Web Designer Stoke-on-Trent", path: "/web-designer-stoke-on-trent" },
+  ];
+
   return (
     <main>
+      <div className="mx-auto w-full max-w-7xl px-6 pt-10 lg:px-8">
+        <SchemaScript
+          id="web-designer-stoke-on-trent-schema"
+          value={[
+            buildServiceSchema({
+              name: "Web Designer Stoke-on-Trent",
+              path: "/web-designer-stoke-on-trent",
+              description:
+                "Freelance web design and development services for Stoke-on-Trent businesses, including custom builds, SEO, performance, and ongoing support.",
+              serviceType: "Web design and development services",
+              areaServed: "Stoke-on-Trent, Staffordshire, United Kingdom",
+            }),
+            buildBreadcrumbSchema(breadcrumbItems),
+          ]}
+        />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Services", href: "/services" },
+            { label: "Web Designer Stoke-on-Trent" },
+          ]}
+        />
+      </div>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div className="space-y-8">

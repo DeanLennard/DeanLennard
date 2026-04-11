@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
 import { WebsiteGrowthCheckWidget } from "@/components/website-growth-check-widget";
 import { featuredProjects, servicePillars, stats, techGroups } from "@/data/site";
+import {
+  organizationSchema,
+  personSchema,
+  websiteSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 const featuredProjectAnchors: Record<string, string> = {
@@ -30,6 +36,10 @@ export const metadata: Metadata = buildPageMetadata({
 export default function Home() {
   return (
     <main>
+      <SchemaScript
+        id="homepage-geo-schema"
+        value={[websiteSchema, personSchema, organizationSchema]}
+      />
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-16">
           <div className="space-y-8">
@@ -137,6 +147,29 @@ export default function Home() {
               delivery leadership working together in a single service.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-8 lg:py-12">
+        <SectionHeading
+          eyebrow="Why Trust Me"
+          title="Direct technical ownership backed by full-stack and delivery-led experience."
+          description="This site is written from direct hands-on experience delivering web applications, technical SEO improvements, and structured technical delivery work."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            "UK-based freelance full-stack developer and technical delivery specialist",
+            "Work spanning startups, agencies, ecommerce, enterprise, and public-sector delivery environments",
+            "Hands-on experience across Next.js, Node.js, MongoDB, technical SEO, and performance improvement",
+            "Direct project delivery without agency layers or account-manager handoffs",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 text-sm leading-7 text-stone-300"
+            >
+              {item}
+            </div>
+          ))}
         </div>
       </section>
 

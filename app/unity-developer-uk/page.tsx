@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import { buildBreadcrumbSchema, buildServiceSchema } from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -63,8 +66,36 @@ const audiences = [
 ];
 
 export default function UnityDeveloperUkPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: "Unity Developer UK", path: "/unity-developer-uk" },
+  ];
+
   return (
     <main>
+      <div className="mx-auto w-full max-w-7xl px-6 pt-10 lg:px-8">
+        <SchemaScript
+          id="unity-developer-uk-schema"
+          value={[
+            buildServiceSchema({
+              name: "Unity Developer UK",
+              path: "/unity-developer-uk",
+              description:
+                "Freelance Unity development in the UK for gameplay systems, prototypes, cross-platform builds, and structured technical delivery.",
+              serviceType: "Unity game development",
+            }),
+            buildBreadcrumbSchema(breadcrumbItems),
+          ]}
+        />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Services", href: "/services" },
+            { label: "Unity Developer UK" },
+          ]}
+        />
+      </div>
       <section className="hero-grid">
         <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-28">
           <div className="space-y-8">

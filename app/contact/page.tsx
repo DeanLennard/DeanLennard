@@ -2,8 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ExternalLink } from "@/components/external-link";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildServiceSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -34,11 +41,38 @@ function getSingleValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+const faqs = [
+  {
+    question: "What does a typical project cost?",
+    answer:
+      "That depends on scope, complexity, and delivery needs. I can usually give a practical view on likely budget ranges once I understand the brief.",
+  },
+  {
+    question: "Do you work with startups?",
+    answer:
+      "Yes. I work with startups, SMEs, agencies, and larger organisations where technical ownership and delivery support are needed.",
+  },
+  {
+    question: "Do you offer ongoing support?",
+    answer:
+      "Yes. Ongoing development support, optimisation work, and delivery consulting are all available where they add value.",
+  },
+  {
+    question: "Do you work remotely?",
+    answer:
+      "Yes. I work remotely with businesses across the UK and can support projects regardless of location.",
+  },
+] as const;
+
 export default async function ContactPage({
   searchParams,
 }: {
   searchParams: ContactPageSearchParams;
 }) {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+  ];
   const resolvedSearchParams = await searchParams;
   const auditId = getSingleValue(resolvedSearchParams.auditId)?.trim() ?? "";
   const website = getSingleValue(resolvedSearchParams.website)?.trim() ?? "";
@@ -64,6 +98,21 @@ export default async function ContactPage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <SchemaScript
+        id="contact-page-schema"
+        value={[
+          buildServiceSchema({
+            name: "Contact Dean Lennard",
+            path: "/contact",
+            description:
+              "Contact page for freelance full-stack development, technical SEO, and delivery support enquiries.",
+            serviceType: "Project enquiries and technical consultation",
+          }),
+          buildBreadcrumbSchema(breadcrumbItems),
+          buildFaqSchema([...faqs]),
+        ]}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
       <Script
         src="https://assets.calendly.com/assets/external/widget.js"
         strategy="afterInteractive"
@@ -603,28 +652,7 @@ export default async function ContactPage({
           description="A few quick answers to the questions that often come up before a project starts."
         />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {[
-            {
-              question: "What does a typical project cost?",
-              answer:
-                "That depends on scope, complexity, and delivery needs. I can usually give a practical view on likely budget ranges once I understand the brief.",
-            },
-            {
-              question: "Do you work with startups?",
-              answer:
-                "Yes. I work with startups, SMEs, agencies, and larger organisations where technical ownership and delivery support are needed.",
-            },
-            {
-              question: "Do you offer ongoing support?",
-              answer:
-                "Yes. Ongoing development support, optimisation work, and delivery consulting are all available where they add value.",
-            },
-            {
-              question: "Do you work remotely?",
-              answer:
-                "Yes. I work remotely with businesses across the UK and can support projects regardless of location.",
-            },
-          ].map((faq) => (
+          {faqs.map((faq) => (
             <article
               key={faq.question}
               className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6"

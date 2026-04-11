@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import { buildBreadcrumbSchema } from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -37,8 +40,18 @@ const thirdParties = [
 ];
 
 export default function PrivacyPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Privacy Policy", path: "/privacy" },
+  ];
+
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-20 lg:px-8">
+      <SchemaScript
+        id="privacy-page-schema"
+        value={buildBreadcrumbSchema(breadcrumbItems)}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Privacy Policy" }]} />
       <SectionHeading
         eyebrow="Privacy"
         title="Privacy Policy"

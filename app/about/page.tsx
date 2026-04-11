@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import { buildBreadcrumbSchema, personSchema } from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -17,8 +20,18 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function AboutPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+  ];
+
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <SchemaScript
+        id="about-page-schema"
+        value={[personSchema, buildBreadcrumbSchema(breadcrumbItems)]}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "About" }]} />
       <section className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <SectionHeading
@@ -40,6 +53,11 @@ export default function AboutPage() {
               My work covers scalable web applications, business systems,
               technical SEO, performance optimisation, and end-to-end delivery
               support.
+            </p>
+            <p>
+              The focus is on combining technical implementation with clearer
+              planning, structured execution, and reliable delivery so projects
+              move forward with less risk and fewer handoff gaps.
             </p>
           </div>
         </div>
@@ -63,6 +81,31 @@ export default function AboutPage() {
             so projects move forward more smoothly and with fewer surprises.
           </p>
         </aside>
+      </section>
+
+      <section className="mt-20">
+        <div className="rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8">
+          <SectionHeading
+            eyebrow="Professional Summary"
+            title="Relevant experience across startups, agencies, enterprise delivery, and public-sector programmes."
+            description="This is the core context behind the service and project pages across the site."
+          />
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              "Full-stack development across Next.js, Node.js, MongoDB, WordPress, and backend integrations",
+              "Technical delivery support spanning planning, stakeholder coordination, and end-to-end execution",
+              "Performance, technical SEO, and platform improvement work tied to practical business outcomes",
+              "Experience relevant to startups, SMEs, agencies, ecommerce, enterprise, and regulated public-sector work",
+            ].map((item) => (
+              <div
+                key={item}
+                className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 text-sm leading-7 text-stone-300"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="mt-20">

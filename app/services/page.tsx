@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildServiceSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 type ServiceNumber = "01" | "02" | "03" | "04" | "05";
@@ -19,6 +26,11 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ServicesPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+  ];
+
   const specialistPageByServiceNumber: Record<ServiceNumber, string> = {
     "01": "/web-application-development-uk",
     "02": "/technical-seo-services-uk",
@@ -170,6 +182,21 @@ export default function ServicesPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <SchemaScript
+        id="services-page-schema"
+        value={[
+          buildServiceSchema({
+            name: "Web Development & Technical Services UK",
+            path: "/services",
+            description:
+              "Full-stack development, technical SEO, infrastructure, and delivery services designed to support projects from concept to completion.",
+            serviceType: "Full-stack development, technical SEO, and technical delivery services",
+          }),
+          buildBreadcrumbSchema(breadcrumbItems),
+          buildFaqSchema(faqs),
+        ]}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Services" }]} />
       <SectionHeading
         eyebrow="Services"
         title="Build, Scale & Deliver Web Applications That Actually Work"
@@ -193,6 +220,29 @@ export default function ServicesPage() {
           Talk Through Your Project
         </Link>
       </div>
+
+      <section className="mt-10 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+        <SectionHeading
+          eyebrow="Authority Signals"
+          title="Built around direct implementation, technical ownership, and delivery experience."
+          description="These service pages are grounded in the same practical work shown throughout the projects and specialist pages."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            "Direct work across full-stack development, technical SEO, infrastructure, and delivery",
+            "Relevant experience across startups, SMEs, agencies, enterprise, and public-sector environments",
+            "Named project and platform examples used throughout the site as supporting proof",
+            "Structured project support from planning and build through to launch and optimisation",
+          ].map((item) => (
+            <div
+              key={item}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6 text-sm leading-7 text-stone-300"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mt-10 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
         <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">

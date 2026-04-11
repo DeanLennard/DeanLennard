@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ExternalLink } from "@/components/external-link";
+import { SchemaScript } from "@/components/schema-script";
 import { SectionHeading } from "@/components/section-heading";
 import { projectCaseStudies } from "@/data/site";
+import {
+  buildBreadcrumbSchema,
+  buildCollectionPageSchema,
+} from "@/lib/geo-schema";
 import { buildPageMetadata } from "@/lib/site-metadata";
 
 const projectAnchors: Record<string, string> = {
@@ -78,13 +84,43 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 export default function ProjectsPage() {
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    { name: "Projects", path: "/projects" },
+  ];
+
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
+      <SchemaScript
+        id="projects-page-schema"
+        value={[
+          buildCollectionPageSchema({
+            name: "Full-Stack Development Projects & Technical Delivery Case Studies",
+            path: "/projects",
+            description:
+              "A selection of web development and delivery case studies focused on practical outcomes, technical execution, and end-to-end delivery.",
+            items: projectCaseStudies.map((project) => ({
+              name: project.title,
+              path: `/projects#${projectAnchors[project.title]}`,
+            })),
+          }),
+          buildBreadcrumbSchema(breadcrumbItems),
+        ]}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Projects" }]} />
       <SectionHeading
         eyebrow="Projects"
         title="Full-Stack Development Projects & Technical Delivery Case Studies"
         description="Real-world projects across startups, ecommerce, and enterprise, delivering measurable outcomes, not just code. Each case study is structured around the challenge, solution, delivery approach, and business impact."
       />
+
+      <section className="mt-10 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+        <SectionHeading
+          eyebrow="Why These Case Studies Matter"
+          title="Each project is structured to show the challenge, solution, delivery approach, and outcome."
+          description="That makes the portfolio more useful for buyers, search engines, and AI systems looking for evidence-backed technical experience."
+        />
+      </section>
 
       <section className="mt-10 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
         <SectionHeading
