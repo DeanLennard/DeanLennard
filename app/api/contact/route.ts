@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 
 import { recordAuditIntent } from "@/lib/audit-store";
 import { sendContactEnquiryEmail } from "@/lib/contact-enquiry-email";
+import { getPublicSiteUrl } from "@/lib/public-site";
 
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
+function toAbsoluteRedirect(path: string) {
+  return new URL(path, getPublicSiteUrl());
 }
 
 function value(formData: FormData, key: string) {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
 
   if (honey) {
     return NextResponse.redirect(
-      toAbsoluteRedirect(request, "/contact?sent=1#project-enquiry"),
+      toAbsoluteRedirect("/contact?sent=1#project-enquiry"),
       303
     );
   }
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
   if (!name || !emailPattern.test(email) || !message) {
     return NextResponse.redirect(
-      toAbsoluteRedirect(request, "/contact?error=invalid-input#project-enquiry"),
+      toAbsoluteRedirect("/contact?error=invalid-input#project-enquiry"),
       303
     );
   }
@@ -62,12 +63,12 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.redirect(
-      toAbsoluteRedirect(request, "/contact?sent=1#project-enquiry"),
+      toAbsoluteRedirect("/contact?sent=1#project-enquiry"),
       303
     );
   } catch {
     return NextResponse.redirect(
-      toAbsoluteRedirect(request, "/contact?error=send-failed#project-enquiry"),
+      toAbsoluteRedirect("/contact?error=send-failed#project-enquiry"),
       303
     );
   }
