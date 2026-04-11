@@ -26,6 +26,8 @@ type ContactPageSearchParams = Promise<{
   conversionScore?: string | string[];
   performanceScore?: string | string[];
   visibilityScore?: string | string[];
+  sent?: string | string[];
+  error?: string | string[];
 }>;
 
 function getSingleValue(value: string | string[] | undefined) {
@@ -48,6 +50,8 @@ export default async function ContactPage({
     getSingleValue(resolvedSearchParams.performanceScore)?.trim() ?? "";
   const visibilityScore =
     getSingleValue(resolvedSearchParams.visibilityScore)?.trim() ?? "";
+  const sent = getSingleValue(resolvedSearchParams.sent)?.trim() === "1";
+  const error = getSingleValue(resolvedSearchParams.error)?.trim() ?? "";
   const hasAuditContext = Boolean(
     auditId ||
     website ||
@@ -57,24 +61,6 @@ export default async function ContactPage({
       performanceScore ||
       visibilityScore
   );
-  const emailBodyLines = [
-    "Hi Dean,",
-    "",
-    "I would like to discuss a project.",
-    auditId ? `Audit ID: ${auditId}` : "",
-    website ? `Website checked: ${website}` : "",
-    business ? `Business name: ${business}` : "",
-    location ? `Location: ${location}` : "",
-    conversionScore ? `Conversion score: ${conversionScore}/100` : "",
-    performanceScore ? `Performance score: ${performanceScore}/100` : "",
-    visibilityScore ? `Visibility score: ${visibilityScore}/100` : "",
-    "",
-    "Project summary:",
-    "",
-  ].filter(Boolean);
-  const emailHref = `mailto:dean@deanlennard.com?subject=${encodeURIComponent(
-    hasAuditContext ? "Website Growth Check Follow-up" : "Project Enquiry"
-  )}&body=${encodeURIComponent(emailBodyLines.join("\n"))}`;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
@@ -302,20 +288,39 @@ export default async function ContactPage({
               className="scroll-mt-28 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6"
             >
               <h2 className="text-xl font-semibold text-stone-50">
-                Send an Email
+                Send a Project Enquiry
               </h2>
               <p className="mt-3 text-sm leading-7 text-stone-300">
-                Prefer email? Send over a brief outline of your project and
-                I&apos;ll respond within 24 hours.
+                Share a few details about your project and I&apos;ll review it
+                personally, then come back with the most practical next step.
               </p>
               <p className="mt-3 text-sm leading-7 text-stone-300">
-                For now, email is the best option if you want to send project
-                details without booking a call first.
+                This now goes through a proper contact form, so your enquiry and
+                any linked audit context are sent straight through without
+                relying on the visitor&apos;s email app.
               </p>
+              {sent ? (
+                <div className="mt-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm leading-7 text-emerald-100">
+                  Your enquiry has been sent. I&apos;ll usually come back within
+                  24 hours.
+                </div>
+              ) : null}
+              {error === "invalid-input" ? (
+                <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+                  Please add your name, a valid email address, and a project
+                  summary before sending the form.
+                </div>
+              ) : null}
+              {error === "send-failed" ? (
+                <div className="mt-4 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+                  The enquiry could not be sent right now. Please try again in a
+                  moment or use LinkedIn if it keeps happening.
+                </div>
+              ) : null}
               {hasAuditContext ? (
                 <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-7 text-stone-200">
                   <p className="font-semibold text-stone-100">
-                    Audit details will be added to the email draft
+                    Audit details will be added to your enquiry automatically
                   </p>
                   {auditId ? (
                     <p className="mt-2">
@@ -367,14 +372,95 @@ export default async function ContactPage({
                   ) : null}
                 </div>
               ) : null}
-              <a
-                href={emailHref}
-                data-audit-id={auditId || undefined}
-                data-audit-intent="send_email"
-                className="mt-5 inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
-              >
-                dean@deanlennard.com
-              </a>
+              <form action="/api/contact" method="post" className="mt-5 grid gap-4">
+                <input type="hidden" name="auditId" value={auditId} />
+                <input type="hidden" name="conversionScore" value={conversionScore} />
+                <input type="hidden" name="performanceScore" value={performanceScore} />
+                <input type="hidden" name="visibilityScore" value={visibilityScore} />
+                <label className="hidden">
+                  <span>Leave this field empty</span>
+                  <input name="faxNumber" type="text" autoComplete="off" tabIndex={-1} />
+                </label>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Name</span>
+                    <input
+                      name="name"
+                      type="text"
+                      required
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Email</span>
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Phone</span>
+                    <input
+                      name="phone"
+                      type="tel"
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Company</span>
+                    <input
+                      name="company"
+                      type="text"
+                      defaultValue={business}
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Website</span>
+                    <input
+                      name="website"
+                      type="text"
+                      defaultValue={website}
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-sm font-semibold text-stone-100">Location</span>
+                    <input
+                      name="location"
+                      type="text"
+                      defaultValue={location}
+                      className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                    />
+                  </label>
+                </div>
+                <label className="space-y-2">
+                  <span className="text-sm font-semibold text-stone-100">Project summary</span>
+                  <textarea
+                    name="message"
+                    rows={7}
+                    required
+                    defaultValue={
+                      hasAuditContext
+                        ? `I would like to discuss my project.\n\nAudit context:\n- Audit ID: ${auditId || "N/A"}\n- Website: ${website || "N/A"}\n- Business: ${business || "N/A"}\n- Location: ${location || "N/A"}\n\nProject summary:\n`
+                        : ""
+                    }
+                    className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-3 text-sm text-stone-100 placeholder:text-stone-400"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-md bg-amber-600 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+                >
+                  Send Enquiry
+                </button>
+              </form>
             </div>
 
             <div className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6">

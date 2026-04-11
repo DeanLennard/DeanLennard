@@ -4,6 +4,7 @@ export async function sendResendEmail(input: {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
   attachments?: Array<{
     fileName: string;
     contentBase64: string;
@@ -24,7 +25,7 @@ export async function sendResendEmail(input: {
     },
     body: JSON.stringify({
       from: settings.resendFromEmail,
-      reply_to: settings.resendReplyToEmail || undefined,
+      reply_to: input.replyTo || settings.resendReplyToEmail || undefined,
       to: [input.to],
       subject: input.subject,
       html: input.html,
