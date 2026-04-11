@@ -137,6 +137,73 @@ export default async function AdminDashboardPage({
     rangePaidInvoices.length > 0
       ? rangePaidInvoices.reduce((sum, invoice) => sum + invoice.total, 0) / rangePaidInvoices.length
       : 0;
+  const leadsNeedingReview = leads.filter((lead) =>
+    ["new", "reviewed", "qualified"].includes(lead.leadStatus)
+  ).length;
+  const invoicesDueSoon = invoices.filter((invoice) => {
+    if (!["sent", "unpaid", "partially_paid", "overdue"].includes(invoice.status)) {
+      return false;
+    }
+
+    const dueAt = new Date(`${invoice.dueDate}T23:59:59Z`).getTime();
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    return dueAt >= now && dueAt <= now + sevenDays;
+  }).length;
+  const recurringSchedulesDueSoon = recurringSchedules.filter((schedule) => {
+    if (schedule.status !== "active") {
+      return false;
+    }
+
+    const nextAt = new Date(`${schedule.nextInvoiceDate}T00:00:00Z`).getTime();
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    return nextAt >= now && nextAt <= now + sevenDays;
+  }).length;
+  const alerts = [
+    {
+      label: "Overdue invoices",
+      count: overdueInvoices,
+      href: "/admin/invoices?status=overdue",
+      tone: overdueInvoices > 0 ? "critical" : "clear",
+      description: "Invoices already past due and needing follow-up.",
+    },
+    {
+      label: "Tasks due today",
+      count: tasksDueToday,
+      href: "/admin/tasks",
+      tone: tasksDueToday > 0 ? "warning" : "clear",
+      description: "Work that should be touched before the day ends.",
+    },
+    {
+      label: "Provider issues",
+      count: failedProviderEvents,
+      href: "/admin/provider-events?status=failed",
+      tone: failedProviderEvents > 0 ? "critical" : "clear",
+      description: "Stripe or GoCardless sync problems needing review.",
+    },
+    {
+      label: "Leads needing review",
+      count: leadsNeedingReview,
+      href: "/admin/leads?status=new",
+      tone: leadsNeedingReview > 0 ? "warning" : "clear",
+      description: "Fresh and in-flight leads still moving through qualification.",
+    },
+    {
+      label: "Invoices due soon",
+      count: invoicesDueSoon,
+      href: "/admin/invoices",
+      tone: invoicesDueSoon > 0 ? "warning" : "clear",
+      description: "Open invoices due within the next seven days.",
+    },
+    {
+      label: "Care-plan billing due",
+      count: recurringSchedulesDueSoon,
+      href: "/admin/recurring-billing",
+      tone: recurringSchedulesDueSoon > 0 ? "warning" : "clear",
+      description: "Recurring schedules with the next invoice date in the next week.",
+    },
+  ];
 
   const summaryCards = [
     {
@@ -377,6 +444,40 @@ export default async function AdminDashboardPage({
             ))}
           </div>
         </article>
+      </section>
+
+      <section className="mt-8 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+              Control centre
+            </p>
+            <p className="mt-2 text-sm leading-7 text-stone-300">
+              Priority alerts and the next actions most likely to unblock revenue, delivery, and follow-up.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {alerts.map((alert) => (
+            <a
+              key={alert.label}
+              href={alert.href}
+              className={`rounded-md border p-4 transition hover:bg-white/8 ${
+                alert.tone === "critical"
+                  ? "border-red-500/30 bg-red-500/10"
+                  : alert.tone === "warning"
+                    ? "border-amber-500/30 bg-amber-500/10"
+                    : "border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)]"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-4">
+                <p className="font-semibold text-stone-100">{alert.label}</p>
+                <span className="text-2xl font-semibold text-stone-50">{alert.count}</span>
+              </div>
+              <p className="mt-2 text-sm leading-7 text-stone-300">{alert.description}</p>
+            </a>
+          ))}
+        </div>
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-4">

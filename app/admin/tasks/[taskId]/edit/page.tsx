@@ -9,6 +9,7 @@ import { requireAdminAuthentication } from "@/lib/admin-auth";
 import { listActivityLogsByEntity } from "@/lib/activity-log";
 import { listClients } from "@/lib/clients-store";
 import { formatDisplayDate, formatDisplayDateTime } from "@/lib/date-format";
+import { listInvoices } from "@/lib/invoices-store";
 import { listProjects } from "@/lib/projects-store";
 import { listTaskChecklistItems } from "@/lib/task-checklists-store";
 import { getTaskById } from "@/lib/tasks-store";
@@ -34,10 +35,11 @@ export default async function EditTaskPage({
 }) {
   await requireAdminAuthentication();
   const { taskId } = await params;
-  const [task, projects, clients, timeEntries, checklistItems, activity] = await Promise.all([
+  const [task, projects, clients, invoices, timeEntries, checklistItems, activity] = await Promise.all([
     getTaskById(taskId),
     listProjects(),
     listClients(),
+    listInvoices(),
     listTimeEntriesByTaskId(taskId),
     listTaskChecklistItems(taskId),
     listActivityLogsByEntity("task", taskId),
@@ -49,6 +51,22 @@ export default async function EditTaskPage({
   const linkedClient =
     (task.customerId ? clients.find((client) => client.clientId === task.customerId) : null) ??
     null;
+  const relevantInvoices = invoices.filter((invoice) => {
+    if (task.customerId && invoice.customerId === task.customerId) {
+      return true;
+    }
+
+    if (task.projectId && invoice.projectId === task.projectId) {
+      return true;
+    }
+
+    return false;
+  });
+  const linkedInvoice =
+    (task.linkedInvoiceId
+      ? relevantInvoices.find((invoice) => invoice.invoiceId === task.linkedInvoiceId) ??
+        invoices.find((invoice) => invoice.invoiceId === task.linkedInvoiceId)
+      : null) ?? null;
   const defaultHourlyRate = linkedClient?.defaultHourlyInternalCost ?? 0;
 
   return (
@@ -85,6 +103,24 @@ export default async function EditTaskPage({
               </select>
             </label>
           </div>
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-stone-100">Linked invoice relevance</span>
+            <select
+              name="linkedInvoiceId"
+              defaultValue={task.linkedInvoiceId || ""}
+              className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100"
+            >
+              <option value="">No linked invoice</option>
+              {relevantInvoices.map((invoice) => (
+                <option key={invoice.invoiceId} value={invoice.invoiceId}>
+                  {invoice.invoiceNumber} | {invoice.status.replaceAll("_", " ")} | {invoice.currency} {invoice.total.toFixed(2)}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs leading-6 text-stone-400">
+              Link this task to the most relevant invoice so delivery work has billing context.
+            </p>
+          </label>
           <label className="space-y-2">
             <span className="text-sm font-semibold text-stone-100">Task title</span>
             <input name="title" type="text" required defaultValue={task.title} className="w-full rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-3 text-sm text-stone-100" />
@@ -193,6 +229,20 @@ export default async function EditTaskPage({
 
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">Task activity</p>
+          {linkedInvoice ? (
+            <div className="mt-6 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4 text-sm leading-7 text-stone-300">
+              <p className="font-semibold text-stone-100">Linked invoice relevance</p>
+              <p className="mt-2">
+                {linkedInvoice.invoiceNumber} | {linkedInvoice.status.replaceAll("_", " ")}
+              </p>
+              <Link
+                href={`/admin/invoices/${linkedInvoice.invoiceId}`}
+                className="mt-3 inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+              >
+                Open linked invoice
+              </Link>
+            </div>
+          ) : null}
           <div className="mt-6 space-y-4">
             {activity.length > 0 ? (
               activity.map((entry) => (

@@ -16,6 +16,7 @@ import { listProjectsByClientId } from "@/lib/projects-store";
 import { listRecurringInvoiceSchedules } from "@/lib/recurring-billing-store";
 import { listQuotes } from "@/lib/quotes-store";
 import { listRepeatingTaskTemplates } from "@/lib/repeating-task-templates-store";
+import { listTasks } from "@/lib/tasks-store";
 import { listPortalUsersByClientId } from "@/lib/portal-users";
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default async function ClientDetailPage({
   searchParams,
 }: {
   params: Promise<{ clientId: string }>;
-  searchParams: Promise<{ error?: string | string[] }>;
+  searchParams: Promise<{ error?: string | string[]; tab?: string | string[] }>;
 }) {
   await requireAdminAuthentication();
 
@@ -40,6 +41,9 @@ export default async function ClientDetailPage({
   const error = Array.isArray(resolvedSearchParams.error)
     ? resolvedSearchParams.error[0] ?? ""
     : resolvedSearchParams.error ?? "";
+  const tabParam = Array.isArray(resolvedSearchParams.tab)
+    ? resolvedSearchParams.tab[0] ?? "overview"
+    : resolvedSearchParams.tab ?? "overview";
   const client = await getClientById(clientId);
 
   if (!client) {
@@ -49,7 +53,7 @@ export default async function ClientDetailPage({
   const sourceAudit = client.sourceAuditId
     ? await getAuditById(client.sourceAuditId)
     : null;
-  const [notesPage, activityPage, projects, quotes, invoices, recurringSchedules, repeatingTemplates, portalUsers] = await Promise.all([
+  const [notesPage, activityPage, projects, quotes, invoices, recurringSchedules, repeatingTemplates, portalUsers, allTasks] = await Promise.all([
     listCustomerNotesPage(client.clientId, { offset: 0, limit: 10 }),
     listActivityLogsByEntityPage("client", client.clientId, { offset: 0, limit: 10 }),
     listProjectsByClientId(client.clientId),
@@ -58,9 +62,22 @@ export default async function ClientDetailPage({
     listRecurringInvoiceSchedules({ customerId: client.clientId }),
     listRepeatingTaskTemplates({ customerId: client.clientId }),
     listPortalUsersByClientId(client.clientId),
+    listTasks(),
   ]);
   const clientQuotes = quotes.filter((quote) => quote.customerId === client.clientId);
+  const clientTasks = allTasks.filter((task) => task.customerId === client.clientId);
   const outstandingInvoiceTotal = invoices.reduce((sum, invoice) => sum + invoice.balanceDue, 0);
+  const activeTab = [
+    "overview",
+    "billing",
+    "delivery",
+    "portal",
+    "notes",
+    "timeline",
+  ].includes(tabParam)
+    ? tabParam
+    : "overview";
+  const tabHref = (tab: string) => `/admin/clients/${client.clientId}?tab=${tab}`;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
@@ -126,17 +143,22 @@ export default async function ClientDetailPage({
             ["notes", "Notes"],
             ["timeline", "Timeline"],
           ].map(([id, label]) => (
-            <a
+            <Link
               key={id}
-              href={`#${id}`}
-              className="inline-flex items-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              href={tabHref(id === "financial" ? "billing" : id)}
+              className={`inline-flex items-center rounded-md border px-4 py-2 text-sm font-semibold transition ${
+                activeTab === (id === "financial" ? "billing" : id)
+                  ? "border-amber-500/40 bg-amber-500/10 text-amber-200"
+                  : "border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] text-stone-100 hover:bg-white/8"
+              }`}
             >
               {label}
-            </a>
+            </Link>
           ))}
         </div>
       </section>
 
+      {activeTab === "overview" ? (
       <section id="overview" className="mt-8 grid gap-6 md:grid-cols-4">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-xs font-semibold tracking-[0.18em] text-amber-400 uppercase">
@@ -165,7 +187,9 @@ export default async function ClientDetailPage({
           </p>
         </article>
       </section>
+      ) : null}
 
+      {activeTab === "overview" ? (
       <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
@@ -238,8 +262,10 @@ export default async function ClientDetailPage({
           )}
         </article>
       </section>
+      ) : null}
 
-      <section id="delivery" className="mt-8 grid gap-6 lg:grid-cols-3">
+      {activeTab === "delivery" ? (
+      <section id="delivery" className="mt-8 grid gap-6 lg:grid-cols-2">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Linked projects
@@ -270,7 +296,6 @@ export default async function ClientDetailPage({
             </p>
           )}
         </article>
-
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Linked quotes
@@ -301,6 +326,11 @@ export default async function ClientDetailPage({
             </p>
           )}
         </article>
+      </section>
+      ) : null}
+
+      {activeTab === "delivery" ? (
+      <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Linked invoices
@@ -334,8 +364,40 @@ export default async function ClientDetailPage({
             </p>
           )}
         </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Linked tasks
+          </p>
+          {clientTasks.length > 0 ? (
+            <ul className="mt-6 space-y-4 text-sm leading-7 text-stone-300">
+              {clientTasks.slice(0, 12).map((task) => (
+                <li
+                  key={task.taskId}
+                  className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4"
+                >
+                  <p className="font-semibold text-stone-100">{task.title}</p>
+                  <p className="mt-1">
+                    {task.taskKey} | {task.status.replaceAll("_", " ")} | {task.priority}
+                  </p>
+                  <Link
+                    href={`/admin/tasks/${task.taskId}/edit`}
+                    className="mt-3 inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+                  >
+                    Open task
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-6 text-sm leading-7 text-stone-300">
+              No tasks are linked to this client yet.
+            </p>
+          )}
+        </article>
       </section>
+      ) : null}
 
+      {activeTab === "billing" ? (
       <section id="financial" className="mt-8 grid gap-6 lg:grid-cols-2">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
@@ -367,6 +429,26 @@ export default async function ClientDetailPage({
         </article>
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Provider billing state
+          </p>
+          <div className="mt-6 space-y-3 text-sm leading-7 text-stone-300">
+            <p>Stripe customer: {client.stripeCustomerId || "Not linked"}</p>
+            <p>GoCardless customer: {client.gocardlessCustomerId || "Not linked"}</p>
+            <p>GoCardless mandate: {client.gocardlessMandateId || "Not linked"}</p>
+            <p>Outstanding balance: {formatMoney(outstandingInvoiceTotal, client.defaultCurrency)}</p>
+            <p>Open invoices: {invoices.filter((invoice) => invoice.balanceDue > 0).length}</p>
+          </div>
+          <div className="mt-6">
+            <Link
+              href="/admin/provider-events"
+              className="inline-flex font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
+            >
+              Open provider event log
+            </Link>
+          </div>
+        </article>
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6 lg:col-span-2">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
             Repeating maintenance templates
           </p>
           {repeatingTemplates.length > 0 ? (
@@ -391,7 +473,9 @@ export default async function ClientDetailPage({
           )}
         </article>
       </section>
+      ) : null}
 
+      {activeTab === "portal" ? (
       <section id="portal" className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
@@ -458,8 +542,10 @@ export default async function ClientDetailPage({
           )}
         </article>
       </section>
+      ) : null}
 
-      <section id="notes" className="mt-8 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+      {activeTab === "notes" ? (
+      <section id="notes" className="mt-8">
         <div id="timeline">
           <AdminClientHistoryFeed
             clientId={client.clientId}
@@ -476,7 +562,11 @@ export default async function ClientDetailPage({
             composerAction={`/api/admin/clients/${client.clientId}/notes`}
           />
         </div>
+      </section>
+      ) : null}
 
+      {activeTab === "timeline" ? (
+      <section id="timeline" className="mt-8">
         <AdminClientHistoryFeed
           clientId={client.clientId}
           type="timeline"
@@ -491,6 +581,7 @@ export default async function ClientDetailPage({
           initialHasMore={activityPage.hasMore}
         />
       </section>
+      ) : null}
     </main>
   );
 }

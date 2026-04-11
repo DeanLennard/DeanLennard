@@ -14,6 +14,7 @@ export type TaskRecord = {
   sortOrder: number;
   projectId?: string;
   customerId?: string;
+  linkedInvoiceId?: string;
   title: string;
   description?: string;
   internalNotes?: string;
@@ -153,6 +154,7 @@ function normalizeTaskRecord(
     ...plainRecord,
     taskKey: plainRecord.taskKey ?? "DL-PENDING",
     sortOrder: typeof plainRecord.sortOrder === "number" ? plainRecord.sortOrder : 0,
+    linkedInvoiceId: plainRecord.linkedInvoiceId || undefined,
     status: plainRecord.status ?? "todo",
     priority: plainRecord.priority ?? "medium",
     actualMinutes: plainRecord.actualMinutes ?? 0,
@@ -212,6 +214,7 @@ async function getNextTaskSortOrder(status: TaskStatus) {
 export async function createTask(input: {
   projectId?: string;
   customerId?: string;
+  linkedInvoiceId?: string;
   title: string;
   description?: string;
   internalNotes?: string;
@@ -242,6 +245,7 @@ export async function createTask(input: {
     taskKey,
     projectId: input.projectId || undefined,
     customerId: resolvedCustomerId,
+    linkedInvoiceId: input.linkedInvoiceId || undefined,
     title: input.title.trim(),
     description: input.description?.trim() || undefined,
     internalNotes: input.internalNotes?.trim() || undefined,
@@ -269,6 +273,7 @@ export async function createTask(input: {
     metadata: {
       projectId: record.projectId ?? null,
       customerId: record.customerId ?? null,
+      linkedInvoiceId: record.linkedInvoiceId ?? null,
       status: record.status,
     },
   });
@@ -413,6 +418,7 @@ export async function updateTask(
   input: {
     projectId?: string;
     customerId?: string;
+    linkedInvoiceId?: string;
     title: string;
     description?: string;
     internalNotes?: string;
@@ -451,6 +457,7 @@ export async function updateTask(
       $set: {
         projectId: input.projectId || undefined,
         customerId: resolvedCustomerId,
+        linkedInvoiceId: input.linkedInvoiceId || undefined,
         title: input.title.trim(),
         description: input.description?.trim() || undefined,
         internalNotes: input.internalNotes?.trim() || undefined,
@@ -483,6 +490,7 @@ export async function updateTask(
       description: `Task ${input.title.trim()} updated.`,
       metadata: {
         taskId,
+        linkedInvoiceId: input.linkedInvoiceId ?? null,
       },
     });
   }

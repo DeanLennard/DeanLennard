@@ -94,8 +94,13 @@ export default async function InvoiceDetailPage({
           The invoice email could not be sent. Check Resend settings and the generated PDF.
         </div>
       ) : null}
+      {error === "duplicate-failed" ? (
+        <div className="mt-8 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
+          The invoice could not be duplicated. Please try again.
+        </div>
+      ) : null}
       {error &&
-      !["invalid-status", "invalid-payment", "missing-email", "email-failed"].includes(error) ? (
+      !["invalid-status", "invalid-payment", "missing-email", "email-failed", "duplicate-failed"].includes(error) ? (
         <div className="mt-8 rounded-md border border-red-500/30 bg-red-500/10 p-4 text-sm leading-7 text-red-100">
           {decodeURIComponent(error)}
         </div>
@@ -129,6 +134,14 @@ export default async function InvoiceDetailPage({
             >
               Edit Invoice
             </Link>
+            <form action={`/api/admin/invoices/${invoice.invoiceId}/duplicate`} method="post">
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+              >
+                Duplicate Invoice
+              </button>
+            </form>
             <form action={`/api/admin/invoices/${invoice.invoiceId}/pdf`} method="post">
               <button
                 type="submit"

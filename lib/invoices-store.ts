@@ -531,6 +531,33 @@ export async function createInvoiceFromQuote(quoteId: string) {
   });
 }
 
+export async function duplicateInvoice(invoiceId: string) {
+  const existing = await getInvoiceById(invoiceId);
+
+  if (!existing) {
+    throw new Error("Invoice not found.");
+  }
+
+  return createInvoice({
+    customerId: existing.customerId,
+    projectId: existing.projectId,
+    sourceQuoteId: existing.sourceQuoteId,
+    dueDate: existing.dueDate,
+    currency: existing.currency,
+    taxRate: existing.taxRate,
+    paymentMethod: existing.paymentMethod,
+    notes: existing.notes,
+    footerNotes: existing.footerNotes,
+    lineItems: existing.lineItems.map((item) => ({
+      title: item.title,
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      taxRate: item.taxRate,
+    })),
+  });
+}
+
 export async function updateInvoice(
   invoiceId: string,
   input: {

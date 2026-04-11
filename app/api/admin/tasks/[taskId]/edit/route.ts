@@ -40,6 +40,7 @@ export async function POST(
   await updateTask(taskId, {
     projectId: String(formData.get("projectId") ?? "").trim() || undefined,
     customerId: String(formData.get("customerId") ?? "").trim() || undefined,
+    linkedInvoiceId: String(formData.get("linkedInvoiceId") ?? "").trim() || undefined,
     title,
     description: String(formData.get("description") ?? ""),
     internalNotes: String(formData.get("internalNotes") ?? ""),

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { listActivityLogsByEntity } from "@/lib/activity-log";
 import { getClientById } from "@/lib/clients-store";
 import { formatDisplayDate } from "@/lib/date-format";
 import { listInvoicesByClientId } from "@/lib/invoices-store";
@@ -23,10 +24,11 @@ export const metadata: Metadata = {
 export default async function PortalHomePage() {
   const portalUser = await requirePortalAuthentication();
   const client = await getClientById(portalUser.clientId);
-  const [invoices, projects, quotes] = await Promise.all([
+  const [invoices, projects, quotes, activity] = await Promise.all([
     listInvoicesByClientId(portalUser.clientId),
     listProjectsByClientId(portalUser.clientId),
     listQuotes(portalUser.clientId),
+    listActivityLogsByEntity("client", portalUser.clientId),
   ]);
   const clientQuotes = quotes.filter((quote) => quote.customerId === portalUser.clientId);
   const openInvoices = invoices.filter((invoice) =>
@@ -55,6 +57,8 @@ export default async function PortalHomePage() {
         href: toPublicUrl(quote.pdfPath!),
       })),
   ].slice(0, 6);
+  const recentTimeline = activity.slice(0, 8);
+  const completedProjects = projects.filter((project) => project.status === "completed").length;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-6 py-16 lg:px-8">
@@ -93,6 +97,13 @@ export default async function PortalHomePage() {
         <PortalCard label="Open invoices" value={String(openInvoices.length)} />
         <PortalCard label="Active projects" value={String(activeProjects.length)} />
         <PortalCard label="Documents" value={String(recentDocuments.length)} />
+      </section>
+
+      <section className="mt-8 grid gap-6 lg:grid-cols-4">
+        <PortalCard label="Completed projects" value={String(completedProjects)} />
+        <PortalCard label="Outstanding balance" value={formatMoney(openInvoices.reduce((sum, invoice) => sum + invoice.balanceDue, 0))} />
+        <PortalCard label="Pending quotes" value={String(clientQuotes.filter((quote) => ["draft", "sent"].includes(quote.status)).length)} />
+        <PortalCard label="Timeline items" value={String(recentTimeline.length)} />
       </section>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr_0.9fr]">
@@ -180,10 +191,10 @@ export default async function PortalHomePage() {
         </article>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
         <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
           <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
-            Recent documents
+            Download centre
           </p>
           <div className="mt-6 space-y-4">
             {recentDocuments.length > 0 ? (
@@ -201,6 +212,34 @@ export default async function PortalHomePage() {
             ) : (
               <p className="text-sm leading-7 text-stone-300">
                 No generated documents are available yet.
+              </p>
+            )}
+          </div>
+        </article>
+
+        <article className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-6">
+          <p className="text-sm font-semibold tracking-[0.24em] text-amber-400 uppercase">
+            Account timeline
+          </p>
+          <div className="mt-6 space-y-4">
+            {recentTimeline.length > 0 ? (
+              recentTimeline.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-4"
+                >
+                  <p className="font-semibold text-stone-100">{entry.description}</p>
+                  <p className="mt-1 text-sm leading-7 text-stone-300">
+                    {entry.actionType.replaceAll("_", " ")}
+                  </p>
+                  <p className="mt-1 text-sm leading-7 text-stone-400">
+                    {formatDisplayDate(entry.timestamp)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm leading-7 text-stone-300">
+                No account timeline items are available yet.
               </p>
             )}
           </div>
