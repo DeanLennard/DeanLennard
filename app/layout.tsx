@@ -6,7 +6,6 @@ import Script from "next/script";
 import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { shouldDisableAnalyticsForAdminSession } from "@/lib/admin-auth";
 import {
   GA_MEASUREMENT_ID,
   POSTHOG_HOST,
@@ -44,9 +43,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const disableAnalyticsForAdmin = await shouldDisableAnalyticsForAdminSession();
-  const shouldLoadGa = isAnalyticsEnabled && !disableAnalyticsForAdmin;
-  const shouldLoadPostHog = isPostHogEnabled && !disableAnalyticsForAdmin;
+  const shouldLoadGa = isAnalyticsEnabled;
+  const shouldLoadPostHog = isPostHogEnabled;
 
   return (
     <html
@@ -150,11 +148,9 @@ export default async function RootLayout({
         </a>
         <div className="relative flex min-h-full flex-col">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,_rgba(31,41,55,1)_0%,_rgba(17,24,39,1)_100%)]" />
-          {!disableAnalyticsForAdmin ? (
-            <Suspense fallback={null}>
-              <Analytics />
-            </Suspense>
-          ) : null}
+          <Suspense fallback={null}>
+            <Analytics />
+          </Suspense>
           <SiteHeader />
           <div id="page-content" tabIndex={-1} className="flex-1">
             {children}

@@ -49,6 +49,10 @@ function isServicePage(pathname: string) {
   return !["/", "/about", "/contact", "/projects", "/services"].includes(pathname);
 }
 
+function isAnalyticsExcludedPath(pathname: string) {
+  return pathname.startsWith("/admin") || pathname.startsWith("/portal");
+}
+
 function getAuditIdFromCurrentLocation() {
   return new URL(window.location.href).searchParams.get("auditId");
 }
@@ -87,6 +91,10 @@ export function Analytics() {
   const previousPathRef = useRef<string>("");
 
   useEffect(() => {
+    if (isAnalyticsExcludedPath(pathname)) {
+      return;
+    }
+
     const path = getPathWithSearch(pathname, searchParams);
 
     if (previousPathRef.current === path) {
@@ -104,6 +112,10 @@ export function Analytics() {
   }, [pathname, searchParams]);
 
   useEffect(() => {
+    if (isAnalyticsExcludedPath(pathname)) {
+      return;
+    }
+
     function handleClick(event: MouseEvent) {
       const target = event.target;
       if (!(target instanceof Element)) {
