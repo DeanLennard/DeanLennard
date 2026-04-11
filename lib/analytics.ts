@@ -67,10 +67,17 @@ export function trackPageView(path: string, title?: string) {
     page_location: window.location.href,
   });
 
+  const posthogPageviewParams = sanitizeParams({
+    $current_url: window.location.href,
+    pathname: path,
+    page_title: title,
+  });
+
   if (isAnalyticsEnabled && window.gtag) {
     window.gtag("event", "page_view", params);
   }
 
+  capturePostHogEvent("$pageview", posthogPageviewParams);
   capturePostHogEvent("page_view", params);
 }
 
