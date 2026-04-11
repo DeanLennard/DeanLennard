@@ -5,6 +5,7 @@ const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME ?? "deanlennard";
 
 declare global {
   var __mongoClientPromise__: Promise<MongoClient> | undefined;
+  var __mongoClient__: MongoClient | undefined;
 }
 
 function getClientPromise() {
@@ -12,13 +13,19 @@ function getClientPromise() {
     throw new Error("Missing MONGODB_URI environment variable.");
   }
 
-  const clientPromise =
-    global.__mongoClientPromise__ ??
-    new MongoClient(MONGODB_URI).connect();
-
-  if (process.env.NODE_ENV !== "production") {
-    global.__mongoClientPromise__ = clientPromise;
+  if (!global.__mongoClient__) {
+    global.__mongoClient__ = new MongoClient(MONGODB_URI, {
+      maxPoolSize: 10,
+      minPoolSize: 0,
+      maxIdleTimeMS: 60_000,
+      serverSelectionTimeoutMS: 5_000,
+    });
   }
+
+  const clientPromise =
+    global.__mongoClientPromise__ ?? global.__mongoClient__.connect();
+
+  global.__mongoClientPromise__ = clientPromise;
 
   return clientPromise;
 }
