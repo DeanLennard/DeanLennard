@@ -331,6 +331,18 @@ export default function WebsiteForSmallBusinessStaffordPage() {
             >
               Website Growth Check
             </Link>
+            <Link
+              href="/website-audit-tool-uk"
+              className="underline decoration-amber-500/60 underline-offset-4"
+            >
+              Website audit tool UK
+            </Link>
+            <Link
+              href="/website-developer-for-trades-stafford"
+              className="underline decoration-amber-500/60 underline-offset-4"
+            >
+              Website developer for trades in Stafford
+            </Link>
           </div>
         </div>
       </section>

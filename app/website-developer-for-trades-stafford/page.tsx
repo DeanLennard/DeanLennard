@@ -370,6 +370,18 @@ export default function WebsiteDeveloperForTradesStaffordPage() {
               Small Business Website Stafford
             </Link>
             <Link
+              href="/website-audit-tool-uk"
+              className="underline decoration-amber-500/60 underline-offset-4"
+            >
+              Website audit tool UK
+            </Link>
+            <Link
+              href="/why-my-website-isnt-getting-enquiries"
+              className="underline decoration-amber-500/60 underline-offset-4"
+            >
+              Why your website isn't getting enquiries
+            </Link>
+            <Link
               href="/"
               className="underline decoration-amber-500/60 underline-offset-4"
             >

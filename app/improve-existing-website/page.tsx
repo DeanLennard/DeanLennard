@@ -270,15 +270,29 @@ export default function ImproveExistingWebsitePage() {
               Book a Call
             </Link>
           </div>
-          <div className="mt-6">
-            <Link
-              href="/website-growth-check"
+            <div className="mt-6">
+              <Link
+                href="/website-growth-check"
               className="text-sm font-semibold text-stone-100 underline decoration-amber-500/60 underline-offset-4"
             >
-              Try the Website Growth Check
-            </Link>
+                Try the Website Growth Check
+              </Link>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 text-sm text-stone-300 sm:flex-row sm:flex-wrap sm:gap-6">
+              <Link
+                href="/website-audit-tool-uk"
+                className="underline decoration-amber-500/60 underline-offset-4"
+              >
+                Website audit tool UK
+              </Link>
+              <Link
+                href="/why-my-website-isnt-getting-enquiries"
+                className="underline decoration-amber-500/60 underline-offset-4"
+              >
+                Why your website isn't getting enquiries
+              </Link>
+            </div>
           </div>
-        </div>
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">

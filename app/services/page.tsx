@@ -290,6 +290,55 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      <section className="mt-10 rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] p-8">
+        <SectionHeading
+          eyebrow="Useful Starting Points"
+          title="Not every visitor is ready for the same next step."
+          description="These pages help different kinds of visitors diagnose problems, explore fit, and move toward the right service."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              href: "/why-my-website-isnt-getting-enquiries",
+              title: "Why your website isn't getting enquiries",
+              description:
+                "A problem-aware page for businesses getting traffic but not enough leads.",
+            },
+            {
+              href: "/website-audit-tool-uk",
+              title: "Free website audit tool UK",
+              description:
+                "Run a practical audit focused on conversion, performance, and visibility.",
+            },
+            {
+              href: "/website-for-small-business-stafford",
+              title: "Websites for small businesses in Stafford",
+              description:
+                "A local commercial page for small business owners who need more enquiries.",
+            },
+            {
+              href: "/website-developer-for-trades-stafford",
+              title: "Website developer for trades in Stafford",
+              description:
+                "Built for plumbers, electricians, builders, and other local trade businesses.",
+            },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel-strong)] p-6 transition hover:bg-white/6"
+            >
+              <p className="text-base font-semibold text-stone-100">
+                {item.title}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-stone-300">
+                {item.description}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="mt-10 rounded-md border border-amber-500/30 bg-[color:var(--color-accent-soft)] p-8 lg:p-10">
         <SectionHeading
           eyebrow="Recent Outcomes"
