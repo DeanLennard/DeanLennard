@@ -144,6 +144,13 @@ export function SiteHeader() {
             <MenuIcon open={isMobileMenuOpen} />
           </button>
           <Link
+            href="/portal/login"
+            className="inline-flex items-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+            onClick={closeMobileMenu}
+          >
+            Portal Login
+          </Link>
+          <Link
             href="/contact#book-call"
             className="inline-flex items-center rounded-md border border-amber-500/50 bg-amber-600 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
             onClick={closeMobileMenu}
@@ -169,12 +176,20 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          href="/contact#book-call"
-          className="order-3 hidden items-center rounded-md border border-amber-500/50 bg-amber-600 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-500 md:inline-flex"
-        >
-          Book a Call
-        </Link>
+        <div className="order-3 hidden items-center gap-3 md:flex">
+          <Link
+            href="/portal/login"
+            className="inline-flex items-center rounded-md border border-[color:var(--color-border)] bg-[color:var(--color-panel)] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/8"
+          >
+            Portal Login
+          </Link>
+          <Link
+            href="/contact#book-call"
+            className="inline-flex items-center rounded-md border border-amber-500/50 bg-amber-600 px-4 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-500"
+          >
+            Book a Call
+          </Link>
+        </div>
       </div>
     </header>
   );
