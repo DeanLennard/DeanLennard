@@ -66,6 +66,26 @@ const routes = [
     changeFrequency: "monthly" as const,
   },
   {
+    path: "/website-for-small-business-stafford",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/website-developer-for-trades-stafford",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/why-my-website-isnt-getting-enquiries",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
+    path: "/website-audit-tool-uk",
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  },
+  {
     path: "/web-designer-stoke-on-trent",
     priority: 0.8,
     changeFrequency: "monthly" as const,
