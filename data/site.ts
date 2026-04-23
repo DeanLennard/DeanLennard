@@ -208,7 +208,7 @@ export const projectCaseStudies: readonly ProjectCaseStudy[] = [
     category: "Technical Delivery & Programme Management - Telecoms Platform",
     imageLabel: "Virgin Media O2 delivery programme",
     imageSrc: "/virgin-media-o2.jpg",
-    projectUrl: "https://www.virginmedia.com",
+    projectUrl: "https://www.virginmedia.com/broadband",
     projectLinkLabel: "Visit Website",
     overview:
       "A large-scale technical delivery programme involving platform migration, web application redesign, and multi-team coordination across a complex telecoms environment.",
