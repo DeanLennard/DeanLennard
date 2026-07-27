@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { absoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { addTimeEntry } from "@/lib/time-entries-store";
-
-function absoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(
   request: Request,

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getClientById } from "@/lib/clients-store";
 import { saveGeneratedDocument } from "@/lib/document-storage";
@@ -9,10 +11,6 @@ import {
   updateInvoiceDocumentPath,
 } from "@/lib/invoices-store";
 import { getAppSettings } from "@/lib/settings-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(
   request: Request,

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { getPackageTemplateById } from "@/lib/package-templates-store";
 import {
@@ -11,10 +13,6 @@ import {
 import { getTaskTemplateById } from "@/lib/task-templates-store";
 import { createRepeatingTaskTemplate } from "@/lib/repeating-task-templates-store";
 import { createTask } from "@/lib/tasks-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {

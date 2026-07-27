@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   type CarePlanStatus,
   type ClientStatus,
   updateClient,
 } from "@/lib/clients-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 const validStatuses: ClientStatus[] = ["lead", "active", "inactive", "archived"];
 const validCarePlanStatuses: CarePlanStatus[] = ["none", "active", "paused", "cancelled"];

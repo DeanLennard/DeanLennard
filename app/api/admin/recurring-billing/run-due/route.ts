@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { runDueRecurringInvoices } from "@/lib/recurring-billing-store";
 import { runDueRepeatingTaskTemplates } from "@/lib/repeating-task-templates-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {

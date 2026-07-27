@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { getAuthenticatedAdminUser } from "@/lib/admin-auth";
 import { saveAppSettings } from "@/lib/settings-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 function asNumber(value: FormDataEntryValue | null, fallback: number) {
   const parsed = Number(value ?? "");

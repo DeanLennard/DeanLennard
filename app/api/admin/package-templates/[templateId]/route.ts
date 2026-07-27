@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { updatePackageTemplate } from "@/lib/package-templates-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 function parseJsonArray<T>(rawValue: FormDataEntryValue | null): T[] {
   const raw = String(rawValue ?? "").trim();

@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { type TaskPriority, type TaskStatus, updateTask } from "@/lib/tasks-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 const validStatuses: TaskStatus[] = ["todo", "in_progress", "review", "done"];
 const validPriorities: TaskPriority[] = ["low", "medium", "high", "urgent"];

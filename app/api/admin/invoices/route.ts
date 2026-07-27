@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createInvoice, createInvoiceFromQuote } from "@/lib/invoices-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 function getLineItems(formData: FormData) {
   const titles = formData.getAll("lineItemTitle");

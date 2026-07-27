@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createTask, type TaskPriority, type TaskStatus } from "@/lib/tasks-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   getAuditById,
@@ -27,10 +29,6 @@ const validLostReasons = new Set<LeadLostReason>([
   "spam",
   "other",
 ]);
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(
   request: Request,

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   type ProjectBillingType,
@@ -7,10 +9,6 @@ import {
   type ProjectStatus,
   updateProject,
 } from "@/lib/projects-store";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 const validStatuses: ProjectStatus[] = [
   "planned",

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   createProjectCost,
@@ -24,10 +26,6 @@ const validRecurringIntervals: ProjectCostRecurringInterval[] = [
   "quarterly",
   "yearly",
 ];
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(
   request: Request,

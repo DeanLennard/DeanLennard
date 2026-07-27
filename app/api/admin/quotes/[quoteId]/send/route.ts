@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { NextResponse } from "next/server";
 
+import { toAbsoluteRedirect } from "@/lib/absolute-redirect";
+
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { createActivityLog } from "@/lib/activity-log";
 import { getClientById } from "@/lib/clients-store";
@@ -16,10 +18,6 @@ import { buildPublicQuoteUrl } from "@/lib/public-quote-links";
 import { toPublicUrl } from "@/lib/public-site";
 import { getQuoteById, updateQuoteStatus } from "@/lib/quotes-store";
 import { sendResendEmail } from "@/lib/resend-email";
-
-function toAbsoluteRedirect(request: Request, path: string) {
-  return new URL(path, request.url);
-}
 
 export async function POST(
   request: Request,
